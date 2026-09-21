@@ -1,0 +1,121 @@
+# ============================================================
+#  HabilidadesPlus - config.yml
+#  Plugin de RPG customizado inspirado no mcMMO
+#  Minecraft 26.2 (Chaos Cubed) / Spigot / Java 26
+# ============================================================
+
+geral:
+  # Intervalo (em ticks, 20 ticks = 1 segundo) entre atualizacoes da action bar.
+  # O XP ganho e acumulado e mostrado em lote nesse intervalo, para nao "piscar"
+  # uma mensagem a cada bloco quebrado.
+  intervalo-actionbar-ticks: 10
+  # Multiplicador global aplicado a todo XP ganho (2.0 = dobro de XP, 0.5 = metade)
+  multiplicador-xp-global: 1.0
+  # Mundos onde o plugin fica totalmente desativado (sem ganho de XP)
+  mundos-desabilitados: []
+
+nivelamento:
+  # Curva usada para calcular quanto XP e necessario para o proximo nivel.
+  # LINEAR:      xp_necessario = xp-base + (nivel-atual * multiplicador)
+  # EXPONENCIAL: xp_necessario = xp-base * (nivel-atual + 1) ^ expoente
+  curva: LINEAR
+  xp-base: 100
+  multiplicador: 45
+  expoente: 1.8
+  nivel-maximo: 100
+
+# ------------------------------------------------------------
+# Fontes de XP por habilidade. Adicione/edite blocos e valores
+# livremente. Um bloco ausente da lista simplesmente nao da XP.
+# ------------------------------------------------------------
+xp:
+
+  mineracao:
+    STONE: 10
+    DEEPSLATE: 12
+    COAL_ORE: 40
+    DEEPSLATE_COAL_ORE: 45
+    IRON_ORE: 50
+    DEEPSLATE_IRON_ORE: 55
+    GOLD_ORE: 60
+    DEEPSLATE_GOLD_ORE: 65
+    REDSTONE_ORE: 50
+    DEEPSLATE_REDSTONE_ORE: 55
+    LAPIS_ORE: 45
+    DEEPSLATE_LAPIS_ORE: 50
+    DIAMOND_ORE: 100
+    DEEPSLATE_DIAMOND_ORE: 110
+    EMERALD_ORE: 120
+    DEEPSLATE_EMERALD_ORE: 130
+    NETHER_QUARTZ_ORE: 45
+    NETHER_GOLD_ORE: 45
+    ANCIENT_DEBRIS: 150
+
+  escavacao:
+    DIRT: 15
+    GRASS_BLOCK: 15
+    COARSE_DIRT: 15
+    ROOTED_DIRT: 18
+    SAND: 20
+    RED_SAND: 20
+    GRAVEL: 25
+    CLAY: 30
+    SOUL_SAND: 25
+    SOUL_SOIL: 25
+    MYCELIUM: 20
+    PODZOL: 20
+    MUD: 18
+    SNOW_BLOCK: 12
+
+  lenhador:
+    OAK_LOG: 30
+    SPRUCE_LOG: 30
+    BIRCH_LOG: 30
+    JUNGLE_LOG: 35
+    ACACIA_LOG: 35
+    DARK_OAK_LOG: 35
+    MANGROVE_LOG: 35
+    CHERRY_LOG: 35
+    CRIMSON_STEM: 35
+    WARPED_STEM: 35
+
+  ervanismo:
+    WHEAT: 45
+    CARROTS: 30
+    POTATOES: 30
+    BEETROOTS: 35
+    NETHER_WART: 50
+    MELON: 25
+    PUMPKIN: 25
+    SUGAR_CANE: 20
+    CACTUS: 20
+    BAMBOO: 10
+    COCOA: 30
+    SWEET_BERRY_BUSH: 25
+
+  # XP fixo dado por cada peixe/item pescado com sucesso
+  pesca:
+    xp-por-pesca: 100
+
+  combate:
+    xp-por-acerto-espada: 15
+    xp-por-acerto-machado: 18
+    xp-por-acerto-desarmado: 12
+    xp-por-acerto-arco: 20
+    # Se true, acertar OUTROS JOGADORES tambem da XP de combate (PVP).
+    # Por padrao false, para evitar dois jogadores se baterem so para farmar XP.
+    contar-pvp: false
+
+  acrobacia:
+    # XP ganho por dano de queda sobrevivido, multiplicado pelo dano (em corações*2)
+    xp-por-ponto-de-dano-queda: 8
+    # Chance de "rolar" e anular o dano de queda, igual ao Roll do mcMMO original.
+    # chance final = min(chance-role-maxima, nivel-atual * chance-role-por-nivel)
+    chance-role-por-nivel: 0.002
+    chance-role-maxima: 0.4
+
+  domesticacao:
+    xp-por-domesticar: 250
+
+  alquimia:
+    xp-por-pocao-fermentada: 150

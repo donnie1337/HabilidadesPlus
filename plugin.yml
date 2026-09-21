@@ -1,0 +1,20 @@
+name: HabilidadesPlus
+version: '${project.version}'
+main: com.rpgcustom.habilidadesplus.HabilidadesPlus
+api-version: '26.2'
+author: SeuServidor
+description: Plugin de RPG customizado inspirado no mcMMO - XP e nivel na action bar, menu via /mcmmo
+
+commands:
+  mcmmo:
+    description: Abre o menu do HabilidadesPlus
+    usage: /mcmmo [reload]
+    aliases: [cmmo, habilidade, habilidades]
+
+permissions:
+  habilidadesplus.admin:
+    description: Permite recarregar a configuracao do plugin
+    default: op
+  habilidadesplus.use:
+    description: Permite usar o /mcmmo e ganhar XP
+    default: true

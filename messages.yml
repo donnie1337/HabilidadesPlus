@@ -1,0 +1,33 @@
+# ============================================================
+#  HabilidadesPlus - messages.yml
+#  Use '&' para cores. Placeholders disponiveis em cada mensagem
+#  estao indicados entre chaves {assim}.
+# ============================================================
+
+actionbar:
+  # {habilidade} = nome da habilidade, {xp} = xp ganho no lote, {nivel} = nivel atual
+  formato-xp: "&f{habilidade}&7: &a+{xp} XP &7(Nivel: {nivel})"
+  # separador usado quando mais de uma habilidade ganha XP no mesmo lote
+  separador: " &8| "
+
+level-up:
+  titulo: "&a&lSUBIU DE NIVEL!"
+  subtitulo: "&f{habilidade} agora e nivel &e{nivel}&f!"
+  som: ENTITY_PLAYER_LEVELUP
+
+comandos:
+  sem-permissao: "&cVoce nao tem permissao para usar este comando."
+  apenas-jogador: "&cEste comando so pode ser usado por jogadores."
+  reload-sucesso: "&aConfiguracoes do HabilidadesPlus recarregadas com sucesso!"
+
+acrobacia:
+  mensagem-role: "&b&lVoce rolou e absorveu o dano da queda!"
+
+gui:
+  titulo-menu: "&8&lHabilidadesPlus &7- Habilidades"
+  item-nivel: "&7Nivel: &e{nivel}"
+  item-xp: "&7XP: &f{xpAtual} &7/ &f{xpNecessario}"
+  item-progresso: "&7Progresso: {barra} &7{porcentagem}%"
+  item-nivel-maximo: "&6&lNIVEL MAXIMO!"
+  item-poder-nome: "&6&lPoder Total"
+  item-poder-lore: "&7Soma de todos os niveis: &e{poder}"
