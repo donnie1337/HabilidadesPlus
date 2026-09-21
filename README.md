@@ -58,12 +58,13 @@ HabilidadesPlus/
     │   ├── plugin.yml
     │   ├── config.yml       <- XP por bloco/acao, curva de nivel, etc.
     │   └── messages.yml     <- todas as mensagens (action bar, GUI, level up)
-    └── java/com/rpgcustom/mcmmo/
+    └── java/com/rpgcustom/habilidadesplus/
         ├── HabilidadesPlus.java           <- classe principal (onEnable/onDisable)
         ├── SkillType.java           <- enum das 12 habilidades
         ├── data/                    <- perfil do jogador + salvar/carregar YAML
         ├── leveling/                <- calculo de XP necessario por nivel
         ├── xp/XpManager.java        <- ganho de XP, action bar, level up
+        ├── util/                     <- configurações, mensagens e action bar
         ├── gui/                     <- menu do /mcmmo
         ├── commands/MMOCommand.java <- /mcmmo e /mcmmo reload
         └── listeners/               <- um listener por grupo de habilidades
