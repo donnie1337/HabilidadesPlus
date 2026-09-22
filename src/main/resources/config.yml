@@ -129,3 +129,17 @@ xp:
 
   alquimia:
     xp-por-pocao-fermentada: 150
+
+# ------------------------------------------------------------
+# Habilidade especial de Mineracao: Super Breaker
+# Clique direito segurando uma picareta para ativar.
+# A duracao cresce com o nivel de Mineracao e possui um teto configuravel.
+# ------------------------------------------------------------
+mineracao:
+  superbreaker:
+    # Tempo minimo entre ativacoes, contado a partir da ativacao.
+    delay-ativacao-segundos: 30
+    # Duracao = base + (nivel * por-nivel), limitada pela duracao maxima.
+    duracao-base-segundos: 3.0
+    duracao-por-nivel: 0.02
+    duracao-maxima-segundos: 15.0
