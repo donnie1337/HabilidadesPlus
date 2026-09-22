@@ -161,7 +161,7 @@ public final class MMOMenu {
         lore.add("");
         lore.add(category);
         for (SkillType skill : skills) {
-            lore.add("&8• &7" + skill.getDisplayName());
+            lore.add("&8• &7" + skill.getDisplayName() + ": &a" + profile.getData(skill).getLevel());
         }
     }
 
