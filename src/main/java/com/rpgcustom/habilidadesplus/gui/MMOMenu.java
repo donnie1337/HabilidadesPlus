@@ -42,7 +42,7 @@ public final class MMOMenu {
     public static void openSkill(Player player, SkillType skill, DataManager data,
                                  LevelingManager levels, ConfigManager config) {
         MMOMenuHolder holder = new MMOMenuHolder(skill);
-        Inventory inventory = Bukkit.createInventory(holder, 54,
+        Inventory inventory = Bukkit.createInventory(holder, 36,
                 message(config, "gui.titulo-habilidade", Map.of("habilidade", skill.getDisplayName())));
         holder.setInventory(inventory);
         PlayerSkillData current = data.getProfile(player.getUniqueId()).getData(skill);
@@ -50,7 +50,7 @@ public final class MMOMenu {
         for (int index = 0; index < powers.size() && index < SLOTS.length; index++) {
             inventory.setItem(SLOTS[index], powerItem(powers.get(index), skill, current.getLevel(), config));
         }
-        inventory.setItem(45, item(Material.ARROW, config.msg("gui.voltar-nome"),
+        inventory.setItem(31, item(Material.ARROW, config.msg("gui.voltar-nome"),
                 List.of("", config.msg("gui.voltar-lore"))));
         player.openInventory(inventory);
     }
