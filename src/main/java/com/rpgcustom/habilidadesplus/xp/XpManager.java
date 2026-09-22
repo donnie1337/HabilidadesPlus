@@ -9,6 +9,8 @@ import com.rpgcustom.habilidadesplus.util.ActionBarUtil;
 import com.rpgcustom.habilidadesplus.util.ConfigManager;
 import com.rpgcustom.habilidadesplus.util.MessageUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,6 +19,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -140,12 +143,10 @@ public class XpManager {
         );
 
         String somConfigurado = configManager.msg("level-up.som");
-        try {
-            Sound som = Sound.valueOf(somConfigurado);
-            player.playSound(player.getLocation(), som, 1f, 1f);
-        } catch (IllegalArgumentException ignored) {
-            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
-        }
+        String soundKey = somConfigurado.toLowerCase(Locale.ROOT).replace('_', '.');
+        Sound som = Registry.SOUNDS.get(NamespacedKey.minecraft(soundKey));
+        player.playSound(player.getLocation(),
+                som != null ? som : Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
     }
 
     public void clearPlayer(UUID uuid) {
