@@ -44,7 +44,7 @@ public class MMOCommand implements CommandExecutor {
             return true;
         }
 
-        MMOMenu.open(player, dataManager, levelingManager, configManager);
+        MMOMenu.open(player, dataManager, levelingManager);
         return true;
     }
 }

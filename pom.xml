@@ -61,7 +61,7 @@
     </dependencies>
 
     <build>
-        <finalName>${project.name}-${project.version}</finalName>
+        <finalName>habilidadeplus</finalName>
         <defaultGoal>clean package</defaultGoal>
         <resources>
             <resource>

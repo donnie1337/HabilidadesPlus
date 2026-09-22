@@ -32,6 +32,6 @@ jobs:
       - name: Enviar JAR
         uses: actions/upload-artifact@v4
         with:
-          name: HabilidadesPlus
-          path: target/HabilidadesPlus-*.jar
+          name: habilidadeplus
+          path: target/habilidadeplus.jar
           if-no-files-found: error

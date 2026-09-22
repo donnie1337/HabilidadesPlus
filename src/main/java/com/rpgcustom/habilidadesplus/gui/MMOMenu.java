@@ -38,17 +38,8 @@ public final class MMOMenu {
         inv.setItem(45,item(Material.ARROW,"&cVoltar",List.of("","&7Clique para voltar às habilidades."))); player.openInventory(inv);
     }
     public static SkillType skillAtSlot(int slot) {
-        for (int index = 0; index < SKILL_SLOTS.length; index++) {
-            if (SKILL_SLOTS[index] == slot) {
-                return SkillType.values()[index];
-            }
-        }
-        return null;
-    }
-
-    public static SkillType skillAtSlot(int slot) {
-        for (int index = 0; index < SKILL_SLOTS.length; index++) {
-            if (SKILL_SLOTS[index] == slot) {
+        for (int index = 0; index < SLOTS.length; index++) {
+            if (SLOTS[index] == slot) {
                 return SkillType.values()[index];
             }
         }

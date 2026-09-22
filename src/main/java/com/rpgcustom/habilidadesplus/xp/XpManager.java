@@ -8,16 +8,12 @@ import com.rpgcustom.habilidadesplus.leveling.LevelingManager;
 import com.rpgcustom.habilidadesplus.util.ActionBarUtil;
 import com.rpgcustom.habilidadesplus.util.ConfigManager;
 import com.rpgcustom.habilidadesplus.util.MessageUtil;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.time.Duration;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -135,13 +131,11 @@ public class XpManager {
         String tituloTexto = MessageUtil.placeholders(configManager.msg("level-up.titulo"), placeholders);
         String subtituloTexto = MessageUtil.placeholders(configManager.msg("level-up.subtitulo"), placeholders);
 
-        LegacyComponentSerializer serializer = LegacyComponentSerializer.legacyAmpersand();
-        Component titulo = serializer.deserialize(tituloTexto);
-        Component subtitulo = serializer.deserialize(subtituloTexto);
-
-        Title title = Title.title(titulo, subtitulo,
-                Title.Times.times(Duration.ofMillis(250), Duration.ofSeconds(2), Duration.ofMillis(500)));
-        player.showTitle(title);
+        player.sendTitle(
+                MessageUtil.colorize(tituloTexto),
+                MessageUtil.colorize(subtituloTexto),
+                5, 40, 10
+        );
 
         String somConfigurado = configManager.msg("level-up.som");
         try {

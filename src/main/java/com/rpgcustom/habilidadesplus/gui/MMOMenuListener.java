@@ -1,8 +1,8 @@
 package com.rpgcustom.habilidadesplus.gui;
 
 import com.rpgcustom.habilidadesplus.data.DataManager;
-import com.rpgcustom.habilidadesplus.skills.SkillType;
-import com.rpgcustom.habilidadesplus.xp.LevelingManager;
+import com.rpgcustom.habilidadesplus.SkillType;
+import com.rpgcustom.habilidadesplus.leveling.LevelingManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
