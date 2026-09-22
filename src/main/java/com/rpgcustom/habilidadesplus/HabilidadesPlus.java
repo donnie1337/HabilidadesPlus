@@ -3,6 +3,7 @@ package com.rpgcustom.habilidadesplus;
 import com.rpgcustom.habilidadesplus.abilities.SuperBreakerManager;
 import com.rpgcustom.habilidadesplus.abilities.PrecisionMiningManager;
 import com.rpgcustom.habilidadesplus.abilities.VeioFartoManager;
+import com.rpgcustom.habilidadesplus.commands.LuzCommand;
 import com.rpgcustom.habilidadesplus.commands.MMOCommand;
 import com.rpgcustom.habilidadesplus.data.DataManager;
 import com.rpgcustom.habilidadesplus.gui.MMOMenuListener;
@@ -35,7 +36,9 @@ public final class HabilidadesPlus extends JavaPlugin {
     private SuperBreakerManager superBreakerManager;
     private VeioFartoManager veioFartoManager;
     private PrecisionMiningManager precisionMiningManager;
+    private LuzCommand luzCommand;
     private BukkitTask autosaveTask;
+    private BukkitTask luzActionBarTask;
 
     @Override
     public void onEnable() {
@@ -47,12 +50,14 @@ public final class HabilidadesPlus extends JavaPlugin {
         this.superBreakerManager = new SuperBreakerManager(this, configManager, dataManager);
         this.veioFartoManager = new VeioFartoManager(dataManager, configManager, superBreakerManager);
         this.precisionMiningManager = new PrecisionMiningManager(dataManager, configManager);
+        this.luzCommand = new LuzCommand();
 
         registerListeners();
         registerCommands();
+        luzActionBarTask = getServer().getScheduler().runTaskTimer(this, luzCommand::atualizarActionBars, 20L, 20L);
         startAutosave();
 
-        getLogger().info("HabilidadesPlus habilitado. Comandos: /mcmmo e /habilidades.");
+        getLogger().info("HabilidadesPlus habilitado. Comandos: /mcmmo, /habilidades e /luz.");
     }
 
     public DataManager getDataManager() {
@@ -66,6 +71,12 @@ public final class HabilidadesPlus extends JavaPlugin {
         }
         if (superBreakerManager != null) {
             superBreakerManager.stopAll();
+        }
+        if (luzActionBarTask != null) {
+            luzActionBarTask.cancel();
+        }
+        if (luzCommand != null) {
+            luzCommand.desativarTodos();
         }
         if (autosaveTask != null) {
             autosaveTask.cancel();
@@ -103,6 +114,12 @@ public final class HabilidadesPlus extends JavaPlugin {
         );
         command.setExecutor(mmoCommand);
         command.setTabCompleter(mmoCommand);
+
+        PluginCommand luz = Objects.requireNonNull(
+                getCommand("luz"),
+                "O comando luz nao foi encontrado no plugin.yml"
+        );
+        luz.setExecutor(luzCommand);
     }
 
     private void reloadRuntime() {
