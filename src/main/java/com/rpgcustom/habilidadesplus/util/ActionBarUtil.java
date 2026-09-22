@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
  */
 public class ActionBarUtil {
 
-    private static final LegacyComponentSerializer SERIALIZER = LegacyComponentSerializer.legacyAmpersand();
+    private static final LegacyComponentSerializer SERIALIZER = LegacyComponentSerializer.legacySection();
 
     private ActionBarUtil() {
     }
