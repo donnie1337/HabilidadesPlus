@@ -1,6 +1,7 @@
 package com.rpgcustom.habilidadesplus;
 
 import com.rpgcustom.habilidadesplus.abilities.SuperBreakerManager;
+import com.rpgcustom.habilidadesplus.abilities.PrecisionMiningManager;
 import com.rpgcustom.habilidadesplus.abilities.VeioFartoManager;
 import com.rpgcustom.habilidadesplus.commands.MMOCommand;
 import com.rpgcustom.habilidadesplus.data.DataManager;
@@ -33,6 +34,7 @@ public final class HabilidadesPlus extends JavaPlugin {
     private PlacedBlockTracker placedBlockTracker;
     private SuperBreakerManager superBreakerManager;
     private VeioFartoManager veioFartoManager;
+    private PrecisionMiningManager precisionMiningManager;
     private BukkitTask autosaveTask;
 
     @Override
@@ -44,6 +46,7 @@ public final class HabilidadesPlus extends JavaPlugin {
         this.xpManager = new XpManager(this, dataManager, levelingManager, configManager);
         this.superBreakerManager = new SuperBreakerManager(this, configManager, dataManager);
         this.veioFartoManager = new VeioFartoManager(dataManager, configManager, superBreakerManager);
+        this.precisionMiningManager = new PrecisionMiningManager(dataManager, configManager);
 
         registerListeners();
         registerCommands();
@@ -81,6 +84,7 @@ public final class HabilidadesPlus extends JavaPlugin {
         pm.registerEvents(new GatheringListener(configManager, xpManager, placedBlockTracker), this);
         pm.registerEvents(superBreakerManager, this);
         pm.registerEvents(veioFartoManager, this);
+        pm.registerEvents(precisionMiningManager, this);
         pm.registerEvents(new FishingListener(configManager, xpManager), this);
         pm.registerEvents(new CombatListener(configManager, xpManager), this);
         pm.registerEvents(new AcrobaticsListener(configManager, xpManager, dataManager), this);
