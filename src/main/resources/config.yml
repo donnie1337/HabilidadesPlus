@@ -21,6 +21,14 @@ nivelamento:
   multiplicador: 45
   expoente: 1.8
   nivel-maximo: 1000
+  # Curva especifica de Mineracao. O fator e aplicado sobre o XP base global.
+  # A progressao e suave entre os marcos, deixando os niveis altos cada vez mais demorados.
+  mineracao:
+    fator-nivel-100: 1.25
+    fator-nivel-250: 1.75
+    fator-nivel-500: 2.75
+    fator-nivel-750: 4.25
+    fator-nivel-1000: 6.0
 
 # ------------------------------------------------------------
 # Fontes de XP por habilidade. Adicione/edite blocos e valores
