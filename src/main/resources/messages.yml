@@ -50,6 +50,7 @@ gui:
   estado-bloqueado: "&8✖"
   estado-planejado: "&e(planejado)"
   clique-poderes: "&aClique para ver os poderes."
+  superbreaker-chance: "&7Chance atual: &e{chance}%"
   item-poder-nivel: "&7Desbloqueio: &fNível {nivel}"
   item-poder-desbloqueado: "&a✓ Poder funcional e desbloqueado"
   item-poder-bloqueado: "&8✖ Poder funcional, ainda bloqueado"
