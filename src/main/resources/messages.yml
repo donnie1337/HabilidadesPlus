@@ -32,6 +32,9 @@ comandos:
   setnivel-fora-do-limite: "&cO nível deve estar entre 0 e {maximo}."
   setnivel-sucesso: "&a{habilidade} definida para o nível &e{nivel}&a."
 
+mineracao:
+  superbreaker-ativado: "&6&lSUPER BREAKER! &fAtivado por &e{duracao}s &fno nível &e{nivel}&f."
+
 acrobacia:
   mensagem-role: "&b&lVocê rolou e absorveu o dano da queda!"
 
