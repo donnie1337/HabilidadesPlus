@@ -133,7 +133,7 @@ public final class MMOMenu {
         if (meta != null) {
             meta.setOwningPlayer(player);
             meta.setDisplayName(message(config, "gui.item-perfil-nome", Map.of(
-                    "jogador", player.getName(), "poder", String.valueOf(profile.getPowerLevel()))));
+                    "jogador", "Seu poder", "poder", String.valueOf(profile.getPowerLevel()))));
             List<String> lore = new ArrayList<>();
             lore.add("");
             lore.add(config.msg("gui.item-perfil-habilidades"));
