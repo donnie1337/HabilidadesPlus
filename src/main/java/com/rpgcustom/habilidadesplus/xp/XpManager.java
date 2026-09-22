@@ -133,8 +133,14 @@ public class XpManager {
         placeholders.put("habilidade", skill.getDisplayName());
         placeholders.put("nivel", String.valueOf(result.getNewLevel()));
 
-        String mensagem = MessageUtil.placeholders(configManager.msg("level-up.actionbar"), placeholders);
-        ActionBarUtil.send(player, mensagem);
+        String tituloTexto = MessageUtil.placeholders(configManager.msg("level-up.titulo"), placeholders);
+        String subtituloTexto = MessageUtil.placeholders(configManager.msg("level-up.subtitulo"), placeholders);
+
+        player.sendTitle(
+                MessageUtil.colorize(tituloTexto),
+                MessageUtil.colorize(subtituloTexto),
+                5, 40, 10
+        );
 
         String somConfigurado = configManager.msg("level-up.som");
         String soundKey = somConfigurado.toLowerCase(Locale.ROOT).replace('_', '.');
