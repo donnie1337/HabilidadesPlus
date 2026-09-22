@@ -139,9 +139,20 @@ xp:
 # ------------------------------------------------------------
 mineracao:
   superbreaker:
-    # Tempo minimo entre ativacoes, contado a partir da ativacao.
-    delay-ativacao-segundos: 30
-    # Duracao = base + (nivel * por-nivel), limitada pela duracao maxima.
-    duracao-base-segundos: 3.0
-    duracao-por-nivel: 0.02
-    duracao-maxima-segundos: 15.0
+    # Habilidade desbloqueada a partir deste nivel de Mineracao.
+    nivel-desbloqueio: 10
+    # Duracao progressiva: nivel 10 = 5s, nivel 50 = 6s, nivel 100 = 7s,
+    # nivel 250 = 10s, nivel 500 = 15s e nivel 1000 = 20s.
+    duracao-nivel-10: 5.0
+    duracao-nivel-50: 6.0
+    duracao-nivel-100: 7.0
+    duracao-nivel-150: 8.0
+    duracao-nivel-200: 9.0
+    duracao-nivel-250: 10.0
+    duracao-nivel-500: 15.0
+    duracao-nivel-1000: 20.0
+    # Recarga progressiva: nivel 10 = 120s, nivel 50 = 140s,
+    # e +20s a cada 50 niveis ate o nivel 1000.
+    recarga-nivel-10: 120
+    recarga-nivel-50: 140
+    recarga-incremento-50-niveis: 20
