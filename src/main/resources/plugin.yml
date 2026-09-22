@@ -10,11 +10,13 @@ commands:
     description: Abre o menu do HabilidadesPlus
     usage: /mcmmo [reload]
     aliases: [cmmo, habilidade, habilidades]
+    permission: habilidadesplus.use
+    permission-message: "§cVoce nao tem permissao para usar este comando."
 
 permissions:
   habilidadesplus.admin:
     description: Permite recarregar a configuracao do plugin
     default: op
   habilidadesplus.use:
-    description: Permite usar o /mcmmo e ganhar XP
+    description: Permite usar /mcmmo, /habilidades e ganhar XP
     default: true

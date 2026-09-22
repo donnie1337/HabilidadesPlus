@@ -11,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
 
@@ -87,6 +88,13 @@ public class CombatListener implements Listener {
             addCombatXp(atacante, SkillType.LANCAS, "xp-por-acerto-lanca", 24);
         } else if (tipo == Material.AIR) {
             addCombatXp(atacante, SkillType.DESARMADO, "xp-por-acerto-desarmado", 12);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onProjectileHit(ProjectileHitEvent event) {
+        if (event.getHitEntity() == null) {
+            projectileSkills.remove(event.getEntity().getUniqueId());
         }
     }
 

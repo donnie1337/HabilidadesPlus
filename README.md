@@ -1,104 +1,90 @@
 # HabilidadesPlus
 
-Plugin de RPG customizado **inspirado no mcMMO** para **Minecraft 26.2 "Chaos Cubed"**,
-Spigot (`spigot-api 26.2-R0.1-SNAPSHOT`), bytecode compilado visando Java 21
-(roda normalmente em servidores com Java 26, ja que a JVM e retrocompativel).
+Plugin de RPG para **Paper 26.2**, inspirado no sistema de progressao do mcMMO.
+Mostra XP e nivel na action bar e oferece uma interface grafica pelos comandos
+`/mcmmo` e `/habilidades`.
 
-> **Importante sobre a "base do mcMMO":** o mcMMO real (mcMMO-Dev/mcMMO no GitHub)
-> tem milhares de arquivos acumulados em mais de 10 anos de desenvolvimento, e
-> compila contra artefatos que so existem no Nexus/BuildTools da Spigot — coisa
-> que este ambiente de chat nao consegue baixar para testar a compilacao de verdade.
-> Em vez de copiar o codigo-fonte deles (o que tambem passaria por cima da licenca
-> deles), eu escrevi este plugin do zero, usando a mesma ideia central do mcMMO
-> (quebrar blocos/lutar/pescar/domesticar da XP em "habilidades", que sobem de
-> nivel e desbloqueiam progresso) e as duas funcionalidades customizadas que voce
-> pediu: **XP + nivel na action bar** e **`/mcmmo` abrindo uma GUI**.
-> Validei os metodos da API (Player#sendActionBar, Player#showTitle,
-> Bukkit#createInventory com Component, etc.) contra a documentacao real da
-> Spigot API 26.2, mas nao consegui compilar o `.jar` aqui dentro — recomendo
-> rodar `mvn clean package` no seu ambiente e me avisar se aparecer algum erro,
-> que eu corrijo rapido.
+## Requisitos
 
-## O que esta implementado
+- Servidor Paper compativel com Minecraft 26.2
+- Java 25 ou mais novo
+- Maven 3.9+ apenas para compilar o projeto
 
-- **18 habilidades**: Mineracao, Lenhador, Escavacao, Herbalismo, Pesca, Alquimia,
-  Fundicao, Espadas, Machados, Arqueiro, Acrobacia, Desarmado, Adestramento,
-  Reparacao, Clava, Tridentes, Bestas e Lancas.
-- **XP configuravel por bloco/acao** em `config.yml` (adicione ou remova blocos
-  livremente).
-- **Nivelamento configuravel** (curva LINEAR ou EXPONENCIAL, nivel maximo).
-- **Action bar**: mostra `Habilidade: +XX XP (Nivel: X)` a cada meio segundo
-  (agrupando os ganhos, para nao piscar uma mensagem a cada bloco quebrado) —
-  igual ao formato do print que voce mandou.
-- **Level up**: titulo na tela + som, separado da action bar de XP.
-- **`/mcmmo`**: abre uma GUI mostrando nivel, XP e barra de progresso de cada
-  habilidade, mais um item de "Poder Total" (soma de todos os niveis).
-- **`/mcmmo reload`**: recarrega config.yml e messages.yml sem reiniciar o servidor.
-- **Persistencia**: progresso salvo em `plugins/HabilidadesPlus/playerdata/<uuid>.yml`.
-- **Protecao antifarm basica**: bloco colocado pelo jogador nao da XP ao quebrar.
-- **Roll de Acrobacia**: chance de anular dano de queda, crescendo com o nivel
-  (igual ao mcMMO original).
+## Instalacao
 
-## O que ficou de fora (por escopo) e pode ser adicionado depois
+1. Baixe o artefato `habilidadeplus.jar` da execucao mais recente do GitHub Actions
+   ou compile o projeto.
+2. Copie o arquivo para a pasta `plugins/` do servidor.
+3. Reinicie o servidor. Nao use gerenciadores de hot reload de plugins.
+4. Confirme no console a mensagem `HabilidadesPlus habilitado`.
+5. Dentro do jogo, use `/mcmmo` ou `/habilidades`.
 
-- As demais ~2 habilidades do mcMMO original (Repair/Reparo e Salvage/Salvagem),
-  sub-habilidades, "abilities" ativas (ex: Super Breaker, Serrated Strikes,
-  Berserk) e o sistema completo de perks/talentos.
-- PlaceholderAPI, scoreboard lateral, GUI com paginacao/abas por habilidade.
-- Traducao completa para outros idiomas (esta tudo em PT-BR).
+Se os comandos aparecerem como desconhecidos, confira se o plugin aparece em
+`/plugins` e procure no console o erro ocorrido durante a inicializacao. Um
+servidor incompatível ou uma versao antiga do Java impede o registro dos comandos.
 
-Se quiser, posso adicionar qualquer um desses itens numa proxima rodada.
+## Funcionalidades
 
-## Estrutura do projeto
+- 18 habilidades com XP e nivel individuais.
+- Curvas de nivel LINEAR e EXPONENCIAL configuraveis.
+- Action bar que agrupa ganhos de XP para evitar spam.
+- Menu com progresso, poder total e catalogo de poderes.
+- Persistencia por UUID em `plugins/HabilidadesPlus/playerdata/`.
+- Autosave configuravel e escrita atomica dos arquivos dos jogadores.
+- Protecao antifarm persistente para blocos colocados por jogadores.
+- XP de Alquimia concedido somente apos uma fermentacao real.
+- Rolamento de Acrobacia funcional.
+- `/mcmmo reload` para recarregar configuracoes.
 
-```
-HabilidadesPlus/
-├── pom.xml
-└── src/main/
-    ├── resources/
-    │   ├── plugin.yml
-    │   ├── config.yml       <- XP por bloco/acao, curva de nivel, etc.
-    │   └── messages.yml     <- todas as mensagens (action bar, GUI, level up)
-    └── java/com/rpgcustom/habilidadesplus/
-        ├── HabilidadesPlus.java           <- classe principal (onEnable/onDisable)
-        ├── SkillType.java           <- enum das 18 habilidades
-        ├── data/                    <- perfil do jogador + salvar/carregar YAML
-        ├── leveling/                <- calculo de XP necessario por nivel
-        ├── xp/XpManager.java        <- ganho de XP, action bar, level up
-        ├── util/                     <- configurações, mensagens e action bar
-        ├── gui/                     <- menu do /mcmmo
-        ├── commands/MMOCommand.java <- /mcmmo e /mcmmo reload
-        └── listeners/               <- um listener por grupo de habilidades
-```
+### Estado dos poderes
 
-## Como compilar
+O Rolamento de Acrobacia esta implementado. Os demais poderes exibidos no
+catalogo sao propostas para evolucoes futuras e aparecem claramente marcados
+como **planejados**, sem indicar falsamente que ja afetam o jogo.
 
-Pre-requisitos: **Maven 3+** e **JDK 21 ou mais novo** (JDK 26 inclusive) instalado.
+## Comandos e permissoes
+
+| Comando | Permissao | Padrao |
+| --- | --- | --- |
+| `/mcmmo`, `/habilidades` | `habilidadesplus.use` | Todos os jogadores |
+| `/mcmmo reload` | `habilidadesplus.admin` | Operadores |
+
+A permissao `habilidadesplus.use` possui `default: true`; portanto, qualquer
+jogador pode usar os comandos e ganhar XP sem configuracao adicional.
+
+## Configuracao
+
+- `config.yml`: XP, curva de nivel, nivel maximo, mundos desativados e autosave.
+- `messages.yml`: mensagens, cores e textos da GUI.
+- `playerdata/<uuid>.yml`: progresso individual.
+- `placed-blocks.yml`: blocos colocados protegidos contra farm de XP.
+
+Depois de alterar `config.yml` ou `messages.yml`, execute `/mcmmo reload`.
+
+## Compilacao e testes
 
 ```bash
-cd HabilidadesPlus
-mvn clean package
+mvn clean verify
 ```
 
-O `.jar` final aparece em `target/HabilidadesPlus-1.0.0.jar`. Copie para a pasta
-`plugins/` do seu servidor Spigot 26.2 e reinicie.
+O arquivo final sera criado em:
 
-Se o Maven reclamar que nao encontra `org.spigotmc:spigot-api:26.2-R0.1-SNAPSHOT`,
-confirme que seu servidor/maquina tem acesso a
-`https://hub.spigotmc.org/nexus/content/groups/public/` (repositorio ja
-declarado no `pom.xml`) ou gere o artefato localmente com o `BuildTools.jar`
-da Spigot.
+```text
+target/habilidadeplus.jar
+```
 
-## Como customizar
+O GitHub Actions executa a compilacao e os testes automaticamente em pushes e
+pull requests direcionados para `main`.
 
-- **Valores de XP**: edite `config.yml` (secao `xp:`), depois `/mcmmo reload`.
-- **Textos/cores**: edite `messages.yml` (aceita `&` para cores), depois `/mcmmo reload`.
-- **Curva de nivel**: `nivelamento.curva`, `xp-base`, `multiplicador`, `expoente`
-  em `config.yml`.
-- **Nomes/icones das habilidades**: `SkillType.java`.
-- **Layout da GUI**: `gui/MMOMenu.java` (slots, borda, itens).
+## Estrutura
 
-## Permissoes
-
-- `habilidadesplus.use` (default: true) — necessaria para ganhar XP e usar `/mcmmo`.
-- `habilidadesplus.admin` (default: op) — necessaria para `/mcmmo reload`.
+```text
+src/main/java/com/rpgcustom/habilidadesplus/
+├── commands/    comandos e autocomplete
+├── data/        perfis e persistencia
+├── gui/         menu e catalogo de poderes
+├── leveling/    curvas e level up
+├── listeners/   fontes de XP e protecoes
+├── util/        configuracoes, mensagens e blocos protegidos
+└── xp/          concessao de XP e action bar
+```

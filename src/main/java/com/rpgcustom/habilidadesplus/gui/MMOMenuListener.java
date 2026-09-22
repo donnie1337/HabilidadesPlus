@@ -3,6 +3,7 @@ package com.rpgcustom.habilidadesplus.gui;
 import com.rpgcustom.habilidadesplus.data.DataManager;
 import com.rpgcustom.habilidadesplus.SkillType;
 import com.rpgcustom.habilidadesplus.leveling.LevelingManager;
+import com.rpgcustom.habilidadesplus.util.ConfigManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,10 +14,12 @@ public final class MMOMenuListener implements Listener {
 
     private final DataManager dataManager;
     private final LevelingManager levelingManager;
+    private final ConfigManager configManager;
 
-    public MMOMenuListener(DataManager dataManager, LevelingManager levelingManager) {
+    public MMOMenuListener(DataManager dataManager, LevelingManager levelingManager, ConfigManager configManager) {
         this.dataManager = dataManager;
         this.levelingManager = levelingManager;
+        this.configManager = configManager;
     }
 
     @EventHandler
@@ -36,13 +39,13 @@ public final class MMOMenuListener implements Listener {
         if (holder.skill() == null) {
             SkillType skill = MMOMenu.skillAtSlot(event.getRawSlot());
             if (skill != null) {
-                MMOMenu.openSkill(player, skill, dataManager, levelingManager);
+                MMOMenu.openSkill(player, skill, dataManager, levelingManager, configManager);
             }
             return;
         }
 
         if (event.getRawSlot() == 45) {
-            MMOMenu.open(player, dataManager, levelingManager);
+            MMOMenu.open(player, dataManager, levelingManager, configManager);
         }
     }
 

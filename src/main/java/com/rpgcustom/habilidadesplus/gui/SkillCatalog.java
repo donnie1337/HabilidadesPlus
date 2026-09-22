@@ -8,7 +8,7 @@ import java.util.List;
 public final class SkillCatalog {
     private SkillCatalog() {}
 
-    public record Power(String name, int level, Material icon, String description) {}
+    public record Power(String name, int level, Material icon, String description, boolean implemented) {}
     public record Definition(String description, List<Power> powers) {}
 
     public static Definition definition(SkillType skill) {
@@ -23,7 +23,7 @@ public final class SkillCatalog {
             case ESPADAS -> d("Lute com controle, dano contínuo e precisão corpo a corpo.", p("Corte Profundo",5,Material.IRON_SWORD,"Chance de aplicar sangramento breve."),p("Arco de Lâmina",15,Material.DIAMOND_SWORD,"Atinge inimigos próximos em um golpe especial."),p("Guarda Reversa",50,Material.SHIELD,"Chance de reduzir e devolver parte do dano."));
             case MACHADOS -> d("Use golpes pesados para abrir a defesa dos inimigos.", p("Impacto Brutal",5,Material.IRON_AXE,"Chance de aplicar lentidão curta ao alvo."),p("Fenda de Guarda",25,Material.IRON_AXE,"Causa dano extra contra inimigos protegidos."),p("Golpe do Carrasco",65,Material.NETHERITE_AXE,"Aumenta o dano contra alvos com pouca vida."));
             case ARQUERIA -> d("Acerte à distância com disparos mais precisos.", p("Mira Serena",5,Material.BOW,"Aumenta o dano de flechas em longas distâncias."),p("Flecha Pesada",25,Material.ARROW,"Chance de aplicar lentidão ao acertar."),p("Tiro Perfurante",60,Material.SPECTRAL_ARROW,"Permite atravessar um alvo ocasionalmente."));
-            case ACROBACIA -> d("Movimente-se com agilidade e sobreviva a quedas perigosas.", p("Rolamento",5,Material.FEATHER,"Chance de anular totalmente o dano de queda."),p("Esquiva",35,Material.RABBIT_FOOT,"Chance de reduzir pela metade um ataque recebido."));
+            case ACROBACIA -> d("Movimente-se com agilidade e sobreviva a quedas perigosas.", active("Rolamento",5,Material.FEATHER,"Chance de anular totalmente o dano de queda."),p("Esquiva",35,Material.RABBIT_FOOT,"Chance de reduzir pela metade um ataque recebido."));
             case DESARMADO -> d("Use os punhos para controlar inimigos e sobreviver ao combate.", p("Punho de Pedra",5,Material.LEATHER,"Aumenta levemente o dano desarmado."),p("Desvio Rápido",30,Material.IRON_NUGGET,"Chance de empurrar o inimigo ao atacar."));
             case DOMESTICACAO -> d("Fortaleça seus companheiros e mantenha-os protegidos.", p("Vínculo Fiel",5,Material.BONE,"Pets causam um pouco mais de dano."),p("Instinto Protetor",30,Material.WOLF_ARMOR,"Pets recebem menos dano."),p("Chamado Selvagem",65,Material.WOLF_SPAWN_EGG,"Aliados próximos recebem um breve bônus."));
             case REPARACAO -> d("Recupere ferramentas e armaduras usando menos recursos.", p("Oficina Cuidadosa",5,Material.ANVIL,"Reparos recuperam um pouco mais de durabilidade."),p("Têmpera Durável",40,Material.IRON_INGOT,"Chance de preservar parte do material usado."));
@@ -34,5 +34,6 @@ public final class SkillCatalog {
         };
     }
     private static Definition d(String description, Power... powers){return new Definition(description,List.of(powers));}
-    private static Power p(String name,int level,Material icon,String description){return new Power(name,level,icon,description);}
+    private static Power p(String name,int level,Material icon,String description){return new Power(name,level,icon,description,false);}
+    private static Power active(String name,int level,Material icon,String description){return new Power(name,level,icon,description,true);}
 }

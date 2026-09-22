@@ -73,7 +73,9 @@ public class XpManager {
         if (amount <= 0) return;
 
         PlayerProfile profile = dataManager.getProfile(player.getUniqueId());
+        if (profile.getLevel(skill) >= levelingManager.getNivelMaximo()) return;
         LevelUpResult result = profile.addXp(skill, amount, levelingManager);
+        dataManager.markDirty(player.getUniqueId());
 
         pendingDisplay
                 .computeIfAbsent(player.getUniqueId(), k -> new EnumMap<>(SkillType.class))
