@@ -114,7 +114,7 @@ public class XpManager {
         } else {
             var skillData = profile.getData(skill);
             xpAtual = String.valueOf((int) Math.round(skillData.getCurrentXp()));
-            xpNecessario = String.valueOf((int) Math.round(levelingManager.xpParaProximoNivel(nivel)));
+            xpNecessario = String.valueOf((int) Math.round(levelingManager.xpParaProximoNivel(skill, nivel)));
         }
 
         Map<String, String> placeholders = new HashMap<>();
@@ -169,7 +169,7 @@ public class XpManager {
         } else {
             var skillData = profile.getData(skill);
             xpAtual = String.valueOf((int) Math.round(skillData.getCurrentXp()));
-            xpNecessario = String.valueOf((int) Math.round(levelingManager.xpParaProximoNivel(nivel)));
+            xpNecessario = String.valueOf((int) Math.round(levelingManager.xpParaProximoNivel(skill, nivel)));
         }
 
         Map<String, String> placeholders = new HashMap<>();
