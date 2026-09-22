@@ -51,6 +51,21 @@ public class DataManager {
         return Map.copyOf(cache);
     }
 
+    public Map<UUID, PlayerProfile> getAllProfiles() {
+        Map<UUID, PlayerProfile> profiles = new HashMap<>(cache);
+        File[] files = folder.listFiles((dir, name) -> name.endsWith(".yml"));
+        if (files == null) return Map.copyOf(profiles);
+        for (File file : files) {
+            try {
+                UUID uuid = UUID.fromString(file.getName().substring(0, file.getName().length() - 4));
+                profiles.putIfAbsent(uuid, load(uuid));
+            } catch (IllegalArgumentException ignored) {
+                // Ignora arquivos que nao sejam playerdata validos.
+            }
+        }
+        return Map.copyOf(profiles);
+    }
+
     public void markDirty(UUID uuid) {
         dirty.add(uuid);
     }
