@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Comparator;
 
 public final class MMOMenu {
     private static final int[] SLOTS = {10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31};
@@ -36,8 +37,69 @@ public final class MMOMenu {
         for (int index = 0; index < skills.length && index < SLOTS.length; index++) {
             inventory.setItem(SLOTS[index], skillItem(skills[index], profile, levels, config));
         }
+        inventory.setItem(48, rankingBook(config));
         inventory.setItem(49, profileItem(player, profile, config));
         player.openInventory(inventory);
+    }
+
+    public static void openRanking(Player player, SkillType selected, DataManager data,
+                                  ConfigManager config) {
+        MMOMenuHolder holder = new MMOMenuHolder(selected, true);
+        Inventory inventory = Bukkit.createInventory(holder, 36, MessageUtil.colorize("&8Ranking de Habilidades"));
+        holder.setInventory(inventory);
+
+        List<Map.Entry<java.util.UUID, PlayerProfile>> ranking = data.getAllProfiles().entrySet().stream()
+                .sorted(Comparator
+                        .<Map.Entry<java.util.UUID, PlayerProfile>>comparingInt(entry -> entry.getValue().getLevel(selected))
+                        .reversed()
+                        .thenComparing(entry -> {
+                            String name = Bukkit.getOfflinePlayer(entry.getKey()).getName();
+                            return name == null ? "" : name.toLowerCase(java.util.Locale.ROOT);
+                        }))
+                .limit(7)
+                .toList();
+
+        int slot = 10;
+        int position = 1;
+        for (Map.Entry<java.util.UUID, PlayerProfile> entry : ranking) {
+            inventory.setItem(slot++, rankingPlayerItem(entry.getKey(), entry.getValue().getLevel(selected), position++, config));
+        }
+
+        inventory.setItem(31, item(Material.ARROW, "&cVoltar", List.of("", "&7Voltar ao menu principal.")));
+        inventory.setItem(33, rankingFilterItem(selected));
+        player.openInventory(inventory);
+    }
+
+    private static ItemStack rankingBook(ConfigManager config) {
+        return item(Material.WRITABLE_BOOK, "&bRanking de Habilidades",
+                List.of("", "&7Veja os melhores jogadores por habilidade.", "&7Clique para abrir o ranking."));
+    }
+
+    private static ItemStack rankingFilterItem(SkillType selected) {
+        List<String> lore = new ArrayList<>();
+        lore.add("");
+        lore.add("&7Clique no funil para alternar a habilidade.");
+        lore.add("");
+        for (SkillType skill : SkillType.values()) {
+            String color = skill == selected ? "&a✔ " : "&7• ";
+            lore.add(color + skill.getDisplayName());
+        }
+        return item(Material.HOPPER, "&bFiltro de Habilidade", lore);
+    }
+
+    private static ItemStack rankingPlayerItem(java.util.UUID uuid, int level, int position,
+                                               ConfigManager config) {
+        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta meta = (SkullMeta) head.getItemMeta();
+        if (meta != null) {
+            org.bukkit.OfflinePlayer offline = Bukkit.getOfflinePlayer(uuid);
+            String name = offline.getName() == null ? uuid.toString().substring(0, 8) : offline.getName();
+            meta.setOwningPlayer(offline);
+            meta.setDisplayName(MessageUtil.colorize("&b#" + position + " &8• &a" + name));
+            meta.setLore(List.of("", MessageUtil.colorize("&fNível: &a" + level)));
+            head.setItemMeta(meta);
+        }
+        return head;
     }
 
     public static void openSkill(Player player, SkillType skill, DataManager data,
