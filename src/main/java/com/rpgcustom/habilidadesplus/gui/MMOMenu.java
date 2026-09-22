@@ -45,13 +45,19 @@ public final class MMOMenu {
         Inventory inventory = Bukkit.createInventory(holder, 36,
                 message(config, "gui.titulo-habilidade", Map.of("habilidade", skill.getDisplayName())));
         holder.setInventory(inventory);
-        PlayerSkillData current = data.getProfile(player.getUniqueId()).getData(skill);
+        PlayerProfile profile = data.getProfile(player.getUniqueId());
+        PlayerSkillData current = profile.getData(skill);
         List<SkillCatalog.Power> powers = SkillCatalog.definition(skill).powers();
         for (int index = 0; index < powers.size() && index < SLOTS.length; index++) {
             inventory.setItem(SLOTS[index], powerItem(powers.get(index), skill, current.getLevel(), config));
         }
+        // Elementos fixos do cabeçalho: 1 espaço entre a seta, a cabeça e a picareta.
+        inventory.setItem(11, profileItem(player, profile, config));
         inventory.setItem(13, item(Material.ARROW, config.msg("gui.voltar-nome"),
                 List.of("", config.msg("gui.voltar-lore"))));
+        if (skill == SkillType.MINERACAO) {
+            inventory.setItem(15, skillItem(skill, profile, levels, config));
+        }
         player.openInventory(inventory);
     }
 
