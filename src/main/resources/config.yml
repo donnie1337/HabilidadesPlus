@@ -145,6 +145,28 @@ xp:
     xp-por-pocao-fermentada: 150
 
 # ------------------------------------------------------------
+# Tags de Top 1. A cor do icone e fixa por habilidade.
+top1-tags:
+  MINERACAO: " &b⛏"
+  LENHADOR: " &6🪓"
+  ESCAVACAO: " &e⌂"
+  ERVANISMO: " &a🌿"
+  PESCA: " &9🎣"
+  FUNDICAO: " &c♨"
+  ALQUIMIA: " &5⚗"
+  REPARACAO: " &7⚒"
+  ESPADAS: " &c⚔"
+  MACHADOS: " &6🪓"
+  CLAVA: " &4✹"
+  DESARMADO: " &f✊"
+  ARQUERIA: " &e➳"
+  BESTAS: " &7⌁"
+  TRIDENTES: " &b🔱"
+  LANCAS: " &f⚔"
+  ACROBACIA: " &d✦"
+  DOMESTICACAO: " &6♞"
+
+# ------------------------------------------------------------
 # Habilidade especial de Mineracao: Super Breaker
 # Clique direito segurando uma picareta para ativar.
 # A duracao cresce com o nivel de Mineracao e possui um teto configuravel.
