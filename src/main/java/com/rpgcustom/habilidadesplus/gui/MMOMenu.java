@@ -112,6 +112,12 @@ public final class MMOMenu {
             lore.addAll(wrap("&7Durante o Super Quebrador, o drop pode ser triplicado."));
             lore.add(message(config, "gui.superbreaker-chance", Map.of("chance", formatPercent(chance))));
         }
+        if (skill == SkillType.MINERACAO && power.name().equals("Mineração Precisa")) {
+            double chance = level < 75 ? 0.0 : Math.min(100.0, level * config.getDouble(
+                    "mineracao.mineracao-precisa.chance-preservar-por-nivel", 0.1));
+            lore.add(message(config, "gui.mineracao-precisa-chance",
+                    Map.of("chance", formatPercent(chance))));
+        }
         lore.add("");
         lore.add(message(config, "gui.item-poder-nivel", Map.of("nivel", String.valueOf(power.level()))));
         String statusPath = !power.implemented() ? "gui.item-poder-planejado"
