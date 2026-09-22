@@ -46,7 +46,6 @@ public final class HabilidadesPlus extends JavaPlugin {
         getLogger().info("HabilidadesPlus habilitado. Comandos: /mcmmo e /habilidades.");
     }
 
-    @Override
     public DataManager getDataManager() {
         return dataManager;
     }
