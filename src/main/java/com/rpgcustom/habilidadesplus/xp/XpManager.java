@@ -5,7 +5,6 @@ import com.rpgcustom.habilidadesplus.data.DataManager;
 import com.rpgcustom.habilidadesplus.data.PlayerProfile;
 import com.rpgcustom.habilidadesplus.leveling.LevelUpResult;
 import com.rpgcustom.habilidadesplus.leveling.LevelingManager;
-import com.rpgcustom.habilidadesplus.util.ActionBarUtil;
 import com.rpgcustom.habilidadesplus.util.ConfigManager;
 import com.rpgcustom.habilidadesplus.util.MessageUtil;
 import org.bukkit.Bukkit;
@@ -16,7 +15,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Locale;
@@ -37,140 +35,44 @@ public class XpManager {
     private final LevelingManager levelingManager;
     private final ConfigManager configManager;
 
-    // uuid -> (habilidade -> xp acumulado desde a ultima atualizacao da action bar)
-    private final Map<UUID, Map<SkillType, Double>> pendingDisplay = new HashMap<>();
-
-    private BukkitTask task;
-
-    public XpManager(JavaPlugin plugin, DataManager dataManager, LevelingManager levelingManager, ConfigManager configManager) {
-        this.plugin = plugin;
-        this.dataManager = dataManager;
-        this.levelingManager = levelingManager;
-        this.configManager = configManager;
-        startTask();
-    }
-
-    public void startTask() {
-        stopTask();
-        long interval = Math.max(1, configManager.intervaloActionbarTicks());
-        this.task = Bukkit.getScheduler().runTaskTimer(plugin, this::flush, interval, interval);
-    }
-
-    public void stopTask() {
-        if (task != null) {
-            task.cancel();
-            task = null;
-        }
-    }
-
-    /**
-     * Concede XP de uma habilidade a um jogador. baseAmount ja deve ser o
-     * valor "cru" vindo do config.yml; o multiplicador global e aplicado aqui.
-     */
-    public void addXp(Player player, SkillType skill, double baseAmount) {
-        if (baseAmount <= 0) return;
-        if (!player.hasPermission("habilidadesplus.use")) return;
-        if (configManager.mundoDesabilitado(player.getWorld().getName())) return;
-
-        double amount = baseAmount * configManager.xpMultiplicadorGlobal();
-        if (amount <= 0) return;
-
-        PlayerProfile profile = dataManager.getProfile(player.getUniqueId());
-        int poderGeralAntes = profile.getPowerLevel();
-        int nivelHabilidadeAntes = profile.getLevel(skill);
-        if (nivelHabilidadeAntes >= levelingManager.getNivelMaximo()) return;
-        LevelUpResult result = profile.addXp(skill, amount, levelingManager);
-        dataManager.markDirty(player.getUniqueId());
-
-        int poderGeralDepois = profile.getPowerLevel();
-        int nivelHabilidadeDepois = profile.getLevel(skill);
-
-        boolean atingiuPoderGeral100 = poderGeralAntes < 100 && poderGeralDepois >= 100;
-        boolean atingiuPoderHabilidade100 = nivelHabilidadeAntes < 100 && nivelHabilidadeDepois >= 100;
-
-        if (atingiuPoderGeral100) {
-            announcePowerMilestone(player, "poder.milestone-geral", null, poderGeralDepois);
-        }
-        if (atingiuPoderHabilidade100) {
-            announcePowerMilestone(player, "poder.milestone-habilidade", skill, nivelHabilidadeDepois);
+    private void announcePowerMilestone(Player player, String messagePath, SkillType skill, int poder) {
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("poder", String.valueOf(poder));
+        placeholders.put("jogador", player.getName());
+        if (skill != null) {
+            placeholders.put("habilidade", skill.getDisplayName());
         }
 
-        boolean milestone = result.isLeveledUp() && result.getNewLevel() % 100 == 0;
+        String mensagem = MessageUtil.placeholders(configManager.msg(messagePath), placeholders);
+        Bukkit.broadcastMessage(MessageUtil.colorize(mensagem));
+    }
 
-        // O progresso continua aparecendo na Action Bar mesmo quando ocorre
-        // um milestone de nivel. O Title e apenas um aviso adicional.
-        pendingDisplay
-                .computeIfAbsent(player.getUniqueId(), k -> new EnumMap<>(SkillType.class))
-                .merge(skill, amount, Double::sum);
+    private void announceLevelUp(Player player, SkillType skill, LevelUpResult result) {
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("habilidade", skill.getDisplayName());
+        placeholders.put("nivel", String.valueOf(result.getNewLevel()));
+
+        String tituloTexto = MessageUtil.placeholders(configManager.msg("level-up.titulo"), placeholders);
+        String subtituloTexto = MessageUtil.placeholders(configManager.msg("level-up.subtitulo"), placeholders);
+
+        player.sendTitle(
+                MessageUtil.colorize(tituloTexto),
+                MessageUtil.colorize(subtituloTexto),
+                5, 40, 10
+        );
+
+        String somConfigurado = configManager.msg("level-up.som");
+        String soundKey = somConfigurado.toLowerCase(Locale.ROOT).replace('_', '.');
+        Sound som = Registry.SOUNDS.get(NamespacedKey.minecraft(soundKey));
+        player.playSound(player.getLocation(),
+                som != null ? som : Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
+    }
+
+}        boolean milestone = result.isLeveledUp() && result.getNewLevel() % 100 == 0;
 
         if (milestone) {
             announceLevelUp(player, skill, result);
         }
-    }
-
-    private void flush() {
-        if (pendingDisplay.isEmpty()) return;
-
-        String formato = configManager.msg("actionbar.formato-progresso");
-        String separador = configManager.msg("actionbar.separador");
-        String barraCheia = configManager.msg("actionbar.barra-cheia");
-        String barraVazia = configManager.msg("actionbar.barra-vazia");
-        int tamanhoBarra = Math.max(1, configManager.config().getInt("actionbar.tamanho-barra", 10));
-
-        for (Map.Entry<UUID, Map<SkillType, Double>> entry : pendingDisplay.entrySet()) {
-            Player player = Bukkit.getPlayer(entry.getKey());
-            if (player == null || !player.isOnline()) continue;
-
-            PlayerProfile profile = dataManager.getProfile(player.getUniqueId());
-            StringBuilder mensagem = new StringBuilder();
-            boolean primeiro = true;
-
-            for (Map.Entry<SkillType, Double> ganho : entry.getValue().entrySet()) {
-                SkillType skill = ganho.getKey();
-                int nivel = profile.getLevel(skill);
-                if (nivel >= levelingManager.getNivelMaximo()) {
-                    Map<String, String> placeholders = new HashMap<>();
-                    placeholders.put("habilidade", skill.getDisplayName());
-                    placeholders.put("xpAtual", "MAX");
-                    placeholders.put("xpNecessario", "MAX");
-                    placeholders.put("porcentagem", "100");
-                    placeholders.put("barra", barraCheia.repeat(tamanhoBarra));
-                    placeholders.put("nivel", String.valueOf(nivel));
-                    if (!primeiro) mensagem.append(separador);
-                    mensagem.append(MessageUtil.placeholders(formato, placeholders));
-                    primeiro = false;
-                    continue;
-                }
-
-                var skillData = profile.getData(skill);
-                double xpAtual = skillData.getCurrentXp();
-                double xpNecessario = levelingManager.xpParaProximoNivel(nivel);
-                int porcentagem = xpNecessario <= 0 ? 100 : (int) Math.round((xpAtual / xpNecessario) * 100.0);
-                porcentagem = Math.max(0, Math.min(100, porcentagem));
-                int preenchidos = (int) Math.round((porcentagem / 100.0) * tamanhoBarra);
-                String barra = barraCheia.repeat(preenchidos) + barraVazia.repeat(tamanhoBarra - preenchidos);
-
-                Map<String, String> placeholders = new HashMap<>();
-                placeholders.put("habilidade", skill.getDisplayName());
-                placeholders.put("xpAtual", String.valueOf((int) Math.round(xpAtual)));
-                placeholders.put("xpNecessario", String.valueOf((int) Math.round(xpNecessario)));
-                placeholders.put("porcentagem", String.valueOf(porcentagem));
-                placeholders.put("barra", barra);
-                placeholders.put("nivel", String.valueOf(nivel));
-
-                if (!primeiro) {
-                    mensagem.append(separador);
-                }
-                mensagem.append(MessageUtil.placeholders(formato, placeholders));
-                primeiro = false;
-            }
-
-            if (mensagem.length() > 0) {
-                ActionBarUtil.send(player, mensagem.toString());
-            }
-        }
-
-        pendingDisplay.clear();
     }
 
     private void announcePowerMilestone(Player player, String messagePath, SkillType skill, int poder) {
