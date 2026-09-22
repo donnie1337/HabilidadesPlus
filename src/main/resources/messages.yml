@@ -65,5 +65,5 @@ gui:
   item-perfil-habilidades: "&7Níveis das habilidades"
   item-perfil-linha: "&8• &7{habilidade}: &a{nivel}"
   perfil-categoria-combate: "&dCombate"
-  perfil-categoria-coleta: "&eColeta"
+  perfil-categoria-coleta: "&aColeta"
   perfil-categoria-utilidade: "&eExploração / Utilidade"
