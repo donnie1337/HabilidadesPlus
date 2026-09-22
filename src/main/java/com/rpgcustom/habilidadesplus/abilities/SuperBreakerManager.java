@@ -26,8 +26,7 @@ import java.util.UUID;
 
 public class SuperBreakerManager implements Listener {
 
-    private static final int NIVEL_DESBLOQUEIO = 10;
-    private static final double EFICIENCIA_BONUS = 20.0;
+        private static final double EFICIENCIA_BONUS = 20.0;
     private static final NamespacedKey EFICIENCIA_KEY =
             new NamespacedKey("habilidadesplus", "super_quebrador_eficiencia");
 
@@ -64,7 +63,8 @@ public class SuperBreakerManager implements Listener {
         UUID uuid = player.getUniqueId();
         int level = dataManager.getProfile(uuid).getLevel(SkillType.MINERACAO);
 
-        if (level < NIVEL_DESBLOQUEIO) {
+        int nivelDesbloqueio = configManager.config().getInt("mineracao.superbreaker.nivel-desbloqueio", 10);
+        if (level < nivelDesbloqueio) {
             return;
         }
 
@@ -172,7 +172,16 @@ public class SuperBreakerManager implements Listener {
     private long calculateDurationTicks(int level) {
         double seconds = interpolate(level,
                 new int[]{10, 50, 100, 150, 200, 250, 500, 1000},
-                new double[]{5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0}
+                new double[]{
+                        configManager.config().getDouble("mineracao.superbreaker.duracao-nivel-10", 5.0),
+                        configManager.config().getDouble("mineracao.superbreaker.duracao-nivel-50", 6.0),
+                        configManager.config().getDouble("mineracao.superbreaker.duracao-nivel-100", 7.0),
+                        configManager.config().getDouble("mineracao.superbreaker.duracao-nivel-150", 8.0),
+                        configManager.config().getDouble("mineracao.superbreaker.duracao-nivel-200", 9.0),
+                        configManager.config().getDouble("mineracao.superbreaker.duracao-nivel-250", 10.0),
+                        configManager.config().getDouble("mineracao.superbreaker.duracao-nivel-500", 15.0),
+                        configManager.config().getDouble("mineracao.superbreaker.duracao-nivel-1000", 20.0)
+                }
         );
         return Math.max(1L, Math.round(seconds * 20.0));
     }
@@ -184,21 +193,28 @@ public class SuperBreakerManager implements Listener {
 
     private double interpolateCooldown(int level) {
         if (level <= 10) {
-            return 120.0;
+            return configManager.config().getDouble("mineracao.superbreaker.recarga-nivel-10", 120.0);
         }
 
         if (level <= 50) {
-            return interpolate(level, new int[]{10, 50}, new double[]{120.0, 140.0});
+            return interpolate(level, new int[]{10, 50}, new double[]{
+                    configManager.config().getDouble("mineracao.superbreaker.recarga-nivel-10", 120.0),
+                    configManager.config().getDouble("mineracao.superbreaker.recarga-nivel-50", 140.0)
+            });
         }
 
         int lowerLevel = ((level - 50) / 50) * 50 + 50;
         int upperLevel = Math.min(1000, lowerLevel + 50);
         if (lowerLevel >= 1000) {
-            return 500.0;
+            double baseCooldown = configManager.config().getDouble("mineracao.superbreaker.recarga-nivel-50", 140.0);
+            double increment = configManager.config().getDouble("mineracao.superbreaker.recarga-incremento-50-niveis", 20.0);
+            return baseCooldown + ((1000 - 50) / 50) * increment;
         }
 
-        double lowerCooldown = 140.0 + ((lowerLevel - 50) / 50) * 20.0;
-        double upperCooldown = lowerCooldown + 20.0;
+        double baseCooldown = configManager.config().getDouble("mineracao.superbreaker.recarga-nivel-50", 140.0);
+        double increment = configManager.config().getDouble("mineracao.superbreaker.recarga-incremento-50-niveis", 20.0);
+        double lowerCooldown = baseCooldown + ((lowerLevel - 50) / 50) * increment;
+        double upperCooldown = lowerCooldown + increment;
         return interpolate(level, new int[]{lowerLevel, upperLevel},
                 new double[]{lowerCooldown, upperCooldown});
     }
