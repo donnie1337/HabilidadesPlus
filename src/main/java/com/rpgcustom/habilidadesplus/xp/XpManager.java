@@ -97,13 +97,11 @@ public class XpManager {
 
         boolean milestone = result.isLeveledUp() && result.getNewLevel() % 100 == 0;
 
-        // Em milestones (100, 200, 300...), o aviso fica somente no Title.
-        // Nao envia o mesmo ganho de XP pela Action Bar nesse momento.
-        if (!milestone) {
-            pendingDisplay
-                    .computeIfAbsent(player.getUniqueId(), k -> new EnumMap<>(SkillType.class))
-                    .merge(skill, amount, Double::sum);
-        }
+        // O progresso continua aparecendo na Action Bar mesmo quando ocorre
+        // um milestone de nivel. O Title e apenas um aviso adicional.
+        pendingDisplay
+                .computeIfAbsent(player.getUniqueId(), k -> new EnumMap<>(SkillType.class))
+                .merge(skill, amount, Double::sum);
 
         if (milestone) {
             announceLevelUp(player, skill, result);
