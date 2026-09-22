@@ -29,7 +29,7 @@ import java.util.UUID;
 
 public class SuperBreakerManager implements Listener {
 
-    private static final double EFICIENCIA_BONUS = 5.0;
+    private static final double EFICIENCIA_BONUS = 20.0;
     private static final NamespacedKey EFICIENCIA_KEY =
             new NamespacedKey("habilidadesplus", "super_quebrador_eficiencia");
 
