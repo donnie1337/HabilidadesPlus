@@ -35,6 +35,11 @@ public class PlayerProfile {
         return skills.get(type).getLevel();
     }
 
+    public void setLevel(SkillType type, int level) {
+        skills.get(type).setLevel(level);
+        skills.get(type).setCurrentXp(0);
+    }
+
     public int getPowerLevel() {
         int total = 0;
         for (PlayerSkillData data : skills.values()) {
