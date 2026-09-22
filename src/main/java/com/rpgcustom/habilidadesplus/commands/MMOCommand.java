@@ -7,6 +7,7 @@ import com.rpgcustom.habilidadesplus.gui.MMOMenu;
 import com.rpgcustom.habilidadesplus.leveling.LevelingManager;
 import com.rpgcustom.habilidadesplus.util.ConfigManager;
 import com.rpgcustom.habilidadesplus.util.MessageUtil;
+import com.rpgcustom.habilidadesplus.top1.Top1SkillService;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -21,13 +22,15 @@ public class MMOCommand implements TabExecutor {
     private final DataManager dataManager;
     private final LevelingManager levelingManager;
     private final ConfigManager configManager;
+    private final Top1SkillService top1SkillService;
     private final Runnable reloadAction;
 
     public MMOCommand(DataManager dataManager, LevelingManager levelingManager,
-                      ConfigManager configManager, Runnable reloadAction) {
+                      ConfigManager configManager, Top1SkillService top1SkillService, Runnable reloadAction) {
         this.dataManager = dataManager;
         this.levelingManager = levelingManager;
         this.configManager = configManager;
+        this.top1SkillService = top1SkillService;
         this.reloadAction = reloadAction;
     }
 
@@ -102,6 +105,7 @@ public class MMOCommand implements TabExecutor {
         PlayerProfile profile = dataManager.getProfile(player.getUniqueId());
         profile.setLevel(skill, level);
         dataManager.markDirty(player.getUniqueId());
+        top1SkillService.invalidate();
 
         sender.sendMessage(MessageUtil.placeholders(
                 MessageUtil.colorize(configManager.msg("comandos.setnivel-sucesso")),
