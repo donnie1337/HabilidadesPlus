@@ -5,12 +5,13 @@ import com.rpgcustom.habilidadesplus.data.DataManager;
 import com.rpgcustom.habilidadesplus.util.ConfigManager;
 import com.rpgcustom.habilidadesplus.util.MessageUtil;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
+import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -25,12 +26,18 @@ import java.util.UUID;
 
 public class SuperBreakerManager implements Listener {
 
+    private static final int NIVEL_DESBLOQUEIO = 10;
+    private static final double EFICIENCIA_BONUS = 20.0;
+    private static final NamespacedKey EFICIENCIA_KEY =
+            new NamespacedKey("habilidadesplus", "super_quebrador_eficiencia");
+
     private final JavaPlugin plugin;
     private final ConfigManager configManager;
     private final DataManager dataManager;
     private final Map<UUID, Long> cooldownUntil = new HashMap<>();
     private final Map<UUID, BukkitTask> activeTasks = new HashMap<>();
     private final Map<UUID, Long> activeUntil = new HashMap<>();
+    private final Map<UUID, AttributeModifier> efficiencyModifiers = new HashMap<>();
 
     public SuperBreakerManager(JavaPlugin plugin, ConfigManager configManager, DataManager dataManager) {
         this.plugin = plugin;
@@ -55,28 +62,33 @@ public class SuperBreakerManager implements Listener {
         }
 
         UUID uuid = player.getUniqueId();
+        int level = dataManager.getProfile(uuid).getLevel(SkillType.MINERACAO);
+
+        if (level < NIVEL_DESBLOQUEIO) {
+            return;
+        }
+
         if (activeTasks.containsKey(uuid)) {
             return;
         }
 
         long now = System.currentTimeMillis();
-        if (now < cooldownUntil.getOrDefault(uuid, 0L)) {
-            return;
-        }
-
-        int level = dataManager.getProfile(uuid).getLevel(SkillType.MINERACAO);
-        if (level <= 0) {
+        long cooldownEnd = cooldownUntil.getOrDefault(uuid, 0L);
+        if (now < cooldownEnd) {
+            long remainingSeconds = (long) Math.ceil((cooldownEnd - now) / 1000.0);
+            sendCooldownMessage(player, remainingSeconds);
             return;
         }
 
         long durationTicks = calculateDurationTicks(level);
-        long cooldownTicks = Math.max(0L, configManager.config()
-                .getLong("mineracao.superbreaker.delay-ativacao-segundos", 30L)) * 20L;
+        long cooldownTicks = calculateCooldownTicks(level);
 
         activeUntil.put(uuid, now + durationTicks * 50L);
         cooldownUntil.put(uuid, now + cooldownTicks * 50L);
+        applyEfficiencyBonus(player);
 
         BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            removeEfficiencyBonus(player);
             activeTasks.remove(uuid);
             activeUntil.remove(uuid);
         }, durationTicks);
@@ -86,31 +98,11 @@ public class SuperBreakerManager implements Listener {
                 configManager.msg("mineracao.superbreaker-ativado"),
                 Map.of(
                         "nivel", String.valueOf(level),
-                        "duracao", formatSeconds(durationTicks)
+                        "duracao", formatSeconds(durationTicks),
+                        "recarga", formatSeconds(cooldownTicks)
                 )
         );
         player.sendMessage(MessageUtil.colorize(mensagem));
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onBlockDamage(BlockDamageEvent event) {
-        Player player = event.getPlayer();
-        UUID uuid = player.getUniqueId();
-
-        if (!activeTasks.containsKey(uuid)) {
-            return;
-        }
-
-        if (System.currentTimeMillis() >= activeUntil.getOrDefault(uuid, 0L)) {
-            stop(uuid);
-            return;
-        }
-
-        if (!isMiningBlock(event.getBlock())) {
-            return;
-        }
-
-        event.setInstaBreak(true);
     }
 
     @EventHandler
@@ -130,28 +122,116 @@ public class SuperBreakerManager implements Listener {
         if (task != null) {
             task.cancel();
         }
+
+        Player player = plugin.getServer().getPlayer(uuid);
+        if (player != null) {
+            removeEfficiencyBonus(player);
+        } else {
+            efficiencyModifiers.remove(uuid);
+        }
+
         activeUntil.remove(uuid);
     }
 
-    private long calculateDurationTicks(int level) {
-        double base = Math.max(0.1, configManager.config().getDouble(
-                "mineracao.superbreaker.duracao-base-segundos", 3.0));
-        double perLevel = Math.max(0.0, configManager.config().getDouble(
-                "mineracao.superbreaker.duracao-por-nivel", 0.02));
-        double max = Math.max(base, configManager.config().getDouble(
-                "mineracao.superbreaker.duracao-maxima-segundos", 15.0));
+    private void applyEfficiencyBonus(Player player) {
+        removeEfficiencyBonus(player);
 
-        double seconds = Math.min(max, base + (level * perLevel));
+        AttributeInstance attribute = player.getAttribute(Attribute.MINING_EFFICIENCY);
+        if (attribute == null) {
+            return;
+        }
+
+        AttributeModifier modifier = new AttributeModifier(
+                EFICIENCIA_KEY,
+                EFICIENCIA_BONUS,
+                AttributeModifier.Operation.ADD_NUMBER
+        );
+
+        attribute.addTransientModifier(modifier);
+        efficiencyModifiers.put(player.getUniqueId(), modifier);
+    }
+
+    private void removeEfficiencyBonus(Player player) {
+        AttributeInstance attribute = player.getAttribute(Attribute.MINING_EFFICIENCY);
+        AttributeModifier modifier = efficiencyModifiers.remove(player.getUniqueId());
+
+        if (attribute == null) {
+            return;
+        }
+
+        if (modifier != null) {
+            attribute.removeModifier(modifier);
+        } else {
+            AttributeModifier existing = attribute.getModifier(EFICIENCIA_KEY);
+            if (existing != null) {
+                attribute.removeModifier(existing);
+            }
+        }
+    }
+
+    private long calculateDurationTicks(int level) {
+        double seconds = interpolate(level,
+                new int[]{10, 50, 100, 150, 200, 250, 500, 1000},
+                new double[]{5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0}
+        );
         return Math.max(1L, Math.round(seconds * 20.0));
     }
 
-    private String formatSeconds(long ticks) {
-        return String.format(java.util.Locale.ROOT, "%.1f", ticks / 20.0);
+    private long calculateCooldownTicks(int level) {
+        double seconds = interpolateCooldown(level);
+        return Math.max(1L, Math.round(seconds * 20.0));
     }
 
-    private boolean isMiningBlock(Block block) {
-        Material material = block.getType();
-        return material.isSolid() && material != Material.BEDROCK && material != Material.BARRIER;
+    private double interpolateCooldown(int level) {
+        if (level <= 10) {
+            return 120.0;
+        }
+
+        if (level <= 50) {
+            return interpolate(level, new int[]{10, 50}, new double[]{120.0, 140.0});
+        }
+
+        int lowerLevel = ((level - 50) / 50) * 50 + 50;
+        int upperLevel = Math.min(1000, lowerLevel + 50);
+        if (lowerLevel >= 1000) {
+            return 500.0;
+        }
+
+        double lowerCooldown = 140.0 + ((lowerLevel - 50) / 50) * 20.0;
+        double upperCooldown = lowerCooldown + 20.0;
+        return interpolate(level, new int[]{lowerLevel, upperLevel},
+                new double[]{lowerCooldown, upperCooldown});
+    }
+
+    private double interpolate(int level, int[] levels, double[] values) {
+        if (level <= levels[0]) {
+            return values[0];
+        }
+
+        for (int i = 1; i < levels.length; i++) {
+            if (level <= levels[i]) {
+                double ratio = (level - levels[i - 1]) / (double) (levels[i] - levels[i - 1]);
+                return values[i - 1] + ((values[i] - values[i - 1]) * ratio);
+            }
+        }
+
+        return values[values.length - 1];
+    }
+
+    private String formatSeconds(long ticks) {
+        double seconds = ticks / 20.0;
+        if (seconds == Math.rint(seconds)) {
+            return String.valueOf((long) seconds);
+        }
+        return String.format(java.util.Locale.ROOT, "%.1f", seconds);
+    }
+
+    private void sendCooldownMessage(Player player, long remainingSeconds) {
+        String mensagem = MessageUtil.placeholders(
+                configManager.msg("mineracao.superbreaker-em-recarga"),
+                Map.of("segundos", String.valueOf(remainingSeconds))
+        );
+        player.sendMessage(MessageUtil.colorize(mensagem));
     }
 
     private boolean isPickaxe(Material material) {
