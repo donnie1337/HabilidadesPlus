@@ -17,37 +17,37 @@ poder:
 
 level-up:
   # Aviso exibido somente ao atingir 100, 200, 300, 400, 500... em uma habilidade.
-  actionbar: "&a&lSUBIU DE NIVEL! &f{habilidade} &7agora e nivel &e{nivel}&7!"
-  titulo: "&a&lSUBIU DE NIVEL!"
-  subtitulo: "&f{habilidade} agora e nivel &e{nivel}&f!"
+  actionbar: "&a&lSUBIU DE NÍVEL! &fAgora você é nível &e{nivel} &fem {habilidade}&f!"
+  titulo: "&a&lSUBIU DE NÍVEL!"
+  subtitulo: "&f{habilidade} agora é nível &e{nivel}&f!"
   som: ENTITY_PLAYER_LEVELUP
 
 comandos:
-  sem-permissao: "&cVoce nao tem permissao para usar este comando."
-  apenas-jogador: "&cEste comando so pode ser usado por jogadores."
-  reload-sucesso: "&aConfiguracoes do HabilidadesPlus recarregadas com sucesso!"
+  sem-permissao: "&cVocê não tem permissão para usar este comando."
+  apenas-jogador: "&cEste comando só pode ser usado por jogadores."
+  reload-sucesso: "&aConfigurações do HabilidadesPlus recarregadas com sucesso!"
 
 acrobacia:
-  mensagem-role: "&b&lVoce rolou e absorveu o dano da queda!"
+  mensagem-role: "&b&lVocê rolou e absorveu o dano da queda!"
 
 gui:
   titulo-menu: "&8&lHabilidadesPlus &7- Habilidades"
   titulo-habilidade: "&8Habilidades &8• &b{habilidade}"
-  item-habilidade-nome: "&b{habilidade} &8• &7Nivel &a{nivel}"
+  item-habilidade-nome: "&b{habilidade} &8• &7Nível &a{nivel}"
   item-xp: "&7XP: &f{xpAtual} &7/ &f{xpNecessario}"
-  item-nivel-maximo: "&6&lNIVEL MAXIMO!"
+  item-nivel-maximo: "&6&lNÍVEL MÁXIMO!"
   lista-poderes: "&7Poderes:"
-  linha-poder: "&8• &7Nivel &f{nivel}&7: {poder} {estado}"
+  linha-poder: "&8• &7Nível &f{nivel}&7: {poder} {estado}"
   estado-desbloqueado: "&a✓"
   estado-bloqueado: "&8✖"
   estado-planejado: "&e(planejado)"
   clique-poderes: "&aClique para ver os poderes."
-  item-poder-nivel: "&7Desbloqueio: &fNivel {nivel}"
+  item-poder-nivel: "&7Desbloqueio: &fNível {nivel}"
   item-poder-desbloqueado: "&a✓ Poder funcional e desbloqueado"
   item-poder-bloqueado: "&8✖ Poder funcional, ainda bloqueado"
   item-poder-planejado: "&e⚠ Poder planejado; ainda sem efeito no jogo"
   voltar-nome: "&cVoltar"
-  voltar-lore: "&7Clique para voltar as habilidades."
+  voltar-lore: "&7Clique para voltar às habilidades."
   item-perfil-nome: "&b{jogador} &8• &7Poder &a{poder}"
-  item-perfil-habilidades: "&7Niveis das habilidades:"
+  item-perfil-habilidades: "&7Níveis das habilidades:"
   item-perfil-linha: "&8• &7{habilidade}: &a{nivel}"
