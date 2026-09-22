@@ -38,6 +38,10 @@ xp:
 
   mineracao:
     STONE: 10
+    ANDESITE: 10
+    GRANITE: 10
+    TUFF: 10
+    DIORITE: 10
     DEEPSLATE: 12
     COAL_ORE: 40
     DEEPSLATE_COAL_ORE: 45
