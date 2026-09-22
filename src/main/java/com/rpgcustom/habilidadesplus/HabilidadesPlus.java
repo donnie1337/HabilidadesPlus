@@ -47,6 +47,10 @@ public final class HabilidadesPlus extends JavaPlugin {
     }
 
     @Override
+    public DataManager getDataManager() {
+        return dataManager;
+    }
+
     public void onDisable() {
         if (xpManager != null) {
             xpManager.stopTask();
