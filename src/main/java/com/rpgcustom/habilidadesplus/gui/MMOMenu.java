@@ -103,6 +103,10 @@ public final class MMOMenu {
         List<String> lore = new ArrayList<>();
         lore.add("");
         lore.addAll(wrap("&7" + power.description()));
+        if (skill == SkillType.MINERACAO && power.name().equals("Veio Farto")) {
+            double chance = Math.min(100.0, level * config.getDouble("mineracao.veio-farto.chance-drop-duplo-por-nivel", 0.1));
+            lore.add(message(config, "gui.veio-farto-chance", Map.of("chance", formatPercent(chance))));
+        }
         if (skill == SkillType.MINERACAO && power.name().equals("Super Quebrador")) {
             double chance = Math.min(100.0, level * config.getDouble("mineracao.superbreaker.chance-drop-triplo-por-nivel", 0.02));
             lore.addAll(wrap("&7Durante o Super Quebrador, o drop pode ser triplicado."));
