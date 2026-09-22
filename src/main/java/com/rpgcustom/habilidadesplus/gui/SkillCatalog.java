@@ -30,7 +30,7 @@ public final class SkillCatalog {
             case CLAVA -> d("Esmague inimigos com impactos fortes e controle de área.", p("Choque de Solo",10,Material.MACE,"Impactos têm chance de empurrar inimigos próximos."),p("Peso da Queda",45,Material.ANVIL,"Aumenta o dano de ataques em queda."));
             case TRIDENTES -> d("Controle distância e água com arremessos precisos.", p("Arpão Firme",10,Material.TRIDENT,"Aumenta o dano de tridentes arremessados."),p("Correnteza",45,Material.PRISMARINE_CRYSTALS,"Atingir na água aplica lentidão ao alvo."));
             case BESTAS -> d("Dispare virotes com força e alcance calculados.", p("Mecanismo Reforçado",5,Material.CROSSBOW,"Aumenta levemente o dano dos virotes."),p("Virote de Impacto",35,Material.ARROW,"Chance de aplicar recuo adicional."),p("Salva Perfurante",70,Material.FIREWORK_ROCKET,"Disparos especiais atravessam inimigos."));
-            case LANCAS -> d("Use alcance e investidas para dominar o combate.", p("Estocada Firme",5,Material.STONE_SWORD,"Aumenta o dano em ataques de lança."),p("Passo de Investida",35,Material.FEATHER,"Golpes em movimento causam dano adicional."));
+            case LANCAS -> d("Use alcance e investidas para dominar o combate.", p("Estocada Firme",5,Material.STONE_SPEAR,"Aumenta o dano em ataques de lança."),p("Passo de Investida",35,Material.FEATHER,"Golpes em movimento causam dano adicional."));
         };
     }
     private static Definition d(String description, Power... powers){return new Definition(description,List.of(powers));}
