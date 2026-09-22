@@ -110,6 +110,10 @@ public class SuperBreakerManager implements Listener {
         stop(event.getPlayer().getUniqueId());
     }
 
+    public boolean isActive(UUID uuid) {
+        return activeTasks.containsKey(uuid);
+    }
+
     public void stopAll() {
         for (UUID uuid : new HashSet<>(activeTasks.keySet())) {
             stop(uuid);
