@@ -1,5 +1,6 @@
 package com.rpgcustom.habilidadesplus;
 
+import com.rpgcustom.habilidadesplus.abilities.SuperBreakerManager;
 import com.rpgcustom.habilidadesplus.commands.MMOCommand;
 import com.rpgcustom.habilidadesplus.data.DataManager;
 import com.rpgcustom.habilidadesplus.gui.MMOMenuListener;
@@ -29,6 +30,7 @@ public final class HabilidadesPlus extends JavaPlugin {
     private LevelingManager levelingManager;
     private XpManager xpManager;
     private PlacedBlockTracker placedBlockTracker;
+    private SuperBreakerManager superBreakerManager;
     private BukkitTask autosaveTask;
 
     @Override
@@ -38,6 +40,7 @@ public final class HabilidadesPlus extends JavaPlugin {
         this.placedBlockTracker = new PlacedBlockTracker(this);
         this.levelingManager = new LevelingManager(configManager.config());
         this.xpManager = new XpManager(this, dataManager, levelingManager, configManager);
+        this.superBreakerManager = new SuperBreakerManager(this, configManager, dataManager);
 
         registerListeners();
         registerCommands();
@@ -55,6 +58,9 @@ public final class HabilidadesPlus extends JavaPlugin {
         if (xpManager != null) {
             xpManager.stopTask();
         }
+        if (superBreakerManager != null) {
+            superBreakerManager.stopAll();
+        }
         if (autosaveTask != null) {
             autosaveTask.cancel();
         }
@@ -70,6 +76,7 @@ public final class HabilidadesPlus extends JavaPlugin {
     private void registerListeners() {
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new GatheringListener(configManager, xpManager, placedBlockTracker), this);
+        pm.registerEvents(new SuperBreakerManager(this, configManager, dataManager), this);
         pm.registerEvents(new FishingListener(configManager, xpManager), this);
         pm.registerEvents(new CombatListener(configManager, xpManager), this);
         pm.registerEvents(new AcrobaticsListener(configManager, xpManager, dataManager), this);
