@@ -71,9 +71,63 @@ public final class MMOMenu {
         player.openInventory(inventory);
     }
 
-    private static ItemStack rankingBook(ConfigManager config) {
-        return item(Material.WRITABLE_BOOK, "&bRanking de Habilidades",
-                List.of("", "&7Veja os melhores jogadores por habilidade.", "&7Clique para abrir o ranking."));
+    private static ItemStack rankingBook(Player player, DataManager data, ConfigManager config) {
+        List<String> lore = new ArrayList<>();
+        lore.add("");
+        lore.add("&7Sua posição em cada habilidade:");
+
+        addRankingCategory(lore, "&eColeta e recursos", new SkillType[]{
+                SkillType.MINERACAO, SkillType.LENHADOR, SkillType.ESCAVACAO, SkillType.ERVANISMO, SkillType.PESCA
+        }, player, data);
+        addRankingCategory(lore, "&eProdução e utilidade", new SkillType[]{
+                SkillType.FUNDICAO, SkillType.ALQUIMIA, SkillType.REPARACAO
+        }, player, data);
+        addRankingCategory(lore, "&eCombate corpo a corpo", new SkillType[]{
+                SkillType.ESPADAS, SkillType.MACHADOS, SkillType.CLAVA, SkillType.DESARMADO
+        }, player, data);
+        addRankingCategory(lore, "&eCombate à distância", new SkillType[]{
+                SkillType.ARQUERIA, SkillType.BESTAS, SkillType.TRIDENTES, SkillType.LANCAS
+        }, player, data);
+        addRankingCategory(lore, "&eMobilidade e companheiros", new SkillType[]{
+                SkillType.ACROBACIA, SkillType.DOMESTICACAO
+        }, player, data);
+
+        lore.add("");
+        lore.add("&7Clique para abrir o ranking.");
+        return item(Material.WRITABLE_BOOK, "&bRanking de Habilidades", lore);
+    }
+
+    private static void addRankingCategory(List<String> lore, String category, SkillType[] skills,
+                                           Player player, DataManager data) {
+        Map<java.util.UUID, PlayerProfile> profiles = data.getAllProfiles();
+        PlayerProfile profile = data.getProfile(player.getUniqueId());
+        lore.add("");
+        lore.add(category);
+        for (SkillType skill : skills) {
+            int level = profile.getLevel(skill);
+            int position = rankingPosition(player.getUniqueId(), skill, profiles);
+            String positionText = position > 0 ? "&b#" + position : "&8Sem ranking";
+            lore.add("&8• &7" + skill.getDisplayName() + ": &a" + level + " &8(" + positionText + "&8)");
+        }
+    }
+
+    private static int rankingPosition(java.util.UUID target, SkillType skill,
+                                       Map<java.util.UUID, PlayerProfile> profiles) {
+        List<Map.Entry<java.util.UUID, PlayerProfile>> ranking = profiles.entrySet().stream()
+                .filter(entry -> entry.getValue().getLevel(skill) > 0)
+                .sorted(Comparator
+                        .<Map.Entry<java.util.UUID, PlayerProfile>>comparingInt(entry -> entry.getValue().getLevel(skill))
+                        .reversed()
+                        .thenComparing(entry -> {
+                            String name = Bukkit.getOfflinePlayer(entry.getKey()).getName();
+                            return name == null ? "" : name.toLowerCase(java.util.Locale.ROOT);
+                        }))
+                .toList();
+
+        for (int index = 0; index < ranking.size(); index++) {
+            if (ranking.get(index).getKey().equals(target)) return index + 1;
+        }
+        return 0;
     }
 
     private static ItemStack rankingFilterItem(SkillType selected) {
