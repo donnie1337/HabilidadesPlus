@@ -1,5 +1,7 @@
 package com.rpgcustom.habilidadesplus.abilities;
 
+import com.rpgcustom.habilidadesplus.SkillType;
+import com.rpgcustom.habilidadesplus.data.DataManager;
 import com.rpgcustom.habilidadesplus.util.ConfigManager;
 import com.rpgcustom.habilidadesplus.util.MessageUtil;
 import org.bukkit.Material;
@@ -9,14 +11,15 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.event.block.Action;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
 
@@ -24,13 +27,15 @@ public class SuperBreakerManager implements Listener {
 
     private final JavaPlugin plugin;
     private final ConfigManager configManager;
+    private final DataManager dataManager;
     private final Map<UUID, Long> cooldownUntil = new HashMap<>();
     private final Map<UUID, BukkitTask> activeTasks = new HashMap<>();
     private final Map<UUID, Long> activeUntil = new HashMap<>();
 
-    public SuperBreakerManager(JavaPlugin plugin, ConfigManager configManager) {
+    public SuperBreakerManager(JavaPlugin plugin, ConfigManager configManager, DataManager dataManager) {
         this.plugin = plugin;
         this.configManager = configManager;
+        this.dataManager = dataManager;
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -55,23 +60,18 @@ public class SuperBreakerManager implements Listener {
         }
 
         long now = System.currentTimeMillis();
-        long cooldown = cooldownUntil.getOrDefault(uuid, 0L);
-        if (now < cooldown) {
+        if (now < cooldownUntil.getOrDefault(uuid, 0L)) {
             return;
         }
 
-        int level = plugin.getServer().getPluginManager()
-                .getPlugin("HabilidadesPlus") instanceof com.rpgcustom.habilidadesplus.HabilidadesPlus
-                ? ((com.rpgcustom.habilidadesplus.HabilidadesPlus) plugin.getServer().getPluginManager().getPlugin("HabilidadesPlus"))
-                    .getDataManager().getProfile(uuid).getLevel(com.rpgcustom.habilidadesplus.SkillType.MINERACAO)
-                : 0;
-
+        int level = dataManager.getProfile(uuid).getLevel(SkillType.MINERACAO);
         if (level <= 0) {
             return;
         }
 
         long durationTicks = calculateDurationTicks(level);
-        long cooldownTicks = Math.max(0L, configManager.config().getLong("mineracao.superbreaker.cooldown-segundos", 30L)) * 20L;
+        long cooldownTicks = Math.max(0L, configManager.config()
+                .getLong("mineracao.superbreaker.delay-ativacao-segundos", 30L)) * 20L;
 
         activeUntil.put(uuid, now + durationTicks * 50L);
         cooldownUntil.put(uuid, now + cooldownTicks * 50L);
@@ -106,8 +106,7 @@ public class SuperBreakerManager implements Listener {
             return;
         }
 
-        Block block = event.getBlock();
-        if (!isMiningBlock(block.getType())) {
+        if (!isMiningBlock(event.getBlock())) {
             return;
         }
 
@@ -120,7 +119,7 @@ public class SuperBreakerManager implements Listener {
     }
 
     public void stopAll() {
-        for (UUID uuid : new java.util.HashSet<>(activeTasks.keySet())) {
+        for (UUID uuid : new HashSet<>(activeTasks.keySet())) {
             stop(uuid);
         }
         cooldownUntil.clear();
@@ -147,11 +146,11 @@ public class SuperBreakerManager implements Listener {
     }
 
     private String formatSeconds(long ticks) {
-        double seconds = ticks / 20.0;
-        return String.format(java.util.Locale.ROOT, "%.1f", seconds);
+        return String.format(java.util.Locale.ROOT, "%.1f", ticks / 20.0);
     }
 
-    private boolean isMiningBlock(Material material) {
+    private boolean isMiningBlock(Block block) {
+        Material material = block.getType();
         return material.isSolid() && material != Material.BEDROCK && material != Material.BARRIER;
     }
 
