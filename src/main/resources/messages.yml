@@ -13,6 +13,11 @@ actionbar:
   # separador usado quando mais de uma habilidade ganha XP no mesmo lote
   separador: " &8| "
 
+poder:
+  # Mensagens exibidas no chat ao cruzar o marco de 100 pela primeira vez.
+  milestone-geral: "&6&lPODER &8» &fVoce atingiu &e100 &fde poder geral!"
+  milestone-habilidade: "&6&lPODER &8» &fVoce atingiu &e100 &fde poder em &e{habilidade}&f!"
+
 level-up:
   # Aviso exibido somente ao atingir 100, 200, 300, 400, 500... em uma habilidade.
   actionbar: "&a&lSUBIU DE NIVEL! &f{habilidade} &7agora e nivel &e{nivel}&7!"
