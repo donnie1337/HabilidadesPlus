@@ -49,6 +49,7 @@ public final class MMOMenu {
         holder.setInventory(inventory);
 
         List<Map.Entry<java.util.UUID, PlayerProfile>> ranking = data.getAllProfiles().entrySet().stream()
+                .filter(entry -> entry.getValue().getLevel(selected) > 0)
                 .sorted(Comparator
                         .<Map.Entry<java.util.UUID, PlayerProfile>>comparingInt(entry -> entry.getValue().getLevel(selected))
                         .reversed()
