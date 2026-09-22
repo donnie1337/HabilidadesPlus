@@ -55,9 +55,7 @@ public final class MMOMenu {
         inventory.setItem(29, profileItem(player, profile, config));
         inventory.setItem(31, item(Material.ARROW, config.msg("gui.voltar-nome"),
                 List.of("", config.msg("gui.voltar-lore"))));
-        if (skill == SkillType.MINERACAO) {
-            inventory.setItem(33, skillItem(skill, profile, levels, config));
-        }
+        inventory.setItem(33, skillItem(skill, profile, levels, config));
         player.openInventory(inventory);
     }
 
