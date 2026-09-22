@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.entity.Item;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -77,10 +78,11 @@ public final class VeioFartoManager implements Listener {
         }
 
         int multiplicador = superQuebrador ? 3 : 2;
-        for (ItemStack drop : event.getItems().toArray(new ItemStack[0])) {
-            for (int i = 1; i < multiplicador; i++) {
-                event.getItems().add(drop.clone());
-            }
+        for (Item drop : event.getItems()) {
+            ItemStack stack = drop.getItemStack();
+            int amount = stack.getAmount();
+            stack.setAmount(amount * multiplicador);
+            drop.setItemStack(stack);
         }
     }
 }
