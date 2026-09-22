@@ -48,7 +48,7 @@ public final class HabilidadesPlus extends JavaPlugin {
         this.dataManager = new DataManager(this);
         this.placedBlockTracker = new PlacedBlockTracker(this);
         this.levelingManager = new LevelingManager(configManager.config());
-        this.xpManager = new XpManager(this, dataManager, levelingManager, configManager);
+        this.xpManager = new XpManager(this, dataManager, levelingManager, configManager, top1SkillService);
         this.top1SkillService = new Top1SkillService(dataManager);
         this.superBreakerManager = new SuperBreakerManager(this, configManager, dataManager);
         this.veioFartoManager = new VeioFartoManager(dataManager, configManager, superBreakerManager);
@@ -115,7 +115,7 @@ public final class HabilidadesPlus extends JavaPlugin {
     }
 
     private void registerCommands() {
-        MMOCommand mmoCommand = new MMOCommand(dataManager, levelingManager, configManager, this::reloadRuntime);
+        MMOCommand mmoCommand = new MMOCommand(dataManager, levelingManager, configManager, top1SkillService, this::reloadRuntime);
         PluginCommand command = Objects.requireNonNull(
                 getCommand("mcmmo"),
                 "O comando mcmmo nao foi encontrado no plugin.yml"
