@@ -52,11 +52,11 @@ public final class MMOMenu {
             inventory.setItem(SLOTS[index], powerItem(powers.get(index), skill, current.getLevel(), config));
         }
         // Elementos fixos do cabeçalho: 1 espaço entre a seta, a cabeça e a picareta.
-        inventory.setItem(31, profileItem(player, profile, config));
-        inventory.setItem(34, item(Material.ARROW, config.msg("gui.voltar-nome"),
+        inventory.setItem(29, profileItem(player, profile, config));
+        inventory.setItem(31, item(Material.ARROW, config.msg("gui.voltar-nome"),
                 List.of("", config.msg("gui.voltar-lore"))));
         if (skill == SkillType.MINERACAO) {
-            inventory.setItem(32, skillItem(skill, profile, levels, config));
+            inventory.setItem(33, skillItem(skill, profile, levels, config));
         }
         player.openInventory(inventory);
     }
