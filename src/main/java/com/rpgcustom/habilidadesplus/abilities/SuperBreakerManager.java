@@ -149,7 +149,7 @@ public class SuperBreakerManager implements Listener {
     private void applyEfficiencyBonus(Player player) {
         removeEfficiencyBonus(player);
 
-        AttributeInstance attribute = player.getAttribute(Attribute.MINING_EFFICIENCY);
+        AttributeInstance attribute = player.getAttribute(Attribute.BLOCK_BREAK_SPEED);
         if (attribute != null) {
             AttributeModifier modifier = new AttributeModifier(
                     EFICIENCIA_KEY,
