@@ -35,6 +35,7 @@ comandos:
 mineracao:
   superbreaker-ativado: "&6&lSUPER QUEBRADOR! &fAtivado por &e{duracao}s &fno nível &e{nivel}&f."
   superbreaker-em-recarga: "&cSuper Quebrador em recarga! Aguarde &e{segundos} segundos&c para usar novamente."
+  superbreaker-finalizado: "&eSuper Quebrador finalizado! &7A habilidade entrou em recarga."
 
 acrobacia:
   mensagem-role: "&b&lVocê rolou e absorveu o dano da queda!"
