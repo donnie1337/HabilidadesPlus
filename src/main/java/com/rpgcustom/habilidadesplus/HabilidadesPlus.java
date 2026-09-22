@@ -48,8 +48,8 @@ public final class HabilidadesPlus extends JavaPlugin {
         this.dataManager = new DataManager(this);
         this.placedBlockTracker = new PlacedBlockTracker(this);
         this.levelingManager = new LevelingManager(configManager.config());
-        this.xpManager = new XpManager(this, dataManager, levelingManager, configManager, top1SkillService);
         this.top1SkillService = new Top1SkillService(dataManager);
+        this.xpManager = new XpManager(this, dataManager, levelingManager, configManager, top1SkillService);
         this.superBreakerManager = new SuperBreakerManager(this, configManager, dataManager);
         this.veioFartoManager = new VeioFartoManager(dataManager, configManager, superBreakerManager);
         this.precisionMiningManager = new PrecisionMiningManager(dataManager, configManager);
