@@ -41,7 +41,7 @@ acrobacia:
   mensagem-role: "&b&lVocê rolou e absorveu o dano da queda!"
 
 gui:
-  titulo-menu: "&8&lHabilidadesPlus &7- Habilidades"
+  titulo-menu: "&8Habilidades • Suas informações"
   titulo-habilidade: "&8Habilidades &8• &b{habilidade}"
   item-habilidade-nome: "&b{habilidade} &8• &7Nível &a{nivel}"
   item-xp: "&7XP: &f{xpAtual} &7/ &f{xpNecessario}"
