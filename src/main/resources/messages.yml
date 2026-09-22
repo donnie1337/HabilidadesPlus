@@ -26,6 +26,11 @@ comandos:
   sem-permissao: "&cVocê não tem permissão para usar este comando."
   apenas-jogador: "&cEste comando só pode ser usado por jogadores."
   reload-sucesso: "&aConfigurações do HabilidadesPlus recarregadas com sucesso!"
+  setnivel-uso: "&eUso: /mcmmo setnivel <habilidade> <nivel>"
+  setnivel-habilidade-invalida: "&cHabilidade inválida."
+  setnivel-nivel-invalido: "&cNível inválido. Informe um número inteiro."
+  setnivel-fora-do-limite: "&cO nível deve estar entre 0 e {maximo}."
+  setnivel-sucesso: "&a{habilidade} definida para o nível &e{nivel}&a."
 
 acrobacia:
   mensagem-role: "&b&lVocê rolou e absorveu o dano da queda!"
