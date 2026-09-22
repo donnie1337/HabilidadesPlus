@@ -16,7 +16,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--
             Compilamos o bytecode visando o Java 21 (baseline atual do Spigot/Paper).
-            Um JAR compilado com --release 21 roda normalmente em qualquer JVM igual
+            Um JAR compilado com release 21 roda normalmente em qualquer JVM igual
             ou mais nova (Java 25, Java 26, etc.), pois a JVM e retrocompativel.
             Se quiser travar especificamente em Java 26, troque os dois valores abaixo para 26,
             mas isso impede o plugin de rodar em servidores com Java mais antigo.
