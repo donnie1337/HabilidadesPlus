@@ -96,6 +96,8 @@ public class SuperBreakerManager implements Listener {
             removeEfficiencyBonus(player);
             activeTasks.remove(uuid);
             activeUntil.remove(uuid);
+            sendEndedMessage(player);
+            activeUntil.remove(uuid);
         }, durationTicks);
         activeTasks.put(uuid, task);
 
@@ -252,6 +254,11 @@ public class SuperBreakerManager implements Listener {
             return String.valueOf((long) seconds);
         }
         return String.format(java.util.Locale.ROOT, "%.1f", seconds);
+    }
+
+    private void sendEndedMessage(Player player) {
+        String mensagem = MessageUtil.colorize(configManager.msg("mineracao.superbreaker-finalizado"));
+        player.sendMessage(mensagem);
     }
 
     private void sendCooldownMessage(Player player, long remainingSeconds) {
