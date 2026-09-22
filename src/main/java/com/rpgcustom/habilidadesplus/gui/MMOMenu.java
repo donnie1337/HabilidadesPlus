@@ -134,19 +134,35 @@ public final class MMOMenu {
         if (meta != null) {
             meta.setOwningPlayer(player);
             meta.setDisplayName(message(config, "gui.item-perfil-nome", Map.of(
-                    "jogador", "Seu poder", "poder", String.valueOf(profile.getPowerLevel()))));
+                    "jogador", player.getName(),
+                    "poder", String.valueOf(profile.getPowerLevel()))));
             List<String> lore = new ArrayList<>();
             lore.add("");
             lore.add(config.msg("gui.item-perfil-habilidades"));
-            for (SkillType skill : SkillType.values()) {
-                lore.add(message(config, "gui.item-perfil-linha", Map.of(
-                        "habilidade", skill.getDisplayName(),
-                        "nivel", String.valueOf(profile.getLevel(skill)))));
-            }
+            addProfileCategory(lore, config.msg("gui.perfil-categoria-combate"), new SkillType[]{
+                    SkillType.ESPADAS, SkillType.MACHADOS, SkillType.ARQUERIA, SkillType.DESARMADO,
+                    SkillType.CLAVA, SkillType.TRIDENTES, SkillType.BESTAS, SkillType.LANCAS
+            }, profile);
+            addProfileCategory(lore, config.msg("gui.perfil-categoria-coleta"), new SkillType[]{
+                    SkillType.MINERACAO, SkillType.LENHADOR, SkillType.ESCAVACAO, SkillType.ERVANISMO,
+                    SkillType.PESCA, SkillType.FUNDICAO
+            }, profile);
+            addProfileCategory(lore, config.msg("gui.perfil-categoria-utilidade"), new SkillType[]{
+                    SkillType.ALQUIMIA, SkillType.ACROBACIA, SkillType.DOMESTICACAO, SkillType.REPARACAO
+            }, profile);
             meta.setLore(color(lore));
             head.setItemMeta(meta);
         }
         return head;
+    }
+
+    private static void addProfileCategory(List<String> lore, String category, SkillType[] skills,
+                                            PlayerProfile profile) {
+        lore.add("");
+        lore.add(category);
+        for (SkillType skill : skills) {
+            lore.add("&8• " + skill.getDisplayName() + " &8• &a" + profile.getLevel(skill));
+        }
     }
 
     private static ItemStack item(Material material, String name, List<String> lore) {
