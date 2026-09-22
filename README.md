@@ -21,8 +21,9 @@ Spigot (`spigot-api 26.2-R0.1-SNAPSHOT`), bytecode compilado visando Java 21
 
 ## O que esta implementado
 
-- **12 habilidades**: Mineracao, Escavacao, Lenhador, Ervanismo, Pesca, Acrobacia,
-  Espadas, Machados, Desarmado, Arqueria, Domesticacao, Alquimia.
+- **18 habilidades**: Mineracao, Lenhador, Escavacao, Herbalismo, Pesca, Alquimia,
+  Fundicao, Espadas, Machados, Arqueiro, Acrobacia, Desarmado, Adestramento,
+  Reparacao, Clava, Tridentes, Bestas e Lancas.
 - **XP configuravel por bloco/acao** em `config.yml` (adicione ou remova blocos
   livremente).
 - **Nivelamento configuravel** (curva LINEAR ou EXPONENCIAL, nivel maximo).
@@ -60,7 +61,7 @@ HabilidadesPlus/
     │   └── messages.yml     <- todas as mensagens (action bar, GUI, level up)
     └── java/com/rpgcustom/habilidadesplus/
         ├── HabilidadesPlus.java           <- classe principal (onEnable/onDisable)
-        ├── SkillType.java           <- enum das 12 habilidades
+        ├── SkillType.java           <- enum das 18 habilidades
         ├── data/                    <- perfil do jogador + salvar/carregar YAML
         ├── leveling/                <- calculo de XP necessario por nivel
         ├── xp/XpManager.java        <- ganho de XP, action bar, level up

@@ -30,7 +30,8 @@ public class MMOMenu {
     // Slots internos usados para os icones das habilidades (evita a borda)
     private static final int[] SLOTS_HABILIDADES = {
             10, 11, 12, 13, 14, 15, 16,
-            19, 20, 21, 22, 23, 24, 25
+            19, 20, 21, 22, 23, 24, 25,
+            28, 29, 30, 31
     };
     private static final int SLOT_PODER = 49;
 

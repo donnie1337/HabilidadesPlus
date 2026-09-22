@@ -97,11 +97,23 @@ xp:
   pesca:
     xp-por-pesca: 100
 
+  fundicao:
+    # XP recebido para cada item retirado de uma fornalha, alto-forno ou defumador.
+    xp-por-item-fundido: 15
+
+  reparacao:
+    # XP recebido ao retirar um item reparado da bigorna.
+    xp-por-reparo: 75
+
   combate:
     xp-por-acerto-espada: 15
     xp-por-acerto-machado: 18
     xp-por-acerto-desarmado: 12
     xp-por-acerto-arco: 20
+    xp-por-acerto-clava: 22
+    xp-por-acerto-tridente: 24
+    xp-por-acerto-besta: 22
+    xp-por-acerto-lanca: 24
     # Se true, acertar OUTROS JOGADORES tambem da XP de combate (PVP).
     # Por padrao false, para evitar dois jogadores se baterem so para farmar XP.
     contar-pvp: false

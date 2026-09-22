@@ -10,6 +10,7 @@ import com.rpgcustom.habilidadesplus.listeners.CombatListener;
 import com.rpgcustom.habilidadesplus.listeners.FishingListener;
 import com.rpgcustom.habilidadesplus.listeners.GatheringListener;
 import com.rpgcustom.habilidadesplus.listeners.PlayerJoinQuitListener;
+import com.rpgcustom.habilidadesplus.listeners.ProductionListener;
 import com.rpgcustom.habilidadesplus.listeners.TamingListener;
 import com.rpgcustom.habilidadesplus.util.ConfigManager;
 import com.rpgcustom.habilidadesplus.xp.XpManager;
@@ -55,6 +56,7 @@ public final class HabilidadesPlus extends JavaPlugin {
         pm.registerEvents(new AcrobaticsListener(configManager, xpManager, dataManager), this);
         pm.registerEvents(new TamingListener(configManager, xpManager), this);
         pm.registerEvents(new AlchemyListener(configManager, xpManager), this);
+        pm.registerEvents(new ProductionListener(configManager, xpManager), this);
         pm.registerEvents(new PlayerJoinQuitListener(dataManager, xpManager), this);
         pm.registerEvents(new MMOMenuListener(), this);
     }

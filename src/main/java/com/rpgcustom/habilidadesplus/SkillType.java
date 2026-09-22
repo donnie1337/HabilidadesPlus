@@ -3,24 +3,31 @@ package com.rpgcustom.habilidadesplus;
 import org.bukkit.Material;
 
 /**
- * Todas as habilidades disponiveis no HabilidadesPlus.
- * O displayName e usado nas mensagens (action bar, GUI) e pode
- * ser trocado livremente aqui sem afetar o resto do codigo.
+ * Habilidades disponíveis no HabilidadesPlus.
+ * Os identificadores do enum também são usados para salvar os dados do jogador;
+ * por isso as habilidades antigas mantêm os seus identificadores originais.
  */
 public enum SkillType {
 
-    MINERACAO("Mineracao", Material.IRON_PICKAXE),
-    ESCAVACAO("Escavacao", Material.IRON_SHOVEL),
+    MINERACAO("Mineração", Material.IRON_PICKAXE),
     LENHADOR("Lenhador", Material.IRON_AXE),
-    ERVANISMO("Ervanismo", Material.WHEAT),
+    ESCAVACAO("Escavação", Material.IRON_SHOVEL),
+    ERVANISMO("Herbalismo", Material.WHEAT),
     PESCA("Pesca", Material.FISHING_ROD),
-    ACROBACIA("Acrobacia", Material.FEATHER),
+    ALQUIMIA("Alquimia", Material.BREWING_STAND),
+    FUNDICAO("Fundição", Material.FURNACE),
+
     ESPADAS("Espadas", Material.IRON_SWORD),
     MACHADOS("Machados", Material.DIAMOND_AXE),
+    ARQUERIA("Arqueiro", Material.BOW),
+    ACROBACIA("Acrobacia", Material.FEATHER),
     DESARMADO("Desarmado", Material.LEATHER_BOOTS),
-    ARQUERIA("Arqueria", Material.BOW),
-    DOMESTICACAO("Domesticacao", Material.BONE),
-    ALQUIMIA("Alquimia", Material.BREWING_STAND);
+    DOMESTICACAO("Adestramento", Material.BONE),
+    REPARACAO("Reparação", Material.ANVIL),
+    CLAVA("Clava", Material.MACE),
+    TRIDENTES("Tridentes", Material.TRIDENT),
+    BESTAS("Bestas", Material.CROSSBOW),
+    LANCAS("Lanças", material("SPEAR", Material.TRIDENT));
 
     private final String displayName;
     private final Material icon;
@@ -28,6 +35,11 @@ public enum SkillType {
     SkillType(String displayName, Material icon) {
         this.displayName = displayName;
         this.icon = icon;
+    }
+
+    private static Material material(String materialName, Material fallback) {
+        Material material = Material.matchMaterial(materialName);
+        return material != null ? material : fallback;
     }
 
     public String getDisplayName() {
