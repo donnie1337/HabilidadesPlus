@@ -1,22 +1,13 @@
 package com.rpgcustom.habilidadesplus.gui;
 
+import com.rpgcustom.habilidadesplus.SkillType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
-/**
- * Marca um Inventory como sendo o menu do HabilidadesPlus, para que o listener
- * saiba que deve cancelar cliques nele sem depender de comparar o titulo.
- */
-public class MMOMenuHolder implements InventoryHolder {
-
-    private Inventory inventory;
-
-    @Override
-    public Inventory getInventory() {
-        return inventory;
-    }
-
-    public void setInventory(Inventory inventory) {
-        this.inventory = inventory;
-    }
+public final class MMOMenuHolder implements InventoryHolder {
+    private Inventory inventory; private final SkillType skill;
+    public MMOMenuHolder(SkillType skill){this.skill=skill;}
+    public SkillType skill(){return skill;}
+    @Override public Inventory getInventory(){return inventory;}
+    public void setInventory(Inventory inventory){this.inventory=inventory;}
 }
