@@ -9,25 +9,33 @@ import org.bukkit.Material;
  */
 public enum SkillType {
 
+    // Coleta e recursos
     MINERACAO("Mineração", Material.IRON_PICKAXE),
     LENHADOR("Lenhador", Material.IRON_AXE),
     ESCAVACAO("Escavação", Material.IRON_SHOVEL),
     ERVANISMO("Herbalismo", Material.WHEAT),
     PESCA("Pesca", Material.FISHING_ROD),
-    ALQUIMIA("Alquimia", Material.BREWING_STAND),
-    FUNDICAO("Fundição", Material.FURNACE),
 
+    // Produção e utilidade
+    FUNDICAO("Fundição", Material.FURNACE),
+    ALQUIMIA("Alquimia", Material.BREWING_STAND),
+    REPARACAO("Reparação", Material.ANVIL),
+
+    // Combate corpo a corpo
     ESPADAS("Espadas", Material.IRON_SWORD),
     MACHADOS("Machados", Material.DIAMOND_AXE),
-    ARQUERIA("Arqueiro", Material.BOW),
-    ACROBACIA("Acrobacia", Material.FEATHER),
-    DESARMADO("Desarmado", Material.LEATHER_BOOTS),
-    DOMESTICACAO("Adestramento", Material.BONE),
-    REPARACAO("Reparação", Material.ANVIL),
     CLAVA("Clava", Material.MACE),
-    TRIDENTES("Tridentes", Material.TRIDENT),
+    DESARMADO("Desarmado", Material.LEATHER_BOOTS),
+
+    // Combate à distância
+    ARQUERIA("Arqueiro", Material.BOW),
     BESTAS("Bestas", Material.CROSSBOW),
-    LANCAS("Lanças", material("SPEAR", Material.TRIDENT));
+    TRIDENTES("Tridentes", Material.TRIDENT),
+    LANCAS("Lanças", material("SPEAR", Material.TRIDENT)),
+
+    // Mobilidade e companheiros
+    ACROBACIA("Acrobacia", Material.FEATHER),
+    DOMESTICACAO("Adestramento", Material.BONE);
 
     private final String displayName;
     private final Material icon;
