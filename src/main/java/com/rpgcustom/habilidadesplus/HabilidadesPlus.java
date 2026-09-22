@@ -76,7 +76,7 @@ public final class HabilidadesPlus extends JavaPlugin {
     private void registerListeners() {
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new GatheringListener(configManager, xpManager, placedBlockTracker), this);
-        pm.registerEvents(new SuperBreakerManager(this, configManager, dataManager), this);
+        pm.registerEvents(superBreakerManager, this);
         pm.registerEvents(new FishingListener(configManager, xpManager), this);
         pm.registerEvents(new CombatListener(configManager, xpManager), this);
         pm.registerEvents(new AcrobaticsListener(configManager, xpManager, dataManager), this);
