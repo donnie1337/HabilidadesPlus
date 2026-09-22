@@ -51,7 +51,7 @@ public final class MMOMenuListener implements Listener {
         }
 
         if (holder.skill() == null) {
-            if (event.getRawSlot() == 48) {
+            if (event.getRawSlot() == 50) {
                 MMOMenu.openRanking(player, SkillType.MINERACAO, dataManager, configManager);
                 return;
             }
