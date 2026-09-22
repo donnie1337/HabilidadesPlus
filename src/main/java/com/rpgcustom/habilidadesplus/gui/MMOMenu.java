@@ -50,7 +50,7 @@ public final class MMOMenu {
         for (int index = 0; index < powers.size() && index < SLOTS.length; index++) {
             inventory.setItem(SLOTS[index], powerItem(powers.get(index), skill, current.getLevel(), config));
         }
-        inventory.setItem(31, item(Material.ARROW, config.msg("gui.voltar-nome"),
+        inventory.setItem(13, item(Material.ARROW, config.msg("gui.voltar-nome"),
                 List.of("", config.msg("gui.voltar-lore"))));
         player.openInventory(inventory);
     }
@@ -122,7 +122,6 @@ public final class MMOMenu {
         lore.add(message(config, "gui.item-poder-nivel", Map.of("nivel", String.valueOf(power.level()))));
         String statusPath = !power.implemented() ? "gui.item-poder-planejado"
                 : unlocked ? "gui.item-poder-desbloqueado" : "gui.item-poder-bloqueado";
-        lore.add(config.msg(statusPath));
         String color = !power.implemented() ? "&8" : unlocked ? "&a" : "&8";
         return item(power.icon(), color + power.name(), lore);
     }
