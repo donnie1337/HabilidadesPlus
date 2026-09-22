@@ -34,6 +34,7 @@ public class SuperBreakerManager implements Listener {
     private final ConfigManager configManager;
     private final DataManager dataManager;
     private final Map<UUID, Long> cooldownUntil = new HashMap<>();
+    private final Map<UUID, Long> cooldownMessageUntil = new HashMap<>();
     private final Map<UUID, BukkitTask> activeTasks = new HashMap<>();
     private final Map<UUID, Long> activeUntil = new HashMap<>();
     private final Map<UUID, AttributeModifier> efficiencyModifiers = new HashMap<>();
@@ -76,7 +77,11 @@ public class SuperBreakerManager implements Listener {
         long cooldownEnd = cooldownUntil.getOrDefault(uuid, 0L);
         if (now < cooldownEnd) {
             long remainingSeconds = (long) Math.ceil((cooldownEnd - now) / 1000.0);
-            sendCooldownMessage(player, remainingSeconds);
+            long nextMessage = cooldownMessageUntil.getOrDefault(uuid, 0L);
+            if (now >= nextMessage) {
+                sendCooldownMessage(player, remainingSeconds);
+                cooldownMessageUntil.put(uuid, now + 1000L);
+            }
             return;
         }
 
@@ -107,7 +112,9 @@ public class SuperBreakerManager implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        stop(event.getPlayer().getUniqueId());
+        UUID uuid = event.getPlayer().getUniqueId();
+        stop(uuid);
+        cooldownMessageUntil.remove(uuid);
     }
 
     public boolean isActive(UUID uuid) {
@@ -119,6 +126,7 @@ public class SuperBreakerManager implements Listener {
             stop(uuid);
         }
         cooldownUntil.clear();
+        cooldownMessageUntil.clear();
     }
 
     private void stop(UUID uuid) {
