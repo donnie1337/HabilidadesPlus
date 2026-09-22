@@ -5,10 +5,6 @@
 # ============================================================
 
 geral:
-  # Intervalo (em ticks, 20 ticks = 1 segundo) entre atualizacoes da action bar.
-  # O XP ganho e acumulado e mostrado em lote nesse intervalo, para nao "piscar"
-  # uma mensagem a cada bloco quebrado.
-  intervalo-actionbar-ticks: 10
   # Multiplicador global aplicado a todo XP ganho (2.0 = dobro de XP, 0.5 = metade)
   multiplicador-xp-global: 1.0
   # Salva jogadores alterados e a protecao antifarm periodicamente.
