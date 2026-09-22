@@ -64,8 +64,13 @@ public final class VeioFartoManager implements Listener {
         String path = superQuebrador
                 ? "mineracao.superbreaker.chance-drop-triplo-por-nivel"
                 : "mineracao.veio-farto.chance-drop-duplo-por-nivel";
-        double chance = Math.min(100.0, level * configManager.config().getDouble(
-                path, superQuebrador ? 0.5 : 0.1));
+        double chance;
+        if (superQuebrador) {
+            double chancePorDezNiveis = configManager.config().getDouble(path, 0.5);
+            chance = Math.min(100.0, Math.floor(level / 10.0) * chancePorDezNiveis);
+        } else {
+            chance = Math.min(100.0, level * configManager.config().getDouble(path, 0.1));
+        }
 
         if (ThreadLocalRandom.current().nextDouble(100.0) >= chance) {
             return;
