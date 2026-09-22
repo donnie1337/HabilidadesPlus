@@ -22,12 +22,12 @@ class PlayerProfileTest {
         LevelingManager levels = new LevelingManager(config);
         PlayerProfile profile = new PlayerProfile(UUID.randomUUID());
 
-        LevelUpResult result = profile.addXp(SkillType.MINERACAO, 275, levels);
+        LevelUpResult result = profile.addXp(SkillType.PESCA, 275, levels);
 
         assertTrue(result.isLeveledUp());
         assertEquals(2, result.getLevelsGained());
-        assertEquals(2, profile.getLevel(SkillType.MINERACAO));
-        assertEquals(25, profile.getData(SkillType.MINERACAO).getCurrentXp());
+        assertEquals(2, profile.getLevel(SkillType.PESCA));
+        assertEquals(25, profile.getData(SkillType.PESCA).getCurrentXp());
     }
 
     @Test
