@@ -33,7 +33,8 @@ comandos:
   setnivel-sucesso: "&a{habilidade} definida para o nível &e{nivel}&a."
 
 mineracao:
-  superbreaker-ativado: "&6&lSUPER QUEBRADOR! &fAtivado por &e{duracao}s &fno nível &e{nivel}&f."\n  superbreaker-em-recarga: "&cSuper Quebrador em recarga! Aguarde &e{segundos} segundos&c para usar novamente."
+  superbreaker-ativado: "&6&lSUPER QUEBRADOR! &fAtivado por &e{duracao}s &fno nível &e{nivel}&f."
+  superbreaker-em-recarga: "&cSuper Quebrador em recarga! Aguarde &e{segundos} segundos&c para usar novamente."
 
 acrobacia:
   mensagem-role: "&b&lVocê rolou e absorveu o dano da queda!"
