@@ -76,9 +76,24 @@ public class XpManager {
         if (amount <= 0) return;
 
         PlayerProfile profile = dataManager.getProfile(player.getUniqueId());
-        if (profile.getLevel(skill) >= levelingManager.getNivelMaximo()) return;
+        int poderGeralAntes = profile.getPowerLevel();
+        int nivelHabilidadeAntes = profile.getLevel(skill);
+        if (nivelHabilidadeAntes >= levelingManager.getNivelMaximo()) return;
         LevelUpResult result = profile.addXp(skill, amount, levelingManager);
         dataManager.markDirty(player.getUniqueId());
+
+        int poderGeralDepois = profile.getPowerLevel();
+        int nivelHabilidadeDepois = profile.getLevel(skill);
+
+        boolean atingiuPoderGeral100 = poderGeralAntes < 100 && poderGeralDepois >= 100;
+        boolean atingiuPoderHabilidade100 = nivelHabilidadeAntes < 100 && nivelHabilidadeDepois >= 100;
+
+        if (atingiuPoderGeral100) {
+            announcePowerMilestone(player, "poder.milestone-geral", null, poderGeralDepois);
+        }
+        if (atingiuPoderHabilidade100) {
+            announcePowerMilestone(player, "poder.milestone-habilidade", skill, nivelHabilidadeDepois);
+        }
 
         boolean milestone = result.isLeveledUp() && result.getNewLevel() % 100 == 0;
 
@@ -158,6 +173,17 @@ public class XpManager {
         }
 
         pendingDisplay.clear();
+    }
+
+    private void announcePowerMilestone(Player player, String messagePath, SkillType skill, int poder) {
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("poder", String.valueOf(poder));
+        if (skill != null) {
+            placeholders.put("habilidade", skill.getDisplayName());
+        }
+
+        String mensagem = MessageUtil.placeholders(configManager.msg(messagePath), placeholders);
+        player.sendMessage(MessageUtil.colorize(mensagem));
     }
 
     private void announceLevelUp(Player player, SkillType skill, LevelUpResult result) {
