@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -51,7 +52,6 @@ public final class MMOMenu {
         for (int index = 0; index < powers.size() && index < SLOTS.length; index++) {
             inventory.setItem(SLOTS[index], powerItem(powers.get(index), skill, current.getLevel(), config));
         }
-        // Elementos fixos do cabeçalho: 1 espaço entre a seta, a cabeça e a picareta.
         inventory.setItem(29, profileItem(player, profile, config));
         inventory.setItem(31, item(Material.ARROW, config.msg("gui.voltar-nome"),
                 List.of("", config.msg("gui.voltar-lore"))));
@@ -124,8 +124,6 @@ public final class MMOMenu {
         }
         lore.add("");
         lore.add(message(config, "gui.item-poder-nivel", Map.of("nivel", String.valueOf(power.level()))));
-        String statusPath = !power.implemented() ? "gui.item-poder-planejado"
-                : unlocked ? "gui.item-poder-desbloqueado" : "gui.item-poder-bloqueado";
         String color = !power.implemented() ? "&8" : unlocked ? "&a" : "&8";
         return item(power.icon(), color + power.name(), lore);
     }
@@ -157,6 +155,7 @@ public final class MMOMenu {
         if (meta != null) {
             meta.setDisplayName(MessageUtil.colorize(name));
             meta.setLore(color(lore));
+            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
             item.setItemMeta(meta);
         }
         return item;
