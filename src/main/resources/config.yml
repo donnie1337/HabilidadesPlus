@@ -141,6 +141,11 @@ mineracao:
   veio-farto:
     # A chance de drop duplo aumenta 0,1 ponto percentual por nível.
     chance-drop-duplo-por-nivel: 0.1
+  mineracao-precisa:
+    # Poder desbloqueado a partir deste nivel de Mineracao.
+    nivel-desbloqueio: 75
+    # Chance de preservar a durabilidade da picareta por nivel, em pontos percentuais.
+    chance-preservar-por-nivel: 0.1
   superbreaker:
     # Habilidade desbloqueada a partir deste nivel de Mineracao.
     nivel-desbloqueio: 10
