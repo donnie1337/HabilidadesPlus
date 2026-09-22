@@ -19,6 +19,7 @@ import com.rpgcustom.habilidadesplus.listeners.TamingListener;
 import com.rpgcustom.habilidadesplus.util.ConfigManager;
 import com.rpgcustom.habilidadesplus.util.PlacedBlockTracker;
 import com.rpgcustom.habilidadesplus.xp.XpManager;
+import com.rpgcustom.habilidadesplus.top1.Top1SkillService;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -32,6 +33,7 @@ public final class HabilidadesPlus extends JavaPlugin {
     private DataManager dataManager;
     private LevelingManager levelingManager;
     private XpManager xpManager;
+    private Top1SkillService top1SkillService;
     private PlacedBlockTracker placedBlockTracker;
     private SuperBreakerManager superBreakerManager;
     private VeioFartoManager veioFartoManager;
@@ -47,6 +49,7 @@ public final class HabilidadesPlus extends JavaPlugin {
         this.placedBlockTracker = new PlacedBlockTracker(this);
         this.levelingManager = new LevelingManager(configManager.config());
         this.xpManager = new XpManager(this, dataManager, levelingManager, configManager);
+        this.top1SkillService = new Top1SkillService(dataManager);
         this.superBreakerManager = new SuperBreakerManager(this, configManager, dataManager);
         this.veioFartoManager = new VeioFartoManager(dataManager, configManager, superBreakerManager);
         this.precisionMiningManager = new PrecisionMiningManager(dataManager, configManager);
@@ -62,6 +65,11 @@ public final class HabilidadesPlus extends JavaPlugin {
 
     public DataManager getDataManager() {
         return dataManager;
+    }
+
+    public String getTop1Tag(java.util.UUID playerId) {
+        SkillType skill = top1SkillService == null ? null : top1SkillService.getTop1Skill(playerId);
+        return skill == null ? "" : configManager.top1Tag(skill);
     }
 
     @Override
