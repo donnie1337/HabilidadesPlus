@@ -138,6 +138,9 @@ xp:
 # A duracao cresce com o nivel de Mineracao e possui um teto configuravel.
 # ------------------------------------------------------------
 mineracao:
+  veio-farto:
+    # A chance de drop duplo aumenta 0,1 ponto percentual por nível.
+    chance-drop-duplo-por-nivel: 0.1
   superbreaker:
     # Habilidade desbloqueada a partir deste nivel de Mineracao.
     nivel-desbloqueio: 10
@@ -156,3 +159,5 @@ mineracao:
     recarga-nivel-10: 120
     recarga-nivel-50: 140
     recarga-incremento-50-niveis: 20
+    # Chance de drop triplo durante o Super Quebrador, em pontos percentuais por nível.
+    chance-drop-triplo-por-nivel: 0.02
