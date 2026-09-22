@@ -47,6 +47,10 @@ public class DataManager {
         dirty.remove(uuid);
     }
 
+    public Map<UUID, PlayerProfile> getLoadedProfiles() {
+        return Map.copyOf(cache);
+    }
+
     public void markDirty(UUID uuid) {
         dirty.add(uuid);
     }
