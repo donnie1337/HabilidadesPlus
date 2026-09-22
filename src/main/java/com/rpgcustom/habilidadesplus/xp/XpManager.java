@@ -84,7 +84,7 @@ public class XpManager {
                 .computeIfAbsent(player.getUniqueId(), k -> new EnumMap<>(SkillType.class))
                 .merge(skill, amount, Double::sum);
 
-        if (result.isLeveledUp()) {
+        if (result.isLeveledUp() && result.getNewLevel() % 100 == 0) {
             announceLevelUp(player, skill, result);
         }
     }
@@ -133,14 +133,8 @@ public class XpManager {
         placeholders.put("habilidade", skill.getDisplayName());
         placeholders.put("nivel", String.valueOf(result.getNewLevel()));
 
-        String tituloTexto = MessageUtil.placeholders(configManager.msg("level-up.titulo"), placeholders);
-        String subtituloTexto = MessageUtil.placeholders(configManager.msg("level-up.subtitulo"), placeholders);
-
-        player.sendTitle(
-                MessageUtil.colorize(tituloTexto),
-                MessageUtil.colorize(subtituloTexto),
-                5, 40, 10
-        );
+        String mensagem = MessageUtil.placeholders(configManager.msg("level-up.actionbar"), placeholders);
+        ActionBarUtil.send(player, mensagem);
 
         String somConfigurado = configManager.msg("level-up.som");
         String soundKey = somConfigurado.toLowerCase(Locale.ROOT).replace('_', '.');
