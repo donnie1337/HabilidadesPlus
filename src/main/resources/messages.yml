@@ -11,6 +11,8 @@ actionbar:
   separador: " &8| "
 
 level-up:
+  # Aviso exibido somente ao atingir 100, 200, 300, 400, 500... em uma habilidade.
+  actionbar: "&a&lSUBIU DE NIVEL! &f{habilidade} &7agora e nivel &e{nivel}&7!"
   titulo: "&a&lSUBIU DE NIVEL!"
   subtitulo: "&f{habilidade} agora e nivel &e{nivel}&f!"
   som: ENTITY_PLAYER_LEVELUP
