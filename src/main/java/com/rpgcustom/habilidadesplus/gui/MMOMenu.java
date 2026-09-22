@@ -104,7 +104,7 @@ public final class MMOMenu {
         lore.add("");
         lore.addAll(wrap("&7" + power.description()));
         if (skill == SkillType.MINERACAO && power.name().equals("Veio Farto")) {
-            double chance = Math.min(100.0, level * config.getDouble("mineracao.veio-farto.chance-drop-duplo-por-nivel", 0.1));
+            double chance = Math.min(100.0, level * config.config().getDouble("mineracao.veio-farto.chance-drop-duplo-por-nivel", 0.1));
             lore.add(message(config, "gui.veio-farto-chance", Map.of("chance", formatPercent(chance))));
         }
         if (skill == SkillType.MINERACAO && power.name().equals("Super Quebrador")) {
