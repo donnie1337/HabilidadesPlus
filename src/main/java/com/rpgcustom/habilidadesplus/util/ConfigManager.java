@@ -83,7 +83,16 @@ public class ConfigManager {
 
     public String top1Tag(SkillType skill) {
         if (skill == null) return "";
-        return config.getString("top1-tags." + skill.name(), "");
+        String configured = config.getString("top1-tags." + skill.name());
+        if (configured != null) return configured;
+        return switch (skill) {
+            case MINERACAO -> " &b⛏"; case LENHADOR -> " &6🪓"; case ESCAVACAO -> " &e⌂";
+            case ERVANISMO -> " &a🌿"; case PESCA -> " &9🎣"; case FUNDICAO -> " &c♨";
+            case ALQUIMIA -> " &5⚗"; case REPARACAO -> " &7⚒"; case ESPADAS -> " &c⚔";
+            case MACHADOS -> " &6🪓"; case CLAVA -> " &4✹"; case DESARMADO -> " &f✊";
+            case ARQUERIA -> " &e➳"; case BESTAS -> " &7⌁"; case TRIDENTES -> " &b🔱";
+            case LANCAS -> " &f⚔"; case ACROBACIA -> " &d✦"; case DOMESTICACAO -> " &6♞";
+        };
     }
 
     public boolean mundoDesabilitado(String mundo) {
