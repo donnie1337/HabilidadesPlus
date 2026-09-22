@@ -3,6 +3,7 @@ package com.rpgcustom.habilidadesplus.util;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import com.rpgcustom.habilidadesplus.SkillType;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -78,6 +79,11 @@ public class ConfigManager {
 
     public int autosaveMinutos() {
         return Math.max(1, config.getInt("geral.autosave-minutos", 3));
+    }
+
+    public String top1Tag(SkillType skill) {
+        if (skill == null) return "";
+        return config.getString("top1-tags." + skill.name(), "");
     }
 
     public boolean mundoDesabilitado(String mundo) {
