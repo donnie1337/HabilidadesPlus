@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public final class LuzCommand implements CommandExecutor {
 
-    private static final int DURACAO = Integer.MAX_VALUE;
+    private static final int DURACAO = PotionEffect.INFINITE_DURATION;
     private static final int PISCADAS = 3;
     private static final long ACTION_BAR_DURATION_TICKS = 40L;
     private final Set<UUID> ativos = new HashSet<>();
@@ -51,7 +51,6 @@ public final class LuzCommand implements CommandExecutor {
                 ativos.remove(uuid);
                 continue;
             }
-            // O efeito é infinito; não precisa ser renovado a cada segundo.
         }
     }
 
