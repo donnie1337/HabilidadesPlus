@@ -44,7 +44,7 @@ public final class MMOMenuListener implements Listener {
             return;
         }
 
-        if (event.getRawSlot() == 34) {
+        if (event.getRawSlot() == 31) {
             MMOMenu.open(player, dataManager, levelingManager, configManager);
         }
     }
