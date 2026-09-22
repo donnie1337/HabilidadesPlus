@@ -13,6 +13,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDamageAbortEvent;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
@@ -90,8 +93,6 @@ public class SuperBreakerManager implements Listener {
 
         activeUntil.put(uuid, now + durationTicks * 50L);
         cooldownUntil.put(uuid, now + cooldownTicks * 50L);
-        applyEfficiencyBonus(player);
-
         BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             removeEfficiencyBonus(player);
             activeTasks.remove(uuid);
@@ -109,6 +110,30 @@ public class SuperBreakerManager implements Listener {
                 )
         );
         player.sendMessage(MessageUtil.colorize(mensagem));
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onBlockDamage(BlockDamageEvent event) {
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+        ItemStack item = player.getInventory().getItemInMainHand();
+
+        if (!isActive(uuid) || !isPickaxe(item.getType()) || !event.getBlock().isPreferredTool(item)) {
+            removeEfficiencyBonus(player);
+            return;
+        }
+
+        applyEfficiencyBonus(player);
+    }
+
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        removeEfficiencyBonus(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onBlockDamageAbort(BlockDamageAbortEvent event) {
+        removeEfficiencyBonus(event.getPlayer());
     }
 
     @EventHandler
@@ -149,7 +174,7 @@ public class SuperBreakerManager implements Listener {
     private void applyEfficiencyBonus(Player player) {
         removeEfficiencyBonus(player);
 
-        AttributeInstance attribute = player.getAttribute(Attribute.MINING_EFFICIENCY);
+        AttributeInstance attribute = player.getAttribute(Attribute.BLOCK_BREAK_SPEED);
         if (attribute != null) {
             AttributeModifier modifier = new AttributeModifier(
                     EFICIENCIA_KEY,
