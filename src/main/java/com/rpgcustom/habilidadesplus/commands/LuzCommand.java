@@ -15,6 +15,7 @@ import java.util.UUID;
 public final class LuzCommand implements CommandExecutor {
 
     private static final int DURACAO = 220;
+    private static final long ACTION_BAR_DURATION_TICKS = 40L;
     private final Set<UUID> ativos = new HashSet<>();
 
     @Override
@@ -32,11 +33,11 @@ public final class LuzCommand implements CommandExecutor {
         UUID uuid = player.getUniqueId();
         if (ativos.remove(uuid)) {
             player.removePotionEffect(PotionEffectType.NIGHT_VISION);
-            player.sendActionBar(Component.text("§7Visão noturna: §cdesativada"));
+            mostrarActionBar(player, "§cLuz noturna desativada");
         } else {
             ativos.add(uuid);
             aplicarVisaoNoturna(player);
-            player.sendActionBar(Component.text("§aVisão noturna: §2ativada"));
+            mostrarActionBar(player, "§aLuz noturna ativada");
         }
         return true;
     }
@@ -49,7 +50,6 @@ public final class LuzCommand implements CommandExecutor {
                 continue;
             }
             aplicarVisaoNoturna(player);
-            player.sendActionBar(Component.text("§aVisão noturna: §2ativada"));
         }
     }
 
@@ -61,6 +61,15 @@ public final class LuzCommand implements CommandExecutor {
             }
         }
         ativos.clear();
+    }
+
+    private void mostrarActionBar(Player player, String mensagem) {
+        player.sendActionBar(Component.text(mensagem));
+        org.bukkit.Bukkit.getScheduler().runTaskLater(
+                org.bukkit.plugin.java.JavaPlugin.getProvidingPlugin(getClass()),
+                () -> player.sendActionBar(Component.empty()),
+                ACTION_BAR_DURATION_TICKS
+        );
     }
 
     private void aplicarVisaoNoturna(Player player) {
