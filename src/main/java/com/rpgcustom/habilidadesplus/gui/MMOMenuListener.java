@@ -41,7 +41,7 @@ public final class MMOMenuListener implements Listener {
                 MMOMenu.open(player, dataManager, levelingManager, configManager);
                 return;
             }
-            if (event.getRawSlot() == 33 && holder.skill() != null) {
+            if (event.getRawSlot() == 29 && holder.skill() != null) {
                 SkillType[] skills = SkillType.values();
                 int current = holder.skill().ordinal();
                 int next = (current + 1) % skills.length;
