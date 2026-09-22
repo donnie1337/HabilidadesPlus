@@ -15,8 +15,8 @@ actionbar:
 
 poder:
   # Mensagens exibidas no chat ao cruzar o marco de 100 pela primeira vez.
-  milestone-geral: "&6&lPODER &8» &fVoce atingiu &e100 &fde poder geral!"
-  milestone-habilidade: "&6&lPODER &8» &fVoce atingiu &e100 &fde poder em &e{habilidade}&f!"
+  milestone-geral: "&6&lPODER &8» &eO jogador {jogador} &fatingiu &e100 &fde poder!"
+  milestone-habilidade: "&6&lPODER &8» &eO jogador {jogador} &fatingiu &e100 &fde poder em &e{habilidade}&f!"
 
 level-up:
   # Aviso exibido somente ao atingir 100, 200, 300, 400, 500... em uma habilidade.
