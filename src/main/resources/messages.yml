@@ -5,8 +5,11 @@
 # ============================================================
 
 actionbar:
-  # {habilidade} = nome da habilidade, {xp} = xp ganho no lote, {nivel} = nivel atual
-  formato-xp: "&f{habilidade}&7: &a+{xp} XP &7(Nivel: {nivel})"
+  # {habilidade} = nome da habilidade, {barra} = progresso visual, {porcentagem} = %, {xpAtual}/{xpNecessario} = XP do nivel, {nivel} = nivel atual
+  formato-progresso: "&f{habilidade} &8| &a{barra} &e{porcentagem}% &8| &f{xpAtual}/{xpNecessario} XP &8| &7Nivel &e{nivel}"
+  barra-cheia: "▰"
+  barra-vazia: "▱"
+  tamanho-barra: 10
   # separador usado quando mais de uma habilidade ganha XP no mesmo lote
   separador: " &8| "
 
