@@ -98,8 +98,11 @@ public class XpManager {
     private void flush() {
         if (pendingDisplay.isEmpty()) return;
 
-        String formato = configManager.msg("actionbar.formato-xp");
+        String formato = configManager.msg("actionbar.formato-progresso");
         String separador = configManager.msg("actionbar.separador");
+        String barraCheia = configManager.msg("actionbar.barra-cheia");
+        String barraVazia = configManager.msg("actionbar.barra-vazia");
+        int tamanhoBarra = Math.max(1, configManager.config().getInt("actionbar.tamanho-barra", 10));
 
         for (Map.Entry<UUID, Map<SkillType, Double>> entry : pendingDisplay.entrySet()) {
             Player player = Bukkit.getPlayer(entry.getKey());
@@ -111,13 +114,36 @@ public class XpManager {
 
             for (Map.Entry<SkillType, Double> ganho : entry.getValue().entrySet()) {
                 SkillType skill = ganho.getKey();
-                int xpGanho = (int) Math.round(ganho.getValue());
-                if (xpGanho <= 0) continue;
+                int nivel = profile.getLevel(skill);
+                if (nivel >= levelingManager.getNivelMaximo()) {
+                    Map<String, String> placeholders = new HashMap<>();
+                    placeholders.put("habilidade", skill.getDisplayName());
+                    placeholders.put("xpAtual", "MAX");
+                    placeholders.put("xpNecessario", "MAX");
+                    placeholders.put("porcentagem", "100");
+                    placeholders.put("barra", barraCheia.repeat(tamanhoBarra));
+                    placeholders.put("nivel", String.valueOf(nivel));
+                    if (!primeiro) mensagem.append(separador);
+                    mensagem.append(MessageUtil.placeholders(formato, placeholders));
+                    primeiro = false;
+                    continue;
+                }
+
+                var skillData = profile.getData(skill);
+                double xpAtual = skillData.getCurrentXp();
+                double xpNecessario = levelingManager.xpParaProximoNivel(nivel);
+                int porcentagem = xpNecessario <= 0 ? 100 : (int) Math.round((xpAtual / xpNecessario) * 100.0);
+                porcentagem = Math.max(0, Math.min(100, porcentagem));
+                int preenchidos = (int) Math.round((porcentagem / 100.0) * tamanhoBarra);
+                String barra = barraCheia.repeat(preenchidos) + barraVazia.repeat(tamanhoBarra - preenchidos);
 
                 Map<String, String> placeholders = new HashMap<>();
                 placeholders.put("habilidade", skill.getDisplayName());
-                placeholders.put("xp", String.valueOf(xpGanho));
-                placeholders.put("nivel", String.valueOf(profile.getLevel(skill)));
+                placeholders.put("xpAtual", String.valueOf((int) Math.round(xpAtual)));
+                placeholders.put("xpNecessario", String.valueOf((int) Math.round(xpNecessario)));
+                placeholders.put("porcentagem", String.valueOf(porcentagem));
+                placeholders.put("barra", barra);
+                placeholders.put("nivel", String.valueOf(nivel));
 
                 if (!primeiro) {
                     mensagem.append(separador);
