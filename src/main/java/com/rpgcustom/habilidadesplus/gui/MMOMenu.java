@@ -67,7 +67,8 @@ public final class MMOMenu {
         }
 
         inventory.setItem(31, item(Material.ARROW, "&cVoltar", List.of("", "&7Voltar ao menu principal.")));
-        inventory.setItem(33, rankingFilterItem(selected));
+        inventory.setItem(29, rankingFilterItem(selected));
+        inventory.setItem(33, rankingBook(player, data, config));
         player.openInventory(inventory);
     }
 
