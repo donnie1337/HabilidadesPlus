@@ -26,12 +26,14 @@ import java.util.UUID;
  */
 public class XpManager {
 
+    private final JavaPlugin plugin;
     private final DataManager dataManager;
     private final LevelingManager levelingManager;
     private final ConfigManager configManager;
     private final Map<UUID, BukkitTask> levelUpActionbarTasks = new HashMap<>();
 
     public XpManager(JavaPlugin plugin, DataManager dataManager, LevelingManager levelingManager, ConfigManager configManager) {
+        this.plugin = plugin;
         this.dataManager = dataManager;
         this.levelingManager = levelingManager;
         this.configManager = configManager;
@@ -143,7 +145,7 @@ public class XpManager {
 
         long durationTicks = Math.max(1L, configManager.config().getLong("actionbar.duracao-level-up-ticks", 40L));
         BukkitTask task = Bukkit.getScheduler().runTaskLater(
-                Bukkit.getPluginManager().getPlugin("HabilidadesPlus"),
+                plugin,
                 () -> {
                     levelUpActionbarTasks.remove(uuid);
                     if (player.isOnline()) {
