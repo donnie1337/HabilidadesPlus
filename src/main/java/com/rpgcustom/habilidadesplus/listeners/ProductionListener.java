@@ -11,6 +11,7 @@ import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 
 /**
  * Recompensa atividades de produção: reparar itens na bigorna e retirar
@@ -33,6 +34,10 @@ public class ProductionListener implements Listener {
 
         ItemStack result = event.getCurrentItem();
         if (result == null || result.getType().isAir()) return;
+        ItemStack original = event.getInventory().getItem(0);
+        if (original == null || !(original.getItemMeta() instanceof Damageable before)
+                || !(result.getItemMeta() instanceof Damageable after)
+                || after.getDamage() >= before.getDamage()) return;
 
         double xp = configManager.config().getDouble("xp.reparacao.xp-por-reparo", 75);
         xpManager.addXp(player, SkillType.REPARACAO, xp);

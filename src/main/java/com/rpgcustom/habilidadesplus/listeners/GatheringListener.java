@@ -2,6 +2,7 @@ package com.rpgcustom.habilidadesplus.listeners;
 
 import com.rpgcustom.habilidadesplus.SkillType;
 import com.rpgcustom.habilidadesplus.util.ConfigManager;
+import com.rpgcustom.habilidadesplus.util.PlacedBlockTracker;
 import com.rpgcustom.habilidadesplus.xp.XpManager;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -11,8 +12,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * Cobre 4 habilidades de uma vez, pois todas nascem do mesmo evento
@@ -23,8 +22,6 @@ import org.bukkit.plugin.java.JavaPlugin;
  * e quebrar areia repetidamente).
  */
 public class GatheringListener implements Listener {
-
-    private static final String METADATA_COLOCADO = "custommmo_colocado_por_jogador";
 
     private static final SkillType[] HABILIDADES = {
             SkillType.MINERACAO,
@@ -39,19 +36,20 @@ public class GatheringListener implements Listener {
             "ervanismo"
     };
 
-    private final JavaPlugin plugin;
     private final ConfigManager configManager;
     private final XpManager xpManager;
+    private final PlacedBlockTracker placedBlockTracker;
 
-    public GatheringListener(JavaPlugin plugin, ConfigManager configManager, XpManager xpManager) {
-        this.plugin = plugin;
+    public GatheringListener(ConfigManager configManager, XpManager xpManager,
+                             PlacedBlockTracker placedBlockTracker) {
         this.configManager = configManager;
         this.xpManager = xpManager;
+        this.placedBlockTracker = placedBlockTracker;
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
-        event.getBlock().setMetadata(METADATA_COLOCADO, new FixedMetadataValue(plugin, true));
+        placedBlockTracker.add(event.getBlock());
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -61,8 +59,7 @@ public class GatheringListener implements Listener {
 
         if (player.getGameMode() == GameMode.CREATIVE) return;
 
-        if (block.hasMetadata(METADATA_COLOCADO)) {
-            block.removeMetadata(METADATA_COLOCADO, plugin);
+        if (placedBlockTracker.removeIfPlaced(block)) {
             return;
         }
 

@@ -6,8 +6,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -20,12 +25,13 @@ public class DataManager {
     private final JavaPlugin plugin;
     private final File folder;
     private final Map<UUID, PlayerProfile> cache = new HashMap<>();
+    private final Set<UUID> dirty = new HashSet<>();
 
     public DataManager(JavaPlugin plugin) {
         this.plugin = plugin;
         this.folder = new File(plugin.getDataFolder(), "playerdata");
-        if (!folder.exists()) {
-            folder.mkdirs();
+        if (!folder.exists() && !folder.mkdirs()) {
+            plugin.getLogger().warning("Nao foi possivel criar a pasta de dados dos jogadores.");
         }
     }
 
@@ -38,12 +44,27 @@ public class DataManager {
         if (profile != null) {
             save(profile);
         }
+        dirty.remove(uuid);
+    }
+
+    public void markDirty(UUID uuid) {
+        dirty.add(uuid);
+    }
+
+    public void saveDirty() {
+        for (UUID uuid : Set.copyOf(dirty)) {
+            PlayerProfile profile = cache.get(uuid);
+            if (profile != null && save(profile)) {
+                dirty.remove(uuid);
+            }
+        }
     }
 
     public void saveAll() {
         for (PlayerProfile profile : cache.values()) {
             save(profile);
         }
+        dirty.clear();
     }
 
     private PlayerProfile load(UUID uuid) {
@@ -65,7 +86,7 @@ public class DataManager {
         return profile;
     }
 
-    public void save(PlayerProfile profile) {
+    public boolean save(PlayerProfile profile) {
         YamlConfiguration yaml = new YamlConfiguration();
         for (SkillType type : SkillType.values()) {
             PlayerSkillData data = profile.getData(type);
@@ -74,10 +95,19 @@ public class DataManager {
         }
 
         File file = new File(folder, profile.getUuid() + ".yml");
+        File temporary = new File(folder, profile.getUuid() + ".yml.tmp");
         try {
-            yaml.save(file);
+            yaml.save(temporary);
+            try {
+                Files.move(temporary.toPath(), file.toPath(), StandardCopyOption.ATOMIC_MOVE,
+                        StandardCopyOption.REPLACE_EXISTING);
+            } catch (AtomicMoveNotSupportedException ignored) {
+                Files.move(temporary.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+            return true;
         } catch (IOException e) {
             plugin.getLogger().log(Level.WARNING, "Nao foi possivel salvar dados do jogador " + profile.getUuid(), e);
+            return false;
         }
     }
 }

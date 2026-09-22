@@ -1,7 +1,7 @@
 # ============================================================
 #  HabilidadesPlus - config.yml
 #  Plugin de RPG customizado inspirado no mcMMO
-#  Minecraft 26.2 (Chaos Cubed) / Spigot / Java 26
+#  Minecraft 26.2 (Chaos Cubed) / Paper / Java 25+
 # ============================================================
 
 geral:
@@ -11,6 +11,8 @@ geral:
   intervalo-actionbar-ticks: 10
   # Multiplicador global aplicado a todo XP ganho (2.0 = dobro de XP, 0.5 = metade)
   multiplicador-xp-global: 1.0
+  # Salva jogadores alterados e a protecao antifarm periodicamente.
+  autosave-minutos: 3
   # Mundos onde o plugin fica totalmente desativado (sem ganho de XP)
   mundos-desabilitados: []
 
@@ -102,7 +104,7 @@ xp:
     xp-por-item-fundido: 15
 
   reparacao:
-    # XP recebido ao retirar um item reparado da bigorna.
+    # XP recebido ao retirar um item realmente reparado da bigorna.
     xp-por-reparo: 75
 
   combate:

@@ -76,6 +76,10 @@ public class ConfigManager {
         return config.getInt("geral.intervalo-actionbar-ticks", 10);
     }
 
+    public int autosaveMinutos() {
+        return Math.max(1, config.getInt("geral.autosave-minutos", 3));
+    }
+
     public boolean mundoDesabilitado(String mundo) {
         List<String> lista = config.getStringList("geral.mundos-desabilitados");
         return lista.contains(mundo);
