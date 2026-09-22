@@ -8,6 +8,7 @@ import com.rpgcustom.habilidadesplus.leveling.LevelingManager;
 import com.rpgcustom.habilidadesplus.util.ActionBarUtil;
 import com.rpgcustom.habilidadesplus.util.ConfigManager;
 import com.rpgcustom.habilidadesplus.util.MessageUtil;
+import com.rpgcustom.habilidadesplus.top1.Top1SkillService;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
@@ -30,13 +31,15 @@ public class XpManager {
     private final DataManager dataManager;
     private final LevelingManager levelingManager;
     private final ConfigManager configManager;
+    private final Top1SkillService top1SkillService;
     private final Map<UUID, BukkitTask> levelUpActionbarTasks = new HashMap<>();
 
-    public XpManager(JavaPlugin plugin, DataManager dataManager, LevelingManager levelingManager, ConfigManager configManager) {
+    public XpManager(JavaPlugin plugin, DataManager dataManager, LevelingManager levelingManager, ConfigManager configManager, Top1SkillService top1SkillService) {
         this.plugin = plugin;
         this.dataManager = dataManager;
         this.levelingManager = levelingManager;
         this.configManager = configManager;
+        this.top1SkillService = top1SkillService;
     }
 
     /**
@@ -70,6 +73,7 @@ public class XpManager {
 
         LevelUpResult result = profile.addXp(skill, amount, levelingManager);
         dataManager.markDirty(player.getUniqueId());
+        top1SkillService.invalidate();
 
         int poderGeralDepois = profile.getPowerLevel();
         int nivelHabilidadeDepois = profile.getLevel(skill);
