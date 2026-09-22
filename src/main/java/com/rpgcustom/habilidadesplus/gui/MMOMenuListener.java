@@ -36,7 +36,25 @@ public final class MMOMenuListener implements Listener {
             return;
         }
 
+        if (holder.ranking()) {
+            if (event.getRawSlot() == 31) {
+                MMOMenu.open(player, dataManager, levelingManager, configManager);
+                return;
+            }
+            if (event.getRawSlot() == 33 && holder.skill() != null) {
+                SkillType[] skills = SkillType.values();
+                int current = holder.skill().ordinal();
+                int next = (current + 1) % skills.length;
+                MMOMenu.openRanking(player, skills[next], dataManager, configManager);
+            }
+            return;
+        }
+
         if (holder.skill() == null) {
+            if (event.getRawSlot() == 48) {
+                MMOMenu.openRanking(player, SkillType.MINERACAO, dataManager, configManager);
+                return;
+            }
             SkillType skill = MMOMenu.skillAtSlot(event.getRawSlot());
             if (skill != null) {
                 MMOMenu.openSkill(player, skill, dataManager, levelingManager, configManager);
