@@ -24,7 +24,7 @@ nivelamento:
   xp-base: 100
   multiplicador: 45
   expoente: 1.8
-  nivel-maximo: 100
+  nivel-maximo: 1000
 
 # ------------------------------------------------------------
 # Fontes de XP por habilidade. Adicione/edite blocos e valores
