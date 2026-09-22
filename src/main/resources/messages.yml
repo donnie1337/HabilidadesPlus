@@ -42,7 +42,7 @@ acrobacia:
 
 gui:
   titulo-menu: "&8Habilidades • Suas informações"
-  titulo-habilidade: "&8Habilidades &8• &b{habilidade}"
+  titulo-habilidade: "&8Habilidades • &b{habilidade}"
   item-habilidade-nome: "&b{habilidade} &8• &7Nível &a{nivel}"
   item-xp: "&7XP: &f{xpAtual} &7/ &f{xpNecessario}"
   item-nivel-maximo: "&6&lNÍVEL MÁXIMO!"
