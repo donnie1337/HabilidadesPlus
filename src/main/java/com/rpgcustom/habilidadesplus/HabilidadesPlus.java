@@ -76,6 +76,11 @@ public final class HabilidadesPlus extends JavaPlugin {
         return skill == null ? "" : configManager.top1Tag(skill);
     }
 
+    public String getTop1SkillDisplayName(java.util.UUID playerId) {
+        SkillType skill = top1SkillService == null ? null : top1SkillService.getTop1Skill(playerId);
+        return skill == null ? "" : skill.getDisplayName();
+    }
+
     @Override
     public void onDisable() {
         if (xpManager != null) {
