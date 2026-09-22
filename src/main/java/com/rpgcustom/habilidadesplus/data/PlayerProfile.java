@@ -65,7 +65,7 @@ public class PlayerProfile {
 
         int levelsGained = 0;
         while (data.getLevel() < maxLevel) {
-            double necessario = levelingManager.xpParaProximoNivel(data.getLevel());
+            double necessario = levelingManager.xpParaProximoNivel(type, data.getLevel());
             if (data.getCurrentXp() >= necessario) {
                 data.setCurrentXp(data.getCurrentXp() - necessario);
                 data.setLevel(data.getLevel() + 1);
