@@ -12,11 +12,16 @@ commands:
     aliases: [cmmo, habilidade, habilidades]
     permission: habilidadesplus.use
     permission-message: "§cVoce nao tem permissao para usar este comando."
+  luz:
+    description: Ativa ou desativa a visao noturna
+    usage: /luz
+    permission: habilidadesplus.use
+    permission-message: "§cVoce nao tem permissao para usar este comando."
 
 permissions:
   habilidadesplus.admin:
     description: Permite recarregar a configuracao do plugin e definir niveis para testes
     default: op
   habilidadesplus.use:
-    description: Permite usar /mcmmo, /habilidades e ganhar XP
+    description: Permite usar /mcmmo, /habilidades, /luz e ganhar XP
     default: true
