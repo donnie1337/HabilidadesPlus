@@ -14,7 +14,8 @@ import java.util.UUID;
 
 public final class LuzCommand implements CommandExecutor {
 
-    private static final int DURACAO = 220;
+    private static final int DURACAO = Integer.MAX_VALUE;
+    private static final int PISCADAS = 3;
     private static final long ACTION_BAR_DURATION_TICKS = 40L;
     private final Set<UUID> ativos = new HashSet<>();
 
@@ -37,6 +38,7 @@ public final class LuzCommand implements CommandExecutor {
         } else {
             ativos.add(uuid);
             aplicarVisaoNoturna(player);
+            iniciarPiscadas(player);
             mostrarActionBar(player, "§aLuz noturna ativada");
         }
         return true;
@@ -49,7 +51,7 @@ public final class LuzCommand implements CommandExecutor {
                 ativos.remove(uuid);
                 continue;
             }
-            aplicarVisaoNoturna(player);
+            // O efeito é infinito; não precisa ser renovado a cada segundo.
         }
     }
 
@@ -70,6 +72,24 @@ public final class LuzCommand implements CommandExecutor {
                 () -> player.sendActionBar(Component.empty()),
                 ACTION_BAR_DURATION_TICKS
         );
+    }
+
+    private void iniciarPiscadas(Player player) {
+        org.bukkit.plugin.java.JavaPlugin plugin = org.bukkit.plugin.java.JavaPlugin.getProvidingPlugin(getClass());
+        for (int i = 0; i < PISCADAS; i++) {
+            long removerEm = 2L + (i * 4L);
+            long aplicarEm = removerEm + 1L;
+            org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (ativos.contains(player.getUniqueId()) && player.isOnline()) {
+                    player.removePotionEffect(PotionEffectType.NIGHT_VISION);
+                }
+            }, removerEm);
+            org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (ativos.contains(player.getUniqueId()) && player.isOnline()) {
+                    aplicarVisaoNoturna(player);
+                }
+            }, aplicarEm);
+        }
     }
 
     private void aplicarVisaoNoturna(Player player) {
