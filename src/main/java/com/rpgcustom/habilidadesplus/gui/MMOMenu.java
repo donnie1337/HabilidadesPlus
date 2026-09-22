@@ -48,7 +48,7 @@ public final class MMOMenu {
         PlayerSkillData current = data.getProfile(player.getUniqueId()).getData(skill);
         List<SkillCatalog.Power> powers = SkillCatalog.definition(skill).powers();
         for (int index = 0; index < powers.size() && index < SLOTS.length; index++) {
-            inventory.setItem(SLOTS[index], powerItem(powers.get(index), current.getLevel(), config));
+            inventory.setItem(SLOTS[index], powerItem(powers.get(index), skill, current.getLevel(), config));
         }
         inventory.setItem(45, item(Material.ARROW, config.msg("gui.voltar-nome"),
                 List.of("", config.msg("gui.voltar-lore"))));
@@ -98,11 +98,16 @@ public final class MMOMenu {
                 "habilidade", skill.getDisplayName(), "nivel", String.valueOf(data.getLevel()))), lore);
     }
 
-    private static ItemStack powerItem(SkillCatalog.Power power, int level, ConfigManager config) {
+    private static ItemStack powerItem(SkillCatalog.Power power, SkillType skill, int level, ConfigManager config) {
         boolean unlocked = level >= power.level();
         List<String> lore = new ArrayList<>();
         lore.add("");
         lore.addAll(wrap("&7" + power.description()));
+        if (skill == SkillType.MINERACAO && power.name().equals("Super Quebrador")) {
+            double chance = Math.min(100.0, level * config.getDouble("mineracao.superbreaker.chance-drop-triplo-por-nivel", 0.02));
+            lore.addAll(wrap("&7Durante o Super Quebrador, o drop pode ser triplicado."));
+            lore.add(message(config, "gui.superbreaker-chance", Map.of("chance", formatPercent(chance))));
+        }
         lore.add("");
         lore.add(message(config, "gui.item-poder-nivel", Map.of("nivel", String.valueOf(power.level()))));
         String statusPath = !power.implemented() ? "gui.item-poder-planejado"
@@ -165,6 +170,10 @@ public final class MMOMenu {
         }
         if (!line.isEmpty()) lines.add(line.toString());
         return lines;
+    }
+
+    private static String formatPercent(double value) {
+        return String.format(java.util.Locale.US, "%.2f", value).replace(".", ",");
     }
 
     private static String number(double number) {
