@@ -37,7 +37,7 @@ public final class MMOMenu {
         for (int index = 0; index < skills.length && index < SLOTS.length; index++) {
             inventory.setItem(SLOTS[index], skillItem(skills[index], profile, levels, config));
         }
-        inventory.setItem(50, rankingBook(player, data, config));
+        inventory.setItem(51, rankingBook(player, data, config));
         inventory.setItem(47, profileItem(player, profile, config));
         player.openInventory(inventory);
     }
