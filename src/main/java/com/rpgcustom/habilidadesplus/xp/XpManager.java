@@ -178,12 +178,13 @@ public class XpManager {
     private void announcePowerMilestone(Player player, String messagePath, SkillType skill, int poder) {
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put("poder", String.valueOf(poder));
+        placeholders.put("jogador", player.getName());
         if (skill != null) {
             placeholders.put("habilidade", skill.getDisplayName());
         }
 
         String mensagem = MessageUtil.placeholders(configManager.msg(messagePath), placeholders);
-        player.sendMessage(MessageUtil.colorize(mensagem));
+        Bukkit.broadcastMessage(MessageUtil.colorize(mensagem));
     }
 
     private void announceLevelUp(Player player, SkillType skill, LevelUpResult result) {
