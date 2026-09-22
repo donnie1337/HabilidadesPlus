@@ -33,11 +33,11 @@ public final class LuzCommand implements CommandExecutor {
         UUID uuid = player.getUniqueId();
         if (ativos.remove(uuid)) {
             player.removePotionEffect(PotionEffectType.NIGHT_VISION);
-            mostrarActionBar(player, "§cLuz noturna desativada");
+            mostrarActionBar(player, "§8✦ §c§lLUZ NOTURNA §8» §7Desativada");
         } else {
             ativos.add(uuid);
             aplicarVisaoNoturna(player);
-            mostrarActionBar(player, "§aLuz noturna ativada");
+            mostrarActionBar(player, "§8✦ §a§lLUZ NOTURNA §8» §fAtivada §8✦");
         }
         return true;
     }
