@@ -8,14 +8,14 @@ description: Plugin de RPG customizado inspirado no mcMMO - XP e nivel na action
 commands:
   mcmmo:
     description: Abre o menu do HabilidadesPlus
-    usage: /mcmmo [reload]
+    usage: /mcmmo [reload|setnivel <habilidade> <nivel>]
     aliases: [cmmo, habilidade, habilidades]
     permission: habilidadesplus.use
     permission-message: "§cVoce nao tem permissao para usar este comando."
 
 permissions:
   habilidadesplus.admin:
-    description: Permite recarregar a configuracao do plugin
+    description: Permite recarregar a configuracao do plugin e definir niveis para testes
     default: op
   habilidadesplus.use:
     description: Permite usar /mcmmo, /habilidades e ganhar XP
