@@ -26,9 +26,12 @@ import java.util.UUID;
 
 public class SuperBreakerManager implements Listener {
 
-        private static final double EFICIENCIA_BONUS = 20.0;
+    private static final double EFICIENCIA_BONUS = 20.0;
+    private static final double VELOCIDADE_BLOCO_BONUS = 20.0;
     private static final NamespacedKey EFICIENCIA_KEY =
             new NamespacedKey("habilidadesplus", "super_quebrador_eficiencia");
+    private static final NamespacedKey VELOCIDADE_BLOCO_KEY =
+            new NamespacedKey("habilidadesplus", "super_quebrador_velocidade_bloco");
 
     private final JavaPlugin plugin;
     private final ConfigManager configManager;
@@ -38,6 +41,7 @@ public class SuperBreakerManager implements Listener {
     private final Map<UUID, BukkitTask> activeTasks = new HashMap<>();
     private final Map<UUID, Long> activeUntil = new HashMap<>();
     private final Map<UUID, AttributeModifier> efficiencyModifiers = new HashMap<>();
+    private final Map<UUID, AttributeModifier> blockBreakSpeedModifiers = new HashMap<>();
 
     public SuperBreakerManager(JavaPlugin plugin, ConfigManager configManager, DataManager dataManager) {
         this.plugin = plugin;
@@ -97,7 +101,6 @@ public class SuperBreakerManager implements Listener {
             activeTasks.remove(uuid);
             activeUntil.remove(uuid);
             sendEndedMessage(player);
-            activeUntil.remove(uuid);
         }, durationTicks);
         activeTasks.put(uuid, task);
 
@@ -142,6 +145,7 @@ public class SuperBreakerManager implements Listener {
             removeEfficiencyBonus(player);
         } else {
             efficiencyModifiers.remove(uuid);
+            blockBreakSpeedModifiers.remove(uuid);
         }
 
         activeUntil.remove(uuid);
@@ -151,34 +155,54 @@ public class SuperBreakerManager implements Listener {
         removeEfficiencyBonus(player);
 
         AttributeInstance attribute = player.getAttribute(Attribute.MINING_EFFICIENCY);
-        if (attribute == null) {
-            return;
+        if (attribute != null) {
+            AttributeModifier modifier = new AttributeModifier(
+                    EFICIENCIA_KEY,
+                    EFICIENCIA_BONUS,
+                    AttributeModifier.Operation.ADD_NUMBER
+            );
+            attribute.addTransientModifier(modifier);
+            efficiencyModifiers.put(player.getUniqueId(), modifier);
         }
 
-        AttributeModifier modifier = new AttributeModifier(
-                EFICIENCIA_KEY,
-                EFICIENCIA_BONUS,
-                AttributeModifier.Operation.ADD_NUMBER
-        );
-
-        attribute.addTransientModifier(modifier);
-        efficiencyModifiers.put(player.getUniqueId(), modifier);
+        // Garante o ganho de velocidade também nos blocos mais resistentes,
+        // como a ardósia abissal (deepslate).
+        AttributeInstance blockBreakSpeed = player.getAttribute(Attribute.BLOCK_BREAK_SPEED);
+        if (blockBreakSpeed != null) {
+            AttributeModifier modifier = new AttributeModifier(
+                    VELOCIDADE_BLOCO_KEY,
+                    VELOCIDADE_BLOCO_BONUS,
+                    AttributeModifier.Operation.ADD_NUMBER
+            );
+            blockBreakSpeed.addTransientModifier(modifier);
+            blockBreakSpeedModifiers.put(player.getUniqueId(), modifier);
+        }
     }
 
     private void removeEfficiencyBonus(Player player) {
         AttributeInstance attribute = player.getAttribute(Attribute.MINING_EFFICIENCY);
         AttributeModifier modifier = efficiencyModifiers.remove(player.getUniqueId());
-
-        if (attribute == null) {
-            return;
+        if (attribute != null) {
+            if (modifier != null) {
+                attribute.removeModifier(modifier);
+            } else {
+                AttributeModifier existing = attribute.getModifier(EFICIENCIA_KEY);
+                if (existing != null) {
+                    attribute.removeModifier(existing);
+                }
+            }
         }
 
-        if (modifier != null) {
-            attribute.removeModifier(modifier);
-        } else {
-            AttributeModifier existing = attribute.getModifier(EFICIENCIA_KEY);
-            if (existing != null) {
-                attribute.removeModifier(existing);
+        AttributeInstance blockBreakSpeed = player.getAttribute(Attribute.BLOCK_BREAK_SPEED);
+        AttributeModifier blockModifier = blockBreakSpeedModifiers.remove(player.getUniqueId());
+        if (blockBreakSpeed != null) {
+            if (blockModifier != null) {
+                blockBreakSpeed.removeModifier(blockModifier);
+            } else {
+                AttributeModifier existing = blockBreakSpeed.getModifier(VELOCIDADE_BLOCO_KEY);
+                if (existing != null) {
+                    blockBreakSpeed.removeModifier(existing);
+                }
             }
         }
     }
