@@ -31,7 +31,7 @@ public enum SkillType {
     ARQUERIA("Arqueiro", Material.BOW),
     BESTAS("Bestas", Material.CROSSBOW),
     TRIDENTES("Tridentes", Material.TRIDENT),
-    LANCAS("Lanças", material("SPEAR", Material.TRIDENT)),
+    LANCAS("Lanças", Material.STONE_SPEAR),
 
     // Mobilidade e companheiros
     ACROBACIA("Acrobacia", Material.FEATHER),
