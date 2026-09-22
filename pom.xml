@@ -26,17 +26,17 @@
 
     <repositories>
         <repository>
-            <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
     </repositories>
 
     <dependencies>
-        <!-- Spigot API 26.2 (Minecraft 26.2 "Chaos Cubed") -->
+        <!-- Paper API 26.2 (Minecraft 26.2) -->
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>26.2-R0.1-SNAPSHOT</version>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>[26.2.build,)</version>
             <scope>provided</scope>
         </dependency>
 

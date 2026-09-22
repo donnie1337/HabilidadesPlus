@@ -36,7 +36,7 @@ public class CombatListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onShoot(EntityShootBowEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
-        Projectile projectile = event.getProjectile();
+        if (!(event.getProjectile() instanceof Projectile projectile)) return;
 
         ItemStack weapon = event.getBow();
         if (weapon != null && weapon.getType() == Material.CROSSBOW) {
