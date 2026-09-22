@@ -5,13 +5,10 @@
 # ============================================================
 
 actionbar:
-  # {habilidade} = nome da habilidade, {barra} = progresso visual, {porcentagem} = %, {xpAtual}/{xpNecessario} = XP do nivel, {nivel} = nivel atual
-  formato-progresso: "&f{habilidade} &8| &a{barra} &e{porcentagem}% &8| &f{xpAtual}/{xpNecessario} XP &8| &7Nivel &e{nivel}"
-  barra-cheia: "▰"
-  barra-vazia: "▱"
-  tamanho-barra: 10
-  # separador usado quando mais de uma habilidade ganha XP no mesmo lote
-  separador: " &8| "
+  # Action Bar normal exibida a cada ganho de XP.
+  formato-progresso: "&f{habilidade} &8| &a+{xpGanho} XP &8| &f{xpAtual}/{xpNecessario}XP &8| &7Nivel: &e{nivel}"
+  # Tempo que a mensagem de subida de nivel permanece sobrepondo novos ganhos de XP.
+  duracao-level-up-ticks: 40
 
 poder:
   # Mensagens exibidas no chat ao cruzar o marco de 100 pela primeira vez.
