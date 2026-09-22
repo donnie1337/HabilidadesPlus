@@ -80,11 +80,17 @@ public class XpManager {
         LevelUpResult result = profile.addXp(skill, amount, levelingManager);
         dataManager.markDirty(player.getUniqueId());
 
-        pendingDisplay
-                .computeIfAbsent(player.getUniqueId(), k -> new EnumMap<>(SkillType.class))
-                .merge(skill, amount, Double::sum);
+        boolean milestone = result.isLeveledUp() && result.getNewLevel() % 100 == 0;
 
-        if (result.isLeveledUp() && result.getNewLevel() % 100 == 0) {
+        // Em milestones (100, 200, 300...), o aviso fica somente no Title.
+        // Nao envia o mesmo ganho de XP pela Action Bar nesse momento.
+        if (!milestone) {
+            pendingDisplay
+                    .computeIfAbsent(player.getUniqueId(), k -> new EnumMap<>(SkillType.class))
+                    .merge(skill, amount, Double::sum);
+        }
+
+        if (milestone) {
             announceLevelUp(player, skill, result);
         }
     }
