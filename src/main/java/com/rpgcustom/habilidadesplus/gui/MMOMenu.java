@@ -66,7 +66,7 @@ public final class MMOMenu {
                                        LevelingManager levels, ConfigManager config) {
         PlayerSkillData data = profile.getData(skill);
         boolean maximum = data.getLevel() >= levels.getNivelMaximo();
-        double needed = maximum ? 0 : levels.xpParaProximoNivel(data.getLevel());
+        double needed = maximum ? 0 : levels.xpParaProximoNivel(skill, data.getLevel());
         SkillCatalog.Definition definition = SkillCatalog.definition(skill);
 
         List<String> lore = new ArrayList<>();
