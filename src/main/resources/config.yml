@@ -312,6 +312,9 @@ escavacao:
         raridade: raro
         quantidade-min: 1
         quantidade-max: 3
+        xp-min-por-nivel: 0.01
+        xp-max-por-nivel: 0.03
+        xp-maximo: 50
         habilitado: true
       pena:
         item: FEATHER
