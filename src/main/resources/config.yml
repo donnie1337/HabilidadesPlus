@@ -306,6 +306,13 @@ escavacao:
         quantidade-min: 1
         quantidade-max: 1
         habilitado: true
+      orbe-xp:
+        item: EXPERIENCE_BOTTLE
+        nivel: 75
+        raridade: raro
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
       pena:
         item: FEATHER
         nivel: 50
