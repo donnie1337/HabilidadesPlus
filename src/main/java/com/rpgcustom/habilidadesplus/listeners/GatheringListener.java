@@ -3,6 +3,7 @@ package com.rpgcustom.habilidadesplus.listeners;
 import com.rpgcustom.habilidadesplus.SkillType;
 import com.rpgcustom.habilidadesplus.data.PlayerProfile;
 import com.rpgcustom.habilidadesplus.util.ConfigManager;
+import com.rpgcustom.habilidadesplus.util.MessageUtil;
 import com.rpgcustom.habilidadesplus.util.PlacedBlockTracker;
 import com.rpgcustom.habilidadesplus.xp.XpManager;
 import io.papermc.paper.event.entity.EntityDamageItemEvent;
@@ -61,6 +62,7 @@ public class GatheringListener implements Listener {
     private final Random random = new Random();
     private final Map<UUID, Long> lastTreeFellAt = new HashMap<>();
     private final Map<UUID, Integer> cuttingCombos = new HashMap<>();
+    private final Map<UUID, Long> actionBarSequences = new HashMap<>();
 
     public GatheringListener(JavaPlugin plugin, ConfigManager configManager, XpManager xpManager,
                              PlacedBlockTracker placedBlockTracker) {
@@ -236,11 +238,13 @@ public class GatheringListener implements Listener {
         if (bonusPercent > 0) {
             xpManager.addXp(player, SkillType.LENHADOR, treeBaseXp * bonusPercent / 100.0);
         }
+
+        showCuttingComboActionBar(player, combo, bonusPercent);
     }
 
     private void tryAutoReplant(Player player, Block root, int level) {
         int unlock = configManager.config().getInt(
-                "lenhador.replantio-automatico.nivel-desbloqueio", 100);
+                "lenhador.replantio-automatico.nivel-desbloqueio", 10);
         if (level < unlock) return;
 
         double chance = Math.min(100.0, level * configManager.config().getDouble(
@@ -257,8 +261,40 @@ public class GatheringListener implements Listener {
 
         target.setType(sapling, false);
         PlayerProfile profile = xpManager.getDataManager().getProfile(player.getUniqueId());
-        profile.incrementLenhadorArvoresReplantadas();
+        long replanted = profile.incrementLenhadorArvoresReplantadas();
         xpManager.getDataManager().markDirty(player.getUniqueId());
+
+        if (replanted > 0 && replanted % 100 == 0) {
+            broadcastReplantMilestone(player, replanted);
+        }
+    }
+
+    private void broadcastReplantMilestone(Player player, long replanted) {
+        String message = configManager.config().getString("lenhador.replantio-automatico.mensagem-marco", "");
+        message = message.replace("{jogador}", player.getName())
+                .replace("{arvores}", String.valueOf(replanted));
+        for (String line : message.split("\\n")) {
+            player.getServer().broadcastMessage(MessageUtil.colorize(line));
+        }
+    }
+
+    private void showCuttingComboActionBar(Player player, int combo, double bonusPercent) {
+        UUID uuid = player.getUniqueId();
+        long sequence = actionBarSequences.getOrDefault(uuid, 0L) + 1L;
+        actionBarSequences.put(uuid, sequence);
+
+        String bonusText = bonusPercent > 0
+                ? String.format(java.util.Locale.US, "%.0f%% XP", bonusPercent)
+                : "XP normal";
+
+        player.sendActionBar(MessageUtil.colorize(
+                "&c&lCOMBO DE CORTE! &f" + combo + "x XP Bônus &8• &6+" + bonusText));
+
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            if (actionBarSequences.getOrDefault(uuid, 0L) == sequence) {
+                player.sendActionBar("");
+            }
+        }, 40L);
     }
 
     private Material getReplantMaterial(Material log) {
