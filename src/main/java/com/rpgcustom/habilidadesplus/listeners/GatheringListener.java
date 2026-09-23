@@ -310,8 +310,8 @@ public class GatheringListener implements Listener {
             }
         }
 
-        player.sendActionBar(MessageUtil.colorize("&e&lARQUEOLOGIA! &fVocê encontrou &6" +
-                amount + "x " + material.name()));
+        player.sendTitle("", MessageUtil.colorize("&e&lARQUEOLOGIA! &fVocê encontrou &6" +
+                amount + "x " + material.name()), 5, 60, 10);
     }
 
     private String selectExcavationTreasure(ConfigurationSection section, List<String> eligible) {
