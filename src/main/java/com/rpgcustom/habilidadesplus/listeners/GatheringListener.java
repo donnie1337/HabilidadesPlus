@@ -186,6 +186,7 @@ public class GatheringListener implements Listener {
             logs = new ArrayList<>(logs.subList(0, maxBlocks));
         }
 
+        Material rootMaterial = root.getType();
         double treeBaseXp = 0.0;
         for (Block log : logs) {
             if (placedBlockTracker.isPlaced(log) || !isWood(log.getType())) continue;
@@ -210,7 +211,6 @@ public class GatheringListener implements Listener {
         }
 
         applyCuttingComboBonus(player, treeBaseXp);
-        Material rootMaterial = root.getType();
         tryAutoReplant(player, root, rootMaterial, level);
 
         if (configManager.config().getBoolean(
