@@ -531,7 +531,12 @@ public class GatheringListener implements Listener, CommandExecutor {
                     if (shouldDoubleDrop(level)) {
                         copy.setAmount(Math.min(copy.getMaxStackSize(), copy.getAmount() * 2));
                     }
-                    log.getWorld().dropItemNaturally(log.getLocation(), copy);
+                    if (coletaAutomaticaAtiva.contains(player.getUniqueId())) {
+                        Map<Integer, ItemStack> leftovers = player.getInventory().addItem(copy.clone());
+                        leftovers.values().forEach(stack -> log.getWorld().dropItemNaturally(log.getLocation(), stack));
+                    } else {
+                        log.getWorld().dropItemNaturally(log.getLocation(), copy);
+                    }
                 }
 
                 log.setType(Material.AIR, false);
