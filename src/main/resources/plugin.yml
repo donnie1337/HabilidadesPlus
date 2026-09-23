@@ -7,10 +7,10 @@ author: SeuServidor
 description: Plugin de RPG customizado inspirado no mcMMO - XP e nivel na action bar, menu via /mcmmo
 
 commands:
-  mcmmo:
+  habilidades:
     description: Abre o menu do HabilidadesPlus
     usage: /mcmmo [reload|setnivel <habilidade> <nivel>]
-    aliases: [habilidade, habilidades, poder]
+    aliases: [mcmmo, habilidade, poder]
 
   luz:
     description: Ativa ou desativa a visao noturna
