@@ -109,6 +109,13 @@ public class GatheringListener implements Listener {
         Material material = block.getType();
 
         if (isWood(material)) {
+            // Lenhador só concede XP quando a madeira é quebrada com um machado.
+            // Espadas, mãos e outras ferramentas deixam o bloco seguir o comportamento vanilla.
+            ItemStack tool = player.getInventory().getItemInMainHand();
+            if (!isAxe(tool.getType())) {
+                return;
+            }
+
             handleWoodBreak(event, player, block);
             return;
         }
