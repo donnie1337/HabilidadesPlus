@@ -257,6 +257,55 @@ escavacao:
         quantidade-min: 1
         quantidade-max: 2
         habilitado: true
+      batata:
+        item: POTATO
+        nivel: 15
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
+      batata-venenosa:
+        item: POISONOUS_POTATO
+        nivel: 100
+        raridade: raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+      beterraba:
+        item: BEETROOT
+        nivel: 25
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 2
+        habilitado: true
+      sementes-beterraba:
+        item: BEETROOT_SEEDS
+        nivel: 15
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
+      sementes-abobora:
+        item: PUMPKIN_SEEDS
+        nivel: 20
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
+      fatia-melancia:
+        item: MELON_SLICE
+        nivel: 30
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
+      melancia:
+        item: MELON
+        nivel: 150
+        raridade: raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
       pena:
         item: FEATHER
         nivel: 50
