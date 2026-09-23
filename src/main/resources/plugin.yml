@@ -11,13 +11,11 @@ commands:
     description: Abre o menu do HabilidadesPlus
     usage: /mcmmo [reload|setnivel <habilidade> <nivel>]
     aliases: [habilidade, habilidades, poder]
-    permission: habilidadesplus.use
-    permission-message: "§cVoce nao tem permissao para usar este comando."
+
   luz:
     description: Ativa ou desativa a visao noturna
     usage: /luz
-    permission: habilidadesplus.use
-    permission-message: "§cVoce nao tem permissao para usar este comando."
+
 
 permissions:
   habilidadesplus.admin:
