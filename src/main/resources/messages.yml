@@ -33,12 +33,12 @@ comandos:
   setnivel-sucesso: "&a{habilidade} definida para o nível &e{nivel}&a."
 
 mineracao:
-  superbreaker-ativado: "&6&lSUPER QUEBRADOR! &fAtivado por &e{duracao}s &fno nível &e{nivel}&f."
+  superbreaker-ativado: "&6&lSUPER QUEBRADOR! &fAtivado por &e{duracao}s&f."
   superbreaker-em-recarga: "&cSuper Quebrador em recarga! Aguarde &e{segundos} segundos&c para usar novamente."
   superbreaker-finalizado: "&eSuper Quebrador finalizado! &7A habilidade entrou em recarga."
 
 escavacao:
-  super-escavacao-ativada: "&6&lSUPER ESCAVAÇÃO! &fAtivada por &e{duracao}s &fno nível &e{nivel}&f."
+  super-escavacao-ativada: "&6&lSUPER ESCAVAÇÃO! &fAtivada por &e{duracao}s&f."
   super-escavacao-finalizada: "&eSuper Escavação finalizada! &7A habilidade entrou em recarga."
 
 acrobacia:
