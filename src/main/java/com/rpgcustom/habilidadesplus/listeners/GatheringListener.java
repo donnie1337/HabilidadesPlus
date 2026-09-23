@@ -217,7 +217,9 @@ public class GatheringListener implements Listener {
         }
 
         applyCuttingComboBonus(player, treeBaseXp);
-        tryAutoReplant(player, replantTarget, rootMaterial, level);
+        if (replantTarget != null) {
+            tryAutoReplant(player, replantTarget, rootMaterial, level);
+        }
 
         if (configManager.config().getBoolean(
                 "lenhador.leaf-cutter.remover-folhas-automaticamente", true)) {
