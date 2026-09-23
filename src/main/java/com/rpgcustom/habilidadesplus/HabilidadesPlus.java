@@ -125,6 +125,7 @@ public final class HabilidadesPlus extends JavaPlugin {
         PluginManager pm = getServer().getPluginManager();
         this.gatheringListener = new GatheringListener(this, configManager, xpManager, placedBlockTracker, superEscavadorManager);
         pm.registerEvents(gatheringListener, this);
+        pm.registerEvents(luzCommand, this);
         pm.registerEvents(superBreakerManager, this);
         pm.registerEvents(superEscavadorManager, this);
         pm.registerEvents(veioFartoManager, this);
