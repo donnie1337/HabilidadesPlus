@@ -31,7 +31,7 @@ public final class SkillCatalog {
                     implemented("Mestre da Escavação",750,Material.NETHERITE_SHOVEL,"Aumenta ainda mais a chance de encontrar tesouros."));
             case ERVANISMO -> d("Transforme plantações em colheitas mais produtivas.", p("Colheita Viva",5,Material.WHEAT,"Chance de colher produtos extras."),p("Sementes de Retorno",20,Material.WHEAT_SEEDS,"Replanta culturas maduras automaticamente."),p("Jardim Próspero",55,Material.BONE_MEAL,"Aumenta a chance de crescimento acelerado."));
             case PESCA -> d("Pesque com técnica e encontre tesouros nas águas.", p("Isca de Sorte",5,Material.FISHING_ROD,"Melhora levemente a chance de tesouros."),p("Linha Firme",25,Material.TRIPWIRE_HOOK,"Reduz a chance de perder a pesca."),p("Maré Generosa",60,Material.HEART_OF_THE_SEA,"Chance de ganhar uma pesca adicional."));
-            case ALQUIMIA -> d("Prepare poções com maior rendimento e estabilidade.", p("Mistura Estável",5,Material.BREWING_STAND,"Reduz o risco de desperdício no preparo."),p("Essência Densa",30,Material.GLOWSTONE_DUST,"Aumenta a duração de poções próprias.")); 
+            case ALQUIMIA -> d("Prepare poções com maior rendimento e estabilidade.", p("Mistura Estável",5,Material.BREWING_STAND,"Reduz o risco de desperdício no preparo."),p("Essência Densa",30,Material.GLOWSTONE_DUST,"Aumenta a duração de poções próprias."));
             case FUNDICAO -> d("Aprimore fornalhas e aproveite melhor cada recurso fundido.", p("Brasa Eficiente",10,Material.COAL,"Pequena economia de combustível."),p("Liga Refinada",35,Material.IRON_INGOT,"Chance de receber um item fundido extra."),p("Forja Acelerada",70,Material.FURNACE,"Aumenta a velocidade de fundição."));
             case ESPADAS -> d("Lute com controle, dano contínuo e precisão corpo a corpo.", p("Corte Profundo",5,Material.IRON_SWORD,"Chance de aplicar sangramento breve."),p("Arco de Lâmina",15,Material.DIAMOND_SWORD,"Atinge inimigos próximos em um golpe especial."),p("Guarda Reversa",50,Material.SHIELD,"Chance de reduzir e devolver parte do dano."));
             case MACHADOS -> d("Use golpes pesados para abrir a defesa dos inimigos.", p("Impacto Brutal",5,Material.IRON_AXE,"Chance de aplicar lentidão curta ao alvo."),p("Fenda de Guarda",25,Material.IRON_AXE,"Causa dano extra contra inimigos protegidos."),p("Golpe do Carrasco",65,Material.NETHERITE_AXE,"Aumenta o dano contra alvos com pouca vida."));
@@ -46,7 +46,14 @@ public final class SkillCatalog {
             case LANCAS -> d("Use alcance e investidas para dominar o combate.", p("Estocada Firme",5,Material.STONE_SPEAR,"Aumenta o dano em ataques de lança."),p("Passo de Investida",35,Material.FEATHER,"Golpes em movimento causam dano adicional."));
         };
     }
-    private static Definition d(String description, Power... powers){return new Definition(description,List.of(powers));}
+
+    private static Definition d(String description, Power... powers) {
+        List<Power> sorted = List.of(powers).stream()
+                .sorted(java.util.Comparator.comparingInt(Power::level).thenComparing(Power::name))
+                .toList();
+        return new Definition(description, sorted);
+    }
+
     private static Power p(String name,int level,Material icon,String description){return new Power(name,level,icon,description,false);}
     private static Power active(String name,int level,Material icon,String description){return new Power(name,level,icon,description,true);}
     private static Power implemented(String name,int level,Material icon,String description){return new Power(name,level,icon,description,true);}
