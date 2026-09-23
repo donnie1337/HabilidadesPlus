@@ -342,7 +342,7 @@ public class GatheringListener implements Listener {
 
         double bonusPercent = Math.max(0.0, (multiplier - 1) * 2.5);
         String message = String.format(
-                "&#ff5555&lCOMBO DE CORTE! &f%dx XP Bônus &7• &a+%.1f%% XP",
+                "&c&lCOMBO DE CORTE! &f%dx XP Bônus &7• &a+%.1f%% XP",
                 multiplier,
                 bonusPercent
         );
@@ -352,7 +352,7 @@ public class GatheringListener implements Listener {
         // actionbar, deixando a mensagem de XP do mcMMO intacta.
         plugin.getServer().getScheduler().runTask(plugin, () -> {
             if (player.isOnline()) {
-                player.sendTitle("", MessageUtil.colorize(message), 0, 20, 5);
+                player.sendTitle("", MessageUtil.colorize(message), 5, 60, 10);
             }
         });
     }
