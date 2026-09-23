@@ -10,7 +10,11 @@ commands:
   mcmmo:
     description: Abre o menu do HabilidadesPlus
     usage: /mcmmo [reload|setnivel <habilidade> <nivel>]
-    aliases: [habilidade, habilidades, poder]
+    aliases: [habilidade, habilidades]
+
+  poder:
+    description: Abre o menu do HabilidadesPlus
+    usage: /poder
 
   luz:
     description: Ativa ou desativa a visao noturna
