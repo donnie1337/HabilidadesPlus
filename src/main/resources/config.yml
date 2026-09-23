@@ -148,8 +148,8 @@ lenhador:
 
   replantio-automatico:
     # Passiva desbloqueada a partir deste nível.
-    nivel-desbloqueio: 100
-    # Chance em pontos percentuais por nível. Nível 100 = 10%, nível 1000 = 100%.
+    nivel-desbloqueio: 10
+    # Chance em pontos percentuais por nível. Nível 10 = 1%, nível 1000 = 100%.
     chance-por-nivel: 0.10
 
   ervanismo:
