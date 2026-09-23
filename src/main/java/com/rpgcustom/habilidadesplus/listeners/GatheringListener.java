@@ -7,6 +7,7 @@ import com.rpgcustom.habilidadesplus.util.MessageUtil;
 import com.rpgcustom.habilidadesplus.util.PlacedBlockTracker;
 import com.rpgcustom.habilidadesplus.xp.XpManager;
 import io.papermc.paper.event.entity.EntityDamageItemEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -21,6 +22,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayDeque;
@@ -32,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.lang.reflect.Method;
 import java.util.UUID;
 
 /**
@@ -328,11 +331,40 @@ public class GatheringListener implements Listener {
 
     private void broadcastReplantMilestone(Player player, long replanted) {
         String message = configManager.config().getString("lenhador.replantio-automatico.mensagem-marco", "");
-        message = message.replace("{jogador}", player.getName())
+        String jogador = getCargoColoredPlayerName(player);
+        message = message.replace("{jogador}", jogador)
                 .replace("{arvores}", String.valueOf(replanted));
         for (String line : message.split("\\n")) {
             player.getServer().broadcastMessage(MessageUtil.colorize(line));
         }
+    }
+
+    private String getCargoColoredPlayerName(Player player) {
+        String fallback = "&f" + player.getName();
+        Plugin cargoPlus = Bukkit.getPluginManager().getPlugin("CargoPlus");
+        if (cargoPlus == null || !cargoPlus.isEnabled()) {
+            return fallback;
+        }
+
+        try {
+            Method getCargoColor = cargoPlus.getClass().getMethod("getCargoColor", String.class);
+            Method apiMethod = cargoPlus.getClass().getMethod("api");
+            Object api = apiMethod.invoke(cargoPlus);
+            Method apiGetGroup = api.getClass().getMethod("getGroup", UUID.class);
+            Object group = apiGetGroup.invoke(api, player.getUniqueId());
+            if (!(group instanceof String groupName) || groupName.isBlank()) {
+                return fallback;
+            }
+
+            Object color = getCargoColor.invoke(cargoPlus, groupName);
+            if (color instanceof String colorText && !colorText.isBlank()) {
+                return colorText + player.getName();
+            }
+        } catch (ReflectiveOperationException | LinkageError ignored) {
+            // CargoPlus e opcional; se a API mudar, mantemos o nome branco.
+        }
+
+        return fallback;
     }
 
     private void showCuttingComboMessage(Player player, int multiplier) {

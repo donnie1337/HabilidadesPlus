@@ -152,14 +152,11 @@ lenhador:
     chance-por-nivel: 0.10
     # Mensagem global exibida a cada 100 árvores replantadas automaticamente.
     # {jogador} = nickname e {arvores} = total acumulado pelo jogador.
-    mensagem-marco: |
+    mensagem-marco: |-
       
-      &6🌱 &e&lGUARDIÃO DA FLORESTA &6🌱
-      &fO jogador &a&l{jogador} &festá ajudando a combater o desmatamento!
-      &7Já são &2&l{arvores} &7árvores replantadas através do Replantio Automático do Lenhador.
-      &6✦ &fCada árvore conta. A floresta agradece! &a🌳
+      ✦ &fO jogador {jogador} &fajudou a preservar a floresta ao replantar automaticamente &2&l{arvores} &fárvores com a habilidade Replantio Automático do Lenhador! &a🌳
       
-
+      
 
   ervanismo:
     WHEAT: 45
