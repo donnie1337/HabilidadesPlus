@@ -206,7 +206,8 @@ public class GatheringListener implements Listener {
         }
 
         applyCuttingComboBonus(player, treeBaseXp);
-        tryAutoReplant(player, root, level);
+        Material rootMaterial = root.getType();
+        tryAutoReplant(player, root, rootMaterial, level);
 
         if (configManager.config().getBoolean(
                 "lenhador.leaf-cutter.remover-folhas-automaticamente", true)) {
@@ -242,7 +243,7 @@ public class GatheringListener implements Listener {
         showCuttingComboActionBar(player, combo, bonusPercent);
     }
 
-    private void tryAutoReplant(Player player, Block root, int level) {
+    private void tryAutoReplant(Player player, Block root, Material rootMaterial, int level) {
         int unlock = configManager.config().getInt(
                 "lenhador.replantio-automatico.nivel-desbloqueio", 10);
         if (level < unlock) return;
@@ -251,7 +252,7 @@ public class GatheringListener implements Listener {
                 "lenhador.replantio-automatico.chance-por-nivel", 0.10));
         if (random.nextDouble() * 100.0 >= chance) return;
 
-        Material sapling = getReplantMaterial(root.getType());
+        Material sapling = getReplantMaterial(rootMaterial);
         if (sapling == null) return;
 
         Block target = root;
