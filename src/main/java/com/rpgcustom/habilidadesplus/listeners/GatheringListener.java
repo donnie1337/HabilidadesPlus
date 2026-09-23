@@ -620,10 +620,10 @@ public class GatheringListener implements Listener {
         if (level < unlock) return 0.0;
 
         // Curva de chance do Crítico do Lenhador:
-        // 100=5%, 200=10%, 300=15%, 500=20%, 700=30%,
-        // 900=40%, 999=45%, 1000+=50%.
+        // 100=2%, 200=4%, 300=6%, 500=10%, 700=15%,
+        // 900=20%, 999=25%, 1000+=30%.
         int[] levels = {100, 200, 300, 500, 700, 900, 999, 1000};
-        double[] chances = {5.0, 10.0, 15.0, 20.0, 30.0, 40.0, 45.0, 50.0};
+        double[] chances = {2.0, 4.0, 6.0, 10.0, 15.0, 20.0, 25.0, 30.0};
 
         if (level <= levels[0]) return chances[0];
 
