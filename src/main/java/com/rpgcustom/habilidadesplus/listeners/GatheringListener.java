@@ -308,6 +308,7 @@ public class GatheringListener implements Listener {
             actionBar += " &8• &6+" + bonusText;
         }
 
+        final String finalActionBar = actionBar;
         UUID uuid = player.getUniqueId();
         long sequence = actionBarSequences.getOrDefault(uuid, 0L) + 1L;
         actionBarSequences.put(uuid, sequence);
@@ -319,7 +320,7 @@ public class GatheringListener implements Listener {
                 return;
             }
 
-            player.sendActionBar(MessageUtil.colorize(actionBar));
+            player.sendActionBar(MessageUtil.colorize(finalActionBar));
 
             plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                 if (player.isOnline() && actionBarSequences.getOrDefault(uuid, 0L) == sequence) {
