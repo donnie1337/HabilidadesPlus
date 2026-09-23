@@ -66,7 +66,7 @@ public final class SuperEscavadorManager implements Listener {
         }
 
         ItemStack item = player.getInventory().getItemInMainHand();
-        if (!isShovel(item.getType())) return;
+        if (!isCorrectTool(item.getType())) return;
 
         UUID uuid = player.getUniqueId();
         int level = dataManager.getProfile(uuid).getLevel(SkillType.ESCAVACAO);
