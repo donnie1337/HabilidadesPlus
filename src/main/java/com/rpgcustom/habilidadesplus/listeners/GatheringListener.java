@@ -17,21 +17,21 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDropItemEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -64,7 +64,6 @@ public class GatheringListener implements Listener {
     private final Map<UUID, Integer> cuttingCombos = new HashMap<>();
     private final Map<UUID, Integer> comboTreeCounts = new HashMap<>();
     private final Map<UUID, Long> comboStageStartedAt = new HashMap<>();
-    private final Map<UUID, Long> actionBarSequences = new HashMap<>();
 
     public GatheringListener(JavaPlugin plugin, ConfigManager configManager, XpManager xpManager,
                              PlacedBlockTracker placedBlockTracker) {
@@ -188,8 +187,6 @@ public class GatheringListener implements Listener {
             logs = new ArrayList<>(logs.subList(0, maxBlocks));
         }
 
-        // O bloco clicado pode estar no meio/topo da árvore. O replantio precisa
-        // usar a posição do tronco que realmente encosta no chão.
         Block replantTarget = findTreeBase(logs);
         Material rootMaterial = root.getType();
         if (replantTarget != null) {
@@ -232,11 +229,6 @@ public class GatheringListener implements Listener {
     private void applyCuttingComboBonus(Player player, double treeBaseXp) {
         if (treeBaseXp <= 0) return;
 
-        // O combo agora é por quantidade de árvores quebradas, e não por
-        // "uma árvore = +1x". Exemplo:
-        // 6 árvores em até 15s -> 2x XP;
-        // mais 5 árvores em até 12s -> 3x XP;
-        // mais 5 -> 4x, e assim por diante.
         int firstThreshold = Math.max(1, configManager.config().getInt(
                 "lenhador.combo-de-corte.arvores-para-x2", 6));
         int nextThreshold = Math.max(1, configManager.config().getInt(
@@ -276,13 +268,12 @@ public class GatheringListener implements Listener {
         comboStageStartedAt.put(uuid, stageStartedAt);
         lastTreeFellAt.put(uuid, now);
 
-        // A árvore que completa a meta já recebe o novo multiplicador.
         double bonusMultiplier = Math.max(1.0, multiplier);
         if (bonusMultiplier > 1.0) {
             xpManager.addXp(player, SkillType.LENHADOR, treeBaseXp * (bonusMultiplier - 1.0));
         }
 
-        showCuttingComboActionBar(player, multiplier);
+        showCuttingComboMessage(player, multiplier);
     }
 
     private Block findTreeBase(List<Block> logs) {
@@ -318,9 +309,6 @@ public class GatheringListener implements Listener {
             return;
         }
 
-        // Se o tronco clicado for justamente a base da árvore, o BlockBreakEvent
-        // ainda não terminou. Colocar a muda imediatamente faz o processamento
-        // vanilla da quebra destruir a muda junto. Agenda para o próximo tick.
         plugin.getServer().getScheduler().runTask(plugin, () -> {
             if (!player.isOnline() || !target.getType().isAir() || !canPlaceSapling(target, sapling)) {
                 return;
@@ -347,30 +335,25 @@ public class GatheringListener implements Listener {
         }
     }
 
-    private void showCuttingComboActionBar(Player player, int multiplier) {
+    private void showCuttingComboMessage(Player player, int multiplier) {
         if (multiplier <= 1) {
             return;
         }
 
-        String actionBar = "&c&lCOMBO DE CORTE! &f" + multiplier + "x XP";
+        double bonusPercent = Math.max(0.0, (multiplier - 1) * 2.5);
+        String message = String.format(
+                "&#ff5555&lCOMBO DE CORTE! &f%dx XP Bônus &7• &a+%.1f%% XP",
+                multiplier,
+                bonusPercent
+        );
 
-        final String finalActionBar = actionBar;
-        UUID uuid = player.getUniqueId();
-        long sequence = actionBarSequences.getOrDefault(uuid, 0L) + 1L;
-        actionBarSequences.put(uuid, sequence);
-
+        // O mcMMO usa a actionbar para as mensagens de XP. Em vez de disputar
+        // esse mesmo espaço, o combo aparece como subtitle do título, acima da
+        // actionbar, deixando a mensagem de XP do mcMMO intacta.
         plugin.getServer().getScheduler().runTask(plugin, () -> {
-            if (!player.isOnline() || actionBarSequences.getOrDefault(uuid, 0L) != sequence) {
-                return;
+            if (player.isOnline()) {
+                player.sendTitle("", MessageUtil.colorize(message), 0, 20, 5);
             }
-
-            player.sendActionBar(MessageUtil.colorize(finalActionBar));
-
-            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                if (player.isOnline() && actionBarSequences.getOrDefault(uuid, 0L) == sequence) {
-                    player.sendActionBar("");
-                }
-            }, 20L);
         });
     }
 
@@ -513,9 +496,6 @@ public class GatheringListener implements Listener {
     private double getLenhadorCriticoChance(int level, int unlock) {
         if (level < unlock) return 0.0;
 
-        // Curva progressiva:
-        // 100=5%, 200=10%, 300=15%, 500=20%, 700=30%,
-        // 900=40%, 999=45%, 1000+=50%.
         int[] levels = {100, 200, 300, 500, 700, 900, 999, 1000};
         double[] chances = {5.0, 10.0, 15.0, 20.0, 30.0, 40.0, 45.0, 50.0};
 
