@@ -18,6 +18,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -49,7 +52,7 @@ import java.util.UUID;
  * As mecanicas de Lenhador sao voltadas a madeira e manejo de arvores,
  * sem misturar com o dano de combate da habilidade Machados.
  */
-public class GatheringListener implements Listener {
+public class GatheringListener implements Listener, CommandExecutor {
 
     private static final SkillType[] HABILIDADES = {
             SkillType.MINERACAO,
@@ -81,6 +84,7 @@ public class GatheringListener implements Listener {
     private final Map<UUID, Long> comboStageStartedAt = new HashMap<>();
     private final Map<UUID, Integer> lastShownCuttingCombo = new HashMap<>();
     private final Set<UUID> treeFellerInProgress = new HashSet<>();
+    private final Set<UUID> coletaAutomaticaAtiva = new HashSet<>();
 
     public GatheringListener(JavaPlugin plugin, ConfigManager configManager, XpManager xpManager,
                              PlacedBlockTracker placedBlockTracker, SuperEscavadorManager superEscavadorManager) {
@@ -149,6 +153,31 @@ public class GatheringListener implements Listener {
                 xpManager.getDataManager().markDirty(player.getUniqueId());
             }
             return;
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onColetaAutomatica(BlockDropItemEvent event) {
+        Player player = event.getPlayer();
+        if (!coletaAutomaticaAtiva.contains(player.getUniqueId())) return;
+
+        var iterator = event.getItems().iterator();
+        while (iterator.hasNext()) {
+            Item item = iterator.next();
+            ItemStack drop = item.getItemStack();
+            if (drop == null || drop.getType().isAir() || drop.getAmount() <= 0) {
+                iterator.remove();
+                continue;
+            }
+
+            Map<Integer, ItemStack> leftovers = player.getInventory().addItem(drop.clone());
+            if (leftovers.isEmpty()) {
+                iterator.remove();
+                continue;
+            }
+
+            ItemStack restante = leftovers.values().iterator().next();
+            item.setItemStack(restante);
         }
     }
 
@@ -230,6 +259,7 @@ public class GatheringListener implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         clearCuttingCombo(event.getPlayer().getUniqueId());
         treeFellerInProgress.remove(event.getPlayer().getUniqueId());
+        coletaAutomaticaAtiva.remove(event.getPlayer().getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -242,6 +272,28 @@ public class GatheringListener implements Listener {
         if (level <= 0) return;
 
         if (shouldPreserveAxe(level)) event.setCancelled(true);
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(MessageUtil.colorize("&cEste comando só pode ser usado por jogadores."));
+            return true;
+        }
+
+        UUID uuid = player.getUniqueId();
+        boolean ativo;
+        if (coletaAutomaticaAtiva.remove(uuid)) {
+            ativo = false;
+        } else {
+            coletaAutomaticaAtiva.add(uuid);
+            ativo = true;
+        }
+
+        player.sendMessage(MessageUtil.colorize(ativo
+                ? "&a&lCOLETA AUTOMÁTICA! &fAtivada."
+                : "&c&lCOLETA AUTOMÁTICA! &fDesativada."));
+        return true;
     }
 
     private void tryExcavationTreasure(Player player, Block block, ItemStack tool) {
@@ -297,7 +349,13 @@ public class GatheringListener implements Listener {
         int min = Math.max(1, section.getInt(selected + ".quantidade-min", 1));
         int max = Math.max(min, section.getInt(selected + ".quantidade-max", min));
         int amount = min + random.nextInt(max - min + 1);
-        block.getWorld().dropItemNaturally(block.getLocation(), new ItemStack(material, amount));
+        ItemStack treasure = new ItemStack(material, amount);
+        if (coletaAutomaticaAtiva.contains(player.getUniqueId())) {
+            Map<Integer, ItemStack> leftovers = player.getInventory().addItem(treasure.clone());
+            leftovers.values().forEach(stack -> block.getWorld().dropItemNaturally(block.getLocation(), stack));
+        } else {
+            block.getWorld().dropItemNaturally(block.getLocation(), treasure);
+        }
 
         int experiencedUnlock = configManager.config().getInt(
                 "escavacao.escavador-experiente.nivel-desbloqueio", 100);
@@ -839,7 +897,13 @@ public class GatheringListener implements Listener {
                 Material.REDSTONE
         };
         Material reward = rewards[random.nextInt(rewards.length)];
-        player.getWorld().dropItemNaturally(player.getLocation(), new ItemStack(reward));
+        ItemStack rareDrop = new ItemStack(reward);
+        if (coletaAutomaticaAtiva.contains(player.getUniqueId())) {
+            Map<Integer, ItemStack> leftovers = player.getInventory().addItem(rareDrop.clone());
+            leftovers.values().forEach(stack -> player.getWorld().dropItemNaturally(player.getLocation(), stack));
+        } else {
+            player.getWorld().dropItemNaturally(player.getLocation(), rareDrop);
+        }
     }
 
     private double getLenhadorCriticoChance(int level, int unlock) {
