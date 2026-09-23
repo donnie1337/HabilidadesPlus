@@ -109,6 +109,9 @@ escavacao:
     duracao-nivel-25: 5.0
     duracao-por-nivel: 0.01
     duracao-maxima: 20.0
+    # Tempo, em segundos, em que a pá fica "preparada" após o clique direito.
+    # Igual ao fluxo clássico do mcMMO: o próximo bloco compatível ativa a habilidade.
+    janela-preparacao-segundos: 4.0
     recarga-segundos: 120.0
     amplificador-pressa: 4
     multiplicador-tesouro: 3.0
