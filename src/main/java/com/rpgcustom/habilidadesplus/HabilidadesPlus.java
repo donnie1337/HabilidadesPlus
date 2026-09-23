@@ -146,13 +146,6 @@ public final class HabilidadesPlus extends JavaPlugin {
         command.setExecutor(mmoCommand);
         command.setTabCompleter(mmoCommand);
 
-        PluginCommand poder = Objects.requireNonNull(
-                getCommand("poder"),
-                "O comando poder nao foi encontrado no plugin.yml"
-        );
-        poder.setExecutor(mmoCommand);
-        poder.setTabCompleter(mmoCommand);
-
         PluginCommand luz = Objects.requireNonNull(
                 getCommand("luz"),
                 "O comando luz nao foi encontrado no plugin.yml"
