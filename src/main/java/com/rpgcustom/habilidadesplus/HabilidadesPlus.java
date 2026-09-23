@@ -140,8 +140,8 @@ public final class HabilidadesPlus extends JavaPlugin {
     private void registerCommands() {
         MMOCommand mmoCommand = new MMOCommand(dataManager, levelingManager, configManager, top1SkillService, this::reloadRuntime);
         PluginCommand command = Objects.requireNonNull(
-                getCommand("mcmmo"),
-                "O comando mcmmo nao foi encontrado no plugin.yml"
+                getCommand("habilidades"),
+                "O comando habilidades nao foi encontrado no plugin.yml"
         );
         command.setExecutor(mmoCommand);
         command.setTabCompleter(mmoCommand);
