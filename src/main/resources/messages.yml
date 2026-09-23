@@ -12,11 +12,11 @@ actionbar:
 
 poder:
   # Mensagens exibidas no chat ao cruzar o marco de 100 pela primeira vez.
-  milestone-geral: "&6&lPODER &8» &eO jogador {jogador} &fatingiu &e100 &fde poder!"
+  milestone-geral: "&b&lᴘᴏᴅᴇʀ &8• &fO jogador {jogador} &fatingiu &b100 &fde poder!"
 
 level-up:
   # Aviso exibido no chat e no titulo ao atingir 100, 200, 300, 400, 500... em uma habilidade.
-  mensagem-global: "&6&lNÍVEL &8» &eO jogador {jogador} &fatingiu o nível &e{nivel} &fem &e{habilidade}&f!"
+  mensagem-global: "&b&lᴘᴏᴅᴇʀ &8• &fO jogador {jogador} &fatingiu o nível &a{nivel} &fem {habilidade}!"
   actionbar: "&a&lSUBIU DE NÍVEL! &fAgora você é nível &e{nivel} &fem {habilidade}&f!"
   titulo: "&a&lSUBIU DE NÍVEL!"
   subtitulo: "&f{habilidade} agora é nível &e{nivel}&f!"
