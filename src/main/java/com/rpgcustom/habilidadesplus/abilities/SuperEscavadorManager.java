@@ -111,6 +111,7 @@ public final class SuperEscavadorManager implements Listener {
                 )
         );
         player.sendMessage(MessageUtil.colorize(mensagem));
+        player.sendActionBar(MessageUtil.colorize("&6&lSUPER ESCAVAÇÃO! &f• &eVelocidade aumentada"));
         event.setCancelled(true);
     }
 
