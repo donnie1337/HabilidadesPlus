@@ -113,9 +113,8 @@ public final class SuperEscavadorManager implements Listener {
 
         if (!configManager.habilidadeAtiva(player)
                 || !isActive(uuid)
-                || !isShovel(item.getType())
+                || !isCorrectTool(item.getType())
                 || !event.getBlock().isPreferredTool(item)) {
-            removeEfficiencyBonus(player);
             return;
         }
 
@@ -124,12 +123,18 @@ public final class SuperEscavadorManager implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        removeEfficiencyBonus(event.getPlayer());
+        Player player = event.getPlayer();
+        if (isActive(player.getUniqueId()) && isCorrectTool(player.getInventory().getItemInMainHand().getType())) {
+            applyEfficiencyBonus(player);
+        }
     }
 
     @EventHandler
     public void onBlockDamageAbort(BlockDamageAbortEvent event) {
-        removeEfficiencyBonus(event.getPlayer());
+        Player player = event.getPlayer();
+        if (isActive(player.getUniqueId()) && isCorrectTool(player.getInventory().getItemInMainHand().getType())) {
+            applyEfficiencyBonus(player);
+        }
     }
 
     @EventHandler
@@ -209,7 +214,7 @@ public final class SuperEscavadorManager implements Listener {
         return Math.max(1L, Math.round(seconds * 20.0));
     }
 
-    private boolean isShovel(Material material) {
+    private boolean isCorrectTool(Material material) {
         return material == Material.WOODEN_SHOVEL
                 || material == Material.STONE_SHOVEL
                 || material == Material.IRON_SHOVEL
