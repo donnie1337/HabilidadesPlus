@@ -296,8 +296,8 @@ public class GatheringListener implements Listener, CommandExecutor {
         }
 
         player.sendMessage(MessageUtil.colorize(ativo
-                ? "&a&lCOLETA AUTOMÁTICA! &fAtivada."
-                : "&c&lCOLETA AUTOMÁTICA! &fDesativada."));
+                ? "&a&lᴄᴏʟᴇᴛᴀ &8• &fVocê ativou a coleta automática de itens."
+                : "&c&lᴄᴏʟᴇᴛᴀ &8• &fVocê desativou a coleta automática de itens."));
         return true;
     }
 
