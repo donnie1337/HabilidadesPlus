@@ -70,7 +70,7 @@ public class SuperBreakerManager implements Listener {
         }
 
         ItemStack item = player.getInventory().getItemInMainHand();
-        if (!isPickaxe(item.getType())) {
+        if (!isCorrectTool(item.getType())) {
             return;
         }
 
@@ -129,9 +129,8 @@ public class SuperBreakerManager implements Listener {
 
         if (!configManager.habilidadeAtiva(player)
                 || !isActive(uuid)
-                || !isPickaxe(item.getType())
+                || !isCorrectTool(item.getType())
                 || !event.getBlock().isPreferredTool(item)) {
-            removeEfficiencyBonus(player);
             return;
         }
 
@@ -140,12 +139,18 @@ public class SuperBreakerManager implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        removeEfficiencyBonus(event.getPlayer());
+        Player player = event.getPlayer();
+        if (isActive(player.getUniqueId()) && isCorrectTool(player.getInventory().getItemInMainHand().getType())) {
+            applyEfficiencyBonus(player);
+        }
     }
 
     @EventHandler
     public void onBlockDamageAbort(BlockDamageAbortEvent event) {
-        removeEfficiencyBonus(event.getPlayer());
+        Player player = event.getPlayer();
+        if (isActive(player.getUniqueId()) && isCorrectTool(player.getInventory().getItemInMainHand().getType())) {
+            applyEfficiencyBonus(player);
+        }
     }
 
     @EventHandler
@@ -306,7 +311,7 @@ public class SuperBreakerManager implements Listener {
         player.sendMessage(MessageUtil.colorize(mensagem));
     }
 
-    private boolean isPickaxe(Material material) {
+    private boolean isCorrectTool(Material material) {
         return material == Material.WOODEN_PICKAXE
                 || material == Material.STONE_PICKAXE
                 || material == Material.IRON_PICKAXE
