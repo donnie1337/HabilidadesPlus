@@ -122,7 +122,8 @@ public final class HabilidadesPlus extends JavaPlugin {
 
     private void registerListeners() {
         PluginManager pm = getServer().getPluginManager();
-        pm.registerEvents(new GatheringListener(this, configManager, xpManager, placedBlockTracker, superEscavadorManager), this);
+        GatheringListener gatheringListener = new GatheringListener(this, configManager, xpManager, placedBlockTracker, superEscavadorManager);
+        pm.registerEvents(gatheringListener, this);
         pm.registerEvents(superBreakerManager, this);
         pm.registerEvents(superEscavadorManager, this);
         pm.registerEvents(veioFartoManager, this);
@@ -145,6 +146,12 @@ public final class HabilidadesPlus extends JavaPlugin {
         );
         command.setExecutor(mmoCommand);
         command.setTabCompleter(mmoCommand);
+
+        PluginCommand coleta = Objects.requireNonNull(
+                getCommand("coleta"),
+                "O comando coleta nao foi encontrado no plugin.yml"
+        );
+        coleta.setExecutor(gatheringListener);
 
         PluginCommand luz = Objects.requireNonNull(
                 getCommand("luz"),
