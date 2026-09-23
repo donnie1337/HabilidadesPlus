@@ -181,6 +181,8 @@ public class GatheringListener implements Listener, CommandExecutor {
                 } else {
                     ItemStack restante = leftovers.values().iterator().next();
                     item.setItemStack(restante);
+                    player.sendMessage(MessageUtil.colorize(
+                            "&c&lᴄᴏʟᴇᴛᴀ &8• &fSeu inventário está cheio."));
                 }
             }
         });
