@@ -196,15 +196,20 @@ public class GatheringListener implements Listener {
         if (replantTarget != null) {
             rootMaterial = replantTarget.getType();
         }
-        double treeBaseXp = 0.0;
-        for (Block log : logs) {
-            if (placedBlockTracker.isPlaced(log) || !isWood(log.getType())) continue;
 
-            Double xp = configManager.xpDeSeConfigurado("lenhador", log.getType().name());
+        // O Tree Feller remove todos os troncos, mas o XP base é concedido
+        // somente pelo bloco que o jogador realmente quebrou com o machado.
+        double treeBaseXp = 0.0;
+        if (!placedBlockTracker.isPlaced(root) && isWood(root.getType())) {
+            Double xp = configManager.xpDeSeConfigurado("lenhador", root.getType().name());
             if (xp != null) {
-                treeBaseXp += xp;
+                treeBaseXp = xp;
                 xpManager.addXp(player, SkillType.LENHADOR, xp);
             }
+        }
+
+        for (Block log : logs) {
+            if (placedBlockTracker.isPlaced(log) || !isWood(log.getType())) continue;
 
             Collection<ItemStack> drops = log.getDrops(tool, player);
             for (ItemStack drop : drops) {
@@ -338,7 +343,7 @@ public class GatheringListener implements Listener {
         String jogador = getCargoColoredPlayerName(player);
         message = message.replace("{jogador}", jogador)
                 .replace("{arvores}", String.valueOf(replanted));
-        for (String line : message.split("\\n", -1)) {
+        for (String line : message.split("\n", -1)) {
             // O chat pode ocultar mensagens totalmente vazias; um espaço preserva
             // visualmente cada linha em branco configurada antes/depois do anúncio.
             String linha = line.isEmpty() ? " " : line;
