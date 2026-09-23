@@ -41,6 +41,7 @@ public final class HabilidadesPlus extends JavaPlugin {
     private SuperEscavadorManager superEscavadorManager;
     private VeioFartoManager veioFartoManager;
     private PrecisionMiningManager precisionMiningManager;
+    private GatheringListener gatheringListener;
     private LuzCommand luzCommand;
     private BukkitTask autosaveTask;
     private BukkitTask luzActionBarTask;
@@ -122,7 +123,7 @@ public final class HabilidadesPlus extends JavaPlugin {
 
     private void registerListeners() {
         PluginManager pm = getServer().getPluginManager();
-        GatheringListener gatheringListener = new GatheringListener(this, configManager, xpManager, placedBlockTracker, superEscavadorManager);
+        this.gatheringListener = new GatheringListener(this, configManager, xpManager, placedBlockTracker, superEscavadorManager);
         pm.registerEvents(gatheringListener, this);
         pm.registerEvents(superBreakerManager, this);
         pm.registerEvents(superEscavadorManager, this);
