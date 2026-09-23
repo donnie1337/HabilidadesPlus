@@ -139,12 +139,13 @@ lenhador:
 
   combo-de-corte:
     # Tempo máximo entre árvores completas para manter o combo.
-    janela-segundos: 10
-    # Bônus máximo aplicado a partir da segunda árvore do combo.
-    combo-maximo: 5
-    # Cada nível de combo adiciona esta porcentagem do XP base da árvore.
-    # Ex.: combo 2 = +5%, combo 3 = +10%, até combo 5 = +20%.
-    bonus-xp-por-combo: 5.0
+    # A janela curta exige uma sequência rápida de cortes.
+    janela-segundos: 6
+    # São necessárias 9 árvores consecutivas para atingir o bônus máximo.
+    combo-maximo: 9
+    # Cada nível de combo adiciona 2,5% do XP base da árvore.
+    # Ex.: combo 2 = +2,5%, combo 5 = +10%, combo 9 = +20%.
+    bonus-xp-por-combo: 2.5
 
   replantio-automatico:
     # Passiva desbloqueada a partir deste nível.
