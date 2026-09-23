@@ -27,7 +27,6 @@ public final class SkillCatalog {
                     active("Super Escavação",25,Material.DIAMOND_SHOVEL,"Aumenta a eficiência de escavação por um período progressivo conforme o nível de Escavação. Em níveis mais altos, também pode potencializar os drops."),
                     implemented("Arqueologia",10,Material.BRUSH,"Aumenta a chance de encontrar tesouros ao escavar."),
                     implemented("Tesouro Raro",100,Material.GOLD_INGOT,"Desbloqueia tesouros raros nas tabelas de Arqueologia."),
-                    implemented("Escavador Experiente",100,Material.EXPERIENCE_BOTTLE,"Encontrar um tesouro também concede XP extra de Escavação."),
                     implemented("Mestre da Escavação",150,Material.NETHERITE_SHOVEL,"Aumenta ainda mais a chance de encontrar tesouros."));
             case ERVANISMO -> d("Transforme plantações em colheitas mais produtivas.", p("Colheita Viva",5,Material.WHEAT,"Chance de colher produtos extras."),p("Sementes de Retorno",25,Material.WHEAT_SEEDS,"Replanta culturas maduras automaticamente."),p("Jardim Próspero",75,Material.BONE_MEAL,"Aumenta a chance de crescimento acelerado."));
             case PESCA -> d("Pesque com técnica e encontre tesouros nas águas.", p("Isca de Sorte",5,Material.FISHING_ROD,"Melhora levemente a chance de tesouros."),p("Linha Firme",30,Material.TRIPWIRE_HOOK,"Reduz a chance de perder a pesca."),p("Maré Generosa",75,Material.HEART_OF_THE_SEA,"Chance de ganhar uma pesca adicional."));
