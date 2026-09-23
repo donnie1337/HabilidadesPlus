@@ -31,11 +31,11 @@ public class LevelingManager {
         this.multiplicador = config.getDouble("nivelamento.multiplicador", 45);
         this.expoente = config.getDouble("nivelamento.expoente", 1.8);
         this.nivelMaximo = config.getInt("nivelamento.nivel-maximo", 1000);
-        this.fatorNivel100 = config.getDouble("nivelamento.fator-nivel-100", 1.25);
-        this.fatorNivel250 = config.getDouble("nivelamento.fator-nivel-250", 1.75);
-        this.fatorNivel500 = config.getDouble("nivelamento.fator-nivel-500", 2.75);
-        this.fatorNivel750 = config.getDouble("nivelamento.fator-nivel-750", 4.25);
-        this.fatorNivel1000 = config.getDouble("nivelamento.fator-nivel-1000", 6.0);
+        this.fatorNivel100 = config.getDouble("nivelamento.fator-nivel-100", 1.0);
+        this.fatorNivel250 = config.getDouble("nivelamento.fator-nivel-250", 1.0);
+        this.fatorNivel500 = config.getDouble("nivelamento.fator-nivel-500", 1.0);
+        this.fatorNivel750 = config.getDouble("nivelamento.fator-nivel-750", 1.0);
+        this.fatorNivel1000 = config.getDouble("nivelamento.fator-nivel-1000", 1.0);
 
     }
 
