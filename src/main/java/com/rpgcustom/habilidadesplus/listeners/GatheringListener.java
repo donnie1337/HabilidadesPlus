@@ -104,6 +104,7 @@ public class GatheringListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onWoodDrop(BlockDropItemEvent event) {
+        if (placedBlockTracker.consumeProtectedDrop(event.getBlock())) return;
         if (!isWood(event.getBlockState().getType())) return;
 
         Player player = event.getPlayer();

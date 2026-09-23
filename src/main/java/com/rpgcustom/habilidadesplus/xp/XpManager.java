@@ -57,6 +57,10 @@ public class XpManager {
         levelUpActionbarTasks.clear();
     }
 
+    public DataManager getDataManager() {
+        return dataManager;
+    }
+
     public void addXp(Player player, SkillType skill, double baseAmount) {
         if (baseAmount <= 0) return;
         if (!configManager.habilidadeAtiva(player)) return;
