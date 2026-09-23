@@ -431,6 +431,7 @@ public class GatheringListener implements Listener, CommandExecutor {
             case SLIME_BALL -> "bola de slime";
             case AMETHYST_SHARD -> "fragmento de ametista";
             case GLOW_BERRIES -> "frutas luminosas";
+            case SPRUCE_SAPLING -> "muda de pinheiro";
             case EXPERIENCE_BOTTLE -> "frasco de experiência";
             case MUSIC_DISC_13 -> "disco 13";
             case MUSIC_DISC_CAT -> "disco Cat";
@@ -499,6 +500,7 @@ public class GatheringListener implements Listener, CommandExecutor {
             case SLIME_BALL -> "bolas de slime";
             case AMETHYST_SHARD -> "fragmentos de ametista";
             case GLOW_BERRIES -> "frutas luminosas";
+            case SPRUCE_SAPLING -> "mudas de pinheiro";
             case EXPERIENCE_BOTTLE -> "frascos de experiência";
             default -> singular;
         };
