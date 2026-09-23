@@ -295,6 +295,10 @@ public class GatheringListener implements Listener {
                 ? String.format(java.util.Locale.US, "%.1f%% XP", bonusPercent)
                 : "";
 
+        if (combo <= 1) {
+            return;
+        }
+
         String actionBar = "&c&lCOMBO DE CORTE! &f" + combo + "x XP Bônus";
         if (!bonusText.isEmpty()) {
             actionBar += " &8• &6+" + bonusText;
