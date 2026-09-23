@@ -33,6 +33,8 @@ servidor incompatível ou uma versao antiga do Java impede o registro dos comand
 - Ao abrir o ranking pelo livro com pena, o filtro seleciona automaticamente a habilidade em que o jogador é Top 1.
 - Mineração respeita permissão, mundos desativados, ferramenta adequada e proteção contra blocos colocados.
 - Marcadores de blocos colocados são limitados e salvos de forma assíncrona durante o autosave.
+- Lenhador com Tree Feller limitado, Leaf Cutter gradual, proteção de blocos colocados, replantio automático e progressão de combo.
+- Tree Feller respeita eventos de proteção, consome durabilidade e não derruba madeira/folhas colocadas por jogadores.
 - Persistencia por UUID em `plugins/HabilidadesPlus/playerdata/`.
 - Autosave configuravel e escrita atomica dos arquivos dos jogadores.
 - Protecao antifarm persistente para blocos colocados por jogadores.

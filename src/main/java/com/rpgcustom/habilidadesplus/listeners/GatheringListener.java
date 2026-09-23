@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,9 +20,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerItemDamageEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -57,6 +62,10 @@ public class GatheringListener implements Listener {
             "ervanismo"
     };
     private static final int MAX_TREE_BLOCKS_HARD_LIMIT = 512;
+    private static final BlockFace[] TREE_FACES = {
+            BlockFace.UP, BlockFace.DOWN, BlockFace.NORTH,
+            BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST
+    };
 
     private final JavaPlugin plugin;
     private final ConfigManager configManager;
@@ -68,6 +77,7 @@ public class GatheringListener implements Listener {
     private final Map<UUID, Integer> comboTreeCounts = new HashMap<>();
     private final Map<UUID, Long> comboStageStartedAt = new HashMap<>();
     private final Map<UUID, Integer> lastShownCuttingCombo = new HashMap<>();
+    private final Set<UUID> treeFellerInProgress = new HashSet<>();
 
     public GatheringListener(JavaPlugin plugin, ConfigManager configManager, XpManager xpManager,
                              PlacedBlockTracker placedBlockTracker) {
@@ -80,7 +90,7 @@ public class GatheringListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
         if (!configManager.mundoDesabilitado(event.getBlock().getWorld().getName())
-                && isConfiguredGatheringBlock(event.getBlock().getType())
+                && isTreeProtectionBlock(event.getBlock().getType())
                 && !placedBlockTracker.add(event.getBlock())) {
             event.setCancelled(true);
         }
@@ -93,6 +103,8 @@ public class GatheringListener implements Listener {
 
         if (player.getGameMode() == GameMode.CREATIVE) return;
         if (placedBlockTracker.removeIfPlaced(block)) return;
+        if (treeFellerInProgress.contains(player.getUniqueId())) return;
+        if (!configManager.habilidadeAtiva(player)) return;
 
         Material material = block.getType();
 
@@ -125,6 +137,7 @@ public class GatheringListener implements Listener {
         if (!isWood(event.getBlockState().getType())) return;
 
         Player player = event.getPlayer();
+        if (!configManager.habilidadeAtiva(player)) return;
         int level = getLenhadorLevel(player);
         if (level <= 0) return;
 
@@ -139,29 +152,36 @@ public class GatheringListener implements Listener {
         tryRareWoodDrop(player, level);
     }
 
+    @EventHandler(ignoreCancelled = true)
+    public void onBlockExplode(BlockExplodeEvent event) {
+        for (Block block : event.blockList()) {
+            placedBlockTracker.discard(block);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onEntityExplode(EntityExplodeEvent event) {
+        for (Block block : event.blockList()) {
+            placedBlockTracker.discard(block);
+        }
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        clearCuttingCombo(event.getPlayer().getUniqueId());
+        treeFellerInProgress.remove(event.getPlayer().getUniqueId());
+    }
+
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onAxeDamage(EntityDamageItemEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         if (!isAxe(event.getItem().getType())) return;
-        if (configManager.mundoDesabilitado(player.getWorld().getName())) return;
+        if (!configManager.habilidadeAtiva(player)) return;
 
         int level = getLenhadorLevel(player);
         if (level <= 0) return;
 
-        double baseChance = level * configManager.config().getDouble(
-                "lenhador.machado-reforcado.chance-preservar-por-nivel", 0.05);
-
-        int efficientUnlock = configManager.config().getInt(
-                "lenhador.colheita-eficiente.nivel-desbloqueio", 100);
-        double efficientBonus = level >= efficientUnlock
-                ? (level - efficientUnlock + 1) * configManager.config().getDouble(
-                "lenhador.colheita-eficiente.bonus-por-nivel", 0.025)
-                : 0.0;
-
-        double chance = Math.min(75.0, baseChance + efficientBonus);
-        if (random.nextDouble() * 100.0 < chance) {
-            event.setCancelled(true);
-        }
+        if (shouldPreserveAxe(level)) event.setCancelled(true);
     }
 
     private void handleWoodBreak(BlockBreakEvent event, Player player, Block root) {
@@ -170,7 +190,7 @@ public class GatheringListener implements Listener {
 
         int unlock = configManager.config().getInt("lenhador.tree-feller.nivel-desbloqueio", 25);
         if (level >= unlock && isAxe(tool.getType()) && !player.isSneaking()) {
-            event.setDropItems(false);
+            event.setCancelled(true);
             breakTree(player, root, tool, level);
             return;
         }
@@ -182,47 +202,62 @@ public class GatheringListener implements Listener {
     }
 
     private void breakTree(Player player, Block root, ItemStack tool, int level) {
-        List<Block> logs = collectConnectedLogs(root);
         int maxBlocks = Math.min(
                 MAX_TREE_BLOCKS_HARD_LIMIT,
                 Math.max(1, configManager.config().getInt("lenhador.tree-feller.max-troncos", 64))
         );
-        if (logs.size() > maxBlocks) {
-            logs = new ArrayList<>(logs.subList(0, maxBlocks));
-        }
+        List<Block> logs = collectConnectedLogs(root, maxBlocks);
 
         Block replantTarget = findTreeBase(logs);
         Material rootMaterial = root.getType();
         if (replantTarget != null) {
             rootMaterial = replantTarget.getType();
         }
-
-        // O Tree Feller remove todos os troncos, mas o XP base é concedido
-        // somente pelo bloco que o jogador realmente quebrou com o machado.
+        Double rootXp = configManager.xpDeSeConfigurado("lenhador", root.getType().name());
         double treeBaseXp = 0.0;
-        if (!placedBlockTracker.isPlaced(root) && isWood(root.getType())) {
-            Double xp = configManager.xpDeSeConfigurado("lenhador", root.getType().name());
-            if (xp != null) {
-                treeBaseXp = xp;
-                xpManager.addXp(player, SkillType.LENHADOR, xp);
-            }
-        }
+        int brokenLogs = 0;
+        boolean rootBroken = false;
+        UUID uuid = player.getUniqueId();
+        treeFellerInProgress.add(uuid);
+        try {
+            for (Block log : logs) {
+                if (placedBlockTracker.isPlaced(log) || !isWood(log.getType())) continue;
+                if (!isAxe(tool.getType()) || tool.getAmount() <= 0) break;
 
-        for (Block log : logs) {
-            if (placedBlockTracker.isPlaced(log) || !isWood(log.getType())) continue;
+                org.bukkit.event.block.BlockBreakEvent blockBreakEvent =
+                        new org.bukkit.event.block.BlockBreakEvent(log, player);
+                Bukkit.getPluginManager().callEvent(blockBreakEvent);
+                if (blockBreakEvent.isCancelled()) continue;
+                blockBreakEvent.setDropItems(false);
 
-            Collection<ItemStack> drops = log.getDrops(tool, player);
-            for (ItemStack drop : drops) {
-                ItemStack copy = drop.clone();
-                if (shouldDoubleDrop(level)) {
-                    copy.setAmount(Math.min(copy.getMaxStackSize(), copy.getAmount() * 2));
+                Collection<ItemStack> drops = log.getDrops(tool, player);
+                for (ItemStack drop : drops) {
+                    ItemStack copy = drop.clone();
+                    if (shouldDoubleDrop(level)) {
+                        copy.setAmount(Math.min(copy.getMaxStackSize(), copy.getAmount() * 2));
+                    }
+                    log.getWorld().dropItemNaturally(log.getLocation(), copy);
                 }
-                log.getWorld().dropItemNaturally(log.getLocation(), copy);
-            }
 
-            tryRareWoodDrop(player, level);
-            log.setType(Material.AIR, false);
+                log.setType(Material.AIR, false);
+                brokenLogs++;
+                if (log.equals(root)) {
+                    rootBroken = true;
+                }
+                damageAxe(player, tool, level);
+            }
+        } finally {
+            treeFellerInProgress.remove(uuid);
         }
+
+        if (brokenLogs == 0 || !rootBroken) return;
+
+        if (rootXp != null) {
+            treeBaseXp = rootXp;
+            xpManager.addXp(player, SkillType.LENHADOR, rootXp);
+        }
+
+        tryRareWoodDrop(player, level);
 
         applyCuttingComboBonus(player, treeBaseXp);
         if (replantTarget != null) {
@@ -231,12 +266,19 @@ public class GatheringListener implements Listener {
 
         if (configManager.config().getBoolean(
                 "lenhador.leaf-cutter.remover-folhas-automaticamente", true)) {
-            removeNearbyLeaves(logs, level);
+            removeNearbyLeaves(logs, level, player);
         }
     }
 
     private void applyCuttingComboBonus(Player player, double treeBaseXp) {
         if (treeBaseXp <= 0) return;
+
+        int unlock = configManager.config().getInt(
+                "lenhador.combo-de-corte.nivel-desbloqueio", 150);
+        if (getLenhadorLevel(player) < unlock) {
+            clearCuttingCombo(player.getUniqueId());
+            return;
+        }
 
         int firstThreshold = Math.max(1, configManager.config().getInt(
                 "lenhador.combo-de-corte.arvores-para-x2", 6));
@@ -246,46 +288,61 @@ public class GatheringListener implements Listener {
                 "lenhador.combo-de-corte.janela-inicial-segundos", 15));
         int nextWindowSeconds = Math.max(1, configManager.config().getInt(
                 "lenhador.combo-de-corte.janela-apos-x2-segundos", 12));
-        int maxMultiplier = Math.max(2, configManager.config().getInt(
-                "lenhador.combo-de-corte.multiplicador-maximo", 10));
+        double bonusPerStage = Math.max(0.0, configManager.config().getDouble(
+                "lenhador.combo-de-corte.bonus-por-estagio", 0.05));
+        double maxBonus = Math.max(bonusPerStage, configManager.config().getDouble(
+                "lenhador.combo-de-corte.bonus-maximo", 0.20));
+        if (bonusPerStage <= 0.0) {
+            clearCuttingCombo(player.getUniqueId());
+            return;
+        }
+        int maxStage = Math.max(1, (int) Math.floor(maxBonus / bonusPerStage));
 
         UUID uuid = player.getUniqueId();
         long now = System.currentTimeMillis();
         long last = lastTreeFellAt.getOrDefault(uuid, 0L);
-        int multiplier = Math.max(1, cuttingCombos.getOrDefault(uuid, 1));
+        int stage = Math.max(0, cuttingCombos.getOrDefault(uuid, 0));
         int treesInCurrentStage = comboTreeCounts.getOrDefault(uuid, 0);
         long stageStartedAt = comboStageStartedAt.getOrDefault(uuid, 0L);
 
-        int currentWindow = multiplier <= 1 ? firstWindowSeconds : nextWindowSeconds;
+        int currentWindow = stage == 0 ? firstWindowSeconds : nextWindowSeconds;
         if (last == 0L || stageStartedAt == 0L || now - stageStartedAt > currentWindow * 1000L) {
-            multiplier = 1;
+            stage = 0;
             treesInCurrentStage = 0;
             stageStartedAt = now;
         }
 
         treesInCurrentStage++;
 
-        int required = multiplier <= 1 ? firstThreshold : nextThreshold;
-        if (treesInCurrentStage >= required && multiplier < maxMultiplier) {
-            multiplier++;
+        int required = stage == 0 ? firstThreshold : nextThreshold;
+        if (treesInCurrentStage >= required && stage < maxStage) {
+            stage++;
             treesInCurrentStage = 0;
             stageStartedAt = now;
         }
 
-        cuttingCombos.put(uuid, multiplier);
+        cuttingCombos.put(uuid, stage);
         comboTreeCounts.put(uuid, treesInCurrentStage);
         comboStageStartedAt.put(uuid, stageStartedAt);
         lastTreeFellAt.put(uuid, now);
 
-        double bonusMultiplier = Math.max(1.0, multiplier);
-        if (bonusMultiplier > 1.0) {
-            xpManager.addXp(player, SkillType.LENHADOR, treeBaseXp * (bonusMultiplier - 1.0));
+        double bonus = Math.min(maxBonus, stage * bonusPerStage);
+        if (bonus > 0.0) {
+            xpManager.addXp(player, SkillType.LENHADOR, treeBaseXp * bonus);
         }
 
-        if (lastShownCuttingCombo.getOrDefault(uuid, 1) != multiplier) {
-            lastShownCuttingCombo.put(uuid, multiplier);
-            showCuttingComboMessage(player, multiplier);
+        if (lastShownCuttingCombo.getOrDefault(uuid, 0) != stage) {
+            lastShownCuttingCombo.put(uuid, stage);
+            showCuttingComboMessage(player, stage, bonus * 100.0);
         }
+    }
+
+    private void clearCuttingCombo(UUID uuid) {
+        lastTreeFellAt.remove(uuid);
+        cuttingCombos.remove(uuid);
+        comboTreeCounts.remove(uuid);
+        comboStageStartedAt.remove(uuid);
+        lastShownCuttingCombo.remove(uuid);
     }
 
     private Block findTreeBase(List<Block> logs) {
@@ -351,7 +408,7 @@ public class GatheringListener implements Listener {
         }
     }
 
-private String getCargoColoredPlayerName(Player player) {
+    private String getCargoColoredPlayerName(Player player) {
         String fallback = "&f" + player.getName();
         Plugin cargoPlus = Bukkit.getPluginManager().getPlugin("CargoPlus");
         if (cargoPlus == null || !cargoPlus.isEnabled()) {
@@ -359,6 +416,7 @@ private String getCargoColoredPlayerName(Player player) {
         }
 
         try {
+            Method getCargoColor = cargoPlus.getClass().getMethod("getCargoColor", String.class);
             Method apiMethod = cargoPlus.getClass().getMethod("api");
             Object api = apiMethod.invoke(cargoPlus);
             Method apiGetGroup = api.getClass().getMethod("getGroup", UUID.class);
@@ -367,54 +425,25 @@ private String getCargoColoredPlayerName(Player player) {
                 return fallback;
             }
 
-            // O CargoPlus usa "name-color" como a fonte oficial da cor do
-            // nickname. Ela pode ser RGB (<cor:#RRGGBB>) ou uma cor legacy
-            // configurada pelo nome do cargo.
-            Method groupsMethod = api.getClass().getMethod("groups");
-            Object groups = groupsMethod.invoke(api);
-            Method getGroup = groups.getClass().getMethod("get", String.class);
-            Object cargo = getGroup.invoke(groups, groupName);
-            if (cargo != null) {
-                Method nameColorMethod = cargo.getClass().getMethod("nameColor");
-                Object configuredColor = nameColorMethod.invoke(cargo);
-                if (configuredColor instanceof String colorText && !colorText.isBlank()) {
-                    String normalized = colorText.trim();
-
-                    java.util.regex.Matcher rgbMatcher = java.util.regex.Pattern
-                            .compile("<cor:(#[0-9a-fA-F]{6})>")
-                            .matcher(normalized);
-                    if (rgbMatcher.matches()) {
-                        String hex = rgbMatcher.group(1).substring(1).toUpperCase(java.util.Locale.ROOT);
-                        StringBuilder legacyHex = new StringBuilder("&x");
-                        for (char c : hex.toCharArray()) {
-                            legacyHex.append('&').append(c);
-                        }
-                        return legacyHex + player.getName();
-                    }
-
-                    Method getCargoColor = cargoPlus.getClass().getMethod("getCargoColor", String.class);
-                    Object legacyColor = getCargoColor.invoke(cargoPlus, groupName);
-                    if (legacyColor instanceof String color && !color.isBlank()) {
-                        return color + player.getName();
-                    }
-                }
+            Object color = getCargoColor.invoke(cargoPlus, groupName);
+            if (color instanceof String colorText && !colorText.isBlank()) {
+                return colorText + player.getName();
             }
         } catch (ReflectiveOperationException | LinkageError ignored) {
-            // CargoPlus é opcional; mantém o nome branco se a API não estiver disponível.
+            // CargoPlus e opcional; se a API mudar, mantemos o nome branco.
         }
 
         return fallback;
     }
 
-    private void showCuttingComboMessage(Player player, int multiplier) {
-        if (multiplier <= 1) {
+    private void showCuttingComboMessage(Player player, int stage, double bonusPercent) {
+        if (stage <= 0) {
             return;
         }
 
-        double bonusPercent = Math.max(0.0, (multiplier - 1) * 2.5);
         String message = String.format(
-                "&c&lCOMBO DE CORTE! &f%dx XP Bônus &7• &a+%.1f%% XP",
-                multiplier,
+                "&c&lCOMBO DE CORTE! &fEstágio %d &7• &a+%.1f%% XP",
+                stage,
                 bonusPercent
         );
 
@@ -444,12 +473,29 @@ private String getCargoColoredPlayerName(Player player) {
 
     private boolean canPlaceSapling(Block target, Material sapling) {
         Block below = target.getRelative(org.bukkit.block.BlockFace.DOWN);
-        return below.getType().isSolid()
+        return isSaplingSoil(below.getType(), sapling)
                 && !placedBlockTracker.isPlaced(target)
-                && (sapling != Material.MANGROVE_PROPAGULE || below.getType() != Material.NETHER_WART_BLOCK);
+                && target.getType().isAir();
     }
 
-    private void removeNearbyLeaves(List<Block> logs, int level) {
+    private boolean isSaplingSoil(Material material, Material sapling) {
+        if (sapling == Material.MANGROVE_PROPAGULE) {
+            return material == Material.MUD
+                    || material == Material.DIRT
+                    || material == Material.GRASS_BLOCK
+                    || material == Material.PODZOL
+                    || material == Material.COARSE_DIRT
+                    || material == Material.ROOTED_DIRT;
+        }
+        return material == Material.DIRT
+                || material == Material.GRASS_BLOCK
+                || material == Material.PODZOL
+                || material == Material.COARSE_DIRT
+                || material == Material.ROOTED_DIRT
+                || material == Material.MOSS_BLOCK;
+    }
+
+    private void removeNearbyLeaves(List<Block> logs, int level, Player player) {
         if (logs.isEmpty()) return;
 
         int maxLeaves = Math.max(1, configManager.config().getInt("lenhador.leaf-cutter.max-folhas", 200));
@@ -490,9 +536,13 @@ private String getCargoColoredPlayerName(Player player) {
             long delayTicks = Math.max(1L, Math.round(totalSeconds * multiplier * 20.0));
 
             plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                if (isLeaves(leaf.getType()) && !placedBlockTracker.isPlaced(leaf)) {
-                    leaf.setType(Material.AIR, false);
-                }
+                if (!isLeaves(leaf.getType()) || placedBlockTracker.isPlaced(leaf)) return;
+                org.bukkit.event.block.BlockBreakEvent breakEvent =
+                        new org.bukkit.event.block.BlockBreakEvent(leaf, player);
+                Bukkit.getPluginManager().callEvent(breakEvent);
+                if (breakEvent.isCancelled()) return;
+                breakEvent.setDropItems(false);
+                leaf.setType(Material.AIR, false);
             }, delayTicks);
         }
     }
@@ -516,13 +566,13 @@ private String getCargoColoredPlayerName(Player player) {
         return level500 + (level1000 - level500) * progress;
     }
 
-    private List<Block> collectConnectedLogs(Block root) {
+    private List<Block> collectConnectedLogs(Block root, int maxBlocks) {
         List<Block> result = new ArrayList<>();
         ArrayDeque<Block> queue = new ArrayDeque<>();
         Set<String> visited = new HashSet<>();
         queue.add(root);
 
-        while (!queue.isEmpty() && result.size() < MAX_TREE_BLOCKS_HARD_LIMIT) {
+        while (!queue.isEmpty() && result.size() < maxBlocks) {
             Block current = queue.poll();
             String key = current.getWorld().getUID() + ":" + current.getX() + ":" + current.getY() + ":" + current.getZ();
             if (!visited.add(key)) continue;
@@ -530,13 +580,8 @@ private String getCargoColoredPlayerName(Player player) {
 
             result.add(current);
 
-            for (int dx = -1; dx <= 1; dx++) {
-                for (int dy = -1; dy <= 1; dy++) {
-                    for (int dz = -1; dz <= 1; dz++) {
-                        if (dx == 0 && dy == 0 && dz == 0) continue;
-                        queue.add(current.getRelative(dx, dy, dz));
-                    }
-                }
+            for (BlockFace face : TREE_FACES) {
+                queue.add(current.getRelative(face));
             }
         }
 
@@ -566,20 +611,13 @@ private String getCargoColoredPlayerName(Player player) {
 
     private double getLenhadorCriticoChance(int level, int unlock) {
         if (level < unlock) return 0.0;
-
-        int[] levels = {100, 200, 300, 500, 700, 900, 999, 1000};
-        double[] chances = {5.0, 10.0, 15.0, 20.0, 30.0, 40.0, 45.0, 50.0};
-
-        if (level <= levels[0]) return chances[0];
-        for (int i = 1; i < levels.length; i++) {
-            if (level <= levels[i]) {
-                double levelSpan = levels[i] - levels[i - 1];
-                double chanceSpan = chances[i] - chances[i - 1];
-                double progress = (level - levels[i - 1]) / levelSpan;
-                return chances[i - 1] + progress * chanceSpan;
-            }
-        }
-        return chances[chances.length - 1];
+        double initial = Math.max(0.0, configManager.config().getDouble(
+                "lenhador.critico-lenhador.chance-inicial", 0.15));
+        double increment = Math.max(0.0, configManager.config().getDouble(
+                "lenhador.critico-lenhador.incremento-por-100-niveis", 0.05));
+        double maximum = Math.max(initial, configManager.config().getDouble(
+                "lenhador.critico-lenhador.chance-maxima", 0.50));
+        return Math.min(maximum, initial + ((level - unlock) / 100) * increment);
     }
 
     private boolean shouldDoubleDrop(int level) {
@@ -601,7 +639,10 @@ private String getCargoColoredPlayerName(Player player) {
 
     private boolean isLeaves(Material material) {
         String name = material.name();
-        return name.endsWith("_LEAVES");
+        return name.endsWith("_LEAVES")
+                || material == Material.NETHER_WART_BLOCK
+                || material == Material.WARPED_WART_BLOCK
+                || material == Material.SHROOMLIGHT;
     }
 
     private boolean isAxe(Material material) {
@@ -620,6 +661,44 @@ private String getCargoColoredPlayerName(Player player) {
             }
         }
         return false;
+    }
+
+    private boolean isTreeProtectionBlock(Material material) {
+        return isWood(material) || isLeaves(material) || isConfiguredGatheringBlock(material);
+    }
+
+    private boolean shouldPreserveAxe(int level) {
+        double baseChance = level * configManager.config().getDouble(
+                "lenhador.machado-reforcado.chance-preservar-por-nivel", 0.05);
+        int efficientUnlock = configManager.config().getInt(
+                "lenhador.colheita-eficiente.nivel-desbloqueio", 100);
+        double efficientBonus = level >= efficientUnlock
+                ? (level - efficientUnlock + 1) * configManager.config().getDouble(
+                "lenhador.colheita-eficiente.bonus-por-nivel", 0.025)
+                : 0.0;
+        double chance = Math.min(75.0, baseChance + efficientBonus);
+        return random.nextDouble() * 100.0 < chance;
+    }
+
+    private void damageAxe(Player player, ItemStack tool, int level) {
+        if (!isAxe(tool.getType()) || tool.getAmount() <= 0 || shouldPreserveAxe(level)) return;
+
+        int unbreaking = tool.getEnchantmentLevel(Enchantment.UNBREAKING);
+        if (unbreaking > 0 && random.nextInt(unbreaking + 1) != 0) return;
+
+        PlayerItemDamageEvent damageEvent = new PlayerItemDamageEvent(player, tool, 1);
+        Bukkit.getPluginManager().callEvent(damageEvent);
+        if (damageEvent.isCancelled() || damageEvent.getDamage() <= 0) return;
+
+        if (!(tool.getItemMeta() instanceof Damageable damageable)) return;
+        int damage = damageable.getDamage() + damageEvent.getDamage();
+        if (damage >= tool.getType().getMaxDurability()) {
+            tool.setAmount(tool.getAmount() - 1);
+            return;
+        }
+
+        damageable.setDamage(damage);
+        tool.setItemMeta(damageable);
     }
 
     private boolean isValidMiningTool(Block block, ItemStack tool) {

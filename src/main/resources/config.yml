@@ -130,20 +130,22 @@ lenhador:
     bonus-por-nivel: 0.025
 
   critico-lenhador:
-    nivel-desbloqueio: 100
-    # Curva: 100=5%, 200=10%, 300=15%, 500=20%, 700=30%, 900=40%, 999=45%, 1000+=50%.
-    chance-maxima: 50.0
+    nivel-desbloqueio: 500
+    # 0,15% no nível 500, aumentando 0,05 ponto percentual a cada 100 níveis.
+    chance-inicial: 0.15
+    incremento-por-100-niveis: 0.05
+    chance-maxima: 0.50
 
   combo-de-corte:
-    # 6 árvores quebradas em até 15s ativam o multiplicador 2x.
+    nivel-desbloqueio: 150
+    # 6 árvores quebradas em até 15s ativam o primeiro estágio do combo.
     arvores-para-x2: 6
     janela-inicial-segundos: 15
-    # Depois do 2x, cada novo nível exige mais 5 árvores em até 12s.
-    # Ex.: +5 árvores -> 3x, +5 -> 4x, e assim por diante.
+    # Depois do primeiro estágio, cada novo estágio exige mais 5 árvores em até 12s.
     arvores-por-proximo-nivel: 5
     janela-apos-x2-segundos: 12
-    # Limite de segurança para o multiplicador.
-    multiplicador-maximo: 10
+    bonus-por-estagio: 0.05
+    bonus-maximo: 0.20
 
   replantio-automatico:
     # Passiva desbloqueada a partir deste nível.
