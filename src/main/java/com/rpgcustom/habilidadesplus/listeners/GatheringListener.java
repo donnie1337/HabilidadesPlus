@@ -186,7 +186,13 @@ public class GatheringListener implements Listener {
             logs = new ArrayList<>(logs.subList(0, maxBlocks));
         }
 
+        // O bloco clicado pode estar no meio/topo da árvore. O replantio precisa
+        // usar a posição do tronco que realmente encosta no chão.
+        Block replantTarget = findTreeBase(logs);
         Material rootMaterial = root.getType();
+        if (replantTarget != null) {
+            rootMaterial = replantTarget.getType();
+        }
         double treeBaseXp = 0.0;
         for (Block log : logs) {
             if (placedBlockTracker.isPlaced(log) || !isWood(log.getType())) continue;
@@ -211,7 +217,7 @@ public class GatheringListener implements Listener {
         }
 
         applyCuttingComboBonus(player, treeBaseXp);
-        tryAutoReplant(player, root, rootMaterial, level);
+        tryAutoReplant(player, replantTarget, rootMaterial, level);
 
         if (configManager.config().getBoolean(
                 "lenhador.leaf-cutter.remover-folhas-automaticamente", true)) {
@@ -256,6 +262,33 @@ public class GatheringListener implements Listener {
         double progress = Math.min(1.0, Math.max(0.0, previousCombo / (double) Math.max(1, maxCombo - 1)));
         double seconds = baseWindowSeconds + (minWindowSeconds - baseWindowSeconds) * progress;
         return Math.max(minWindowSeconds, (int) Math.round(seconds));
+    }
+
+    private Block findTreeBase(List<Block> logs) {
+        Block best = null;
+        for (Block log : logs) {
+            if (placedBlockTracker.isPlaced(log) || !isWood(log.getType())) continue;
+
+            Block below = log.getRelative(org.bukkit.block.BlockFace.DOWN);
+            if (!below.getType().isSolid()) continue;
+
+            if (best == null || log.getY() < best.getY()) {
+                best = log;
+            }
+        }
+
+        // Fallback para árvores cujo tronco tenha sido coletado sem um bloco
+        // imediatamente sólido abaixo (ex.: terreno especial).
+        if (best == null) {
+            for (Block log : logs) {
+                if (placedBlockTracker.isPlaced(log) || !isWood(log.getType())) continue;
+                if (best == null || log.getY() < best.getY()) {
+                    best = log;
+                }
+            }
+        }
+
+        return best;
     }
 
     private void tryAutoReplant(Player player, Block root, Material rootMaterial, int level) {
