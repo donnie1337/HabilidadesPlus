@@ -355,14 +355,7 @@ public final class MMOMenu {
                         "lenhador.critico-lenhador.nivel-desbloqueio", 500);
                 double chance = 0.0;
                 if (level >= unlock) {
-                    double base = config.config().getDouble(
-                            "lenhador.critico-lenhador.chance-no-nivel-desbloqueio", 0.15);
-                    double increment = config.config().getDouble(
-                            "lenhador.critico-lenhador.incremento-por-100-niveis", 0.05);
-                    chance = Math.min(
-                            config.config().getDouble("lenhador.critico-lenhador.chance-maxima", 0.50),
-                            base + Math.max(0, (level - unlock) / 100) * increment
-                    );
+                    chance = getLenhadorCriticoChance(level, unlock);
                 }
                 lore.add("&6Chance atual: &e" + formatPercent(chance) + "%");
             }
@@ -465,6 +458,24 @@ public final class MMOMenu {
         }
         if (!line.isEmpty()) lines.add(line.toString());
         return lines;
+    }
+
+    private static double getLenhadorCriticoChance(int level, int unlock) {
+        if (level < unlock) return 0.0;
+
+        int[] levels = {100, 200, 300, 500, 700, 900, 999, 1000};
+        double[] chances = {5.0, 10.0, 15.0, 20.0, 30.0, 40.0, 45.0, 50.0};
+
+        if (level <= levels[0]) return chances[0];
+        for (int i = 1; i < levels.length; i++) {
+            if (level <= levels[i]) {
+                double levelSpan = levels[i] - levels[i - 1];
+                double chanceSpan = chances[i] - chances[i - 1];
+                double progress = (level - levels[i - 1]) / levelSpan;
+                return chances[i - 1] + progress * chanceSpan;
+            }
+        }
+        return chances[chances.length - 1];
     }
 
     private static String formatPercent(double value) {
