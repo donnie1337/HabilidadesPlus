@@ -15,12 +15,14 @@ commands:
   luz:
     description: Ativa ou desativa a visao noturna
     usage: /luz
+    permission: habilidadesplus.luz
+    permission-message: "§cVoce nao tem permissao para usar /luz."
 
 
 permissions:
   habilidadesplus.admin:
     description: Permite recarregar a configuracao do plugin e definir niveis para testes
     default: op
-  habilidadesplus.use:
-    description: Permite usar /mcmmo, /habilidades, /luz e ganhar XP
-    default: true
+  habilidadesplus.luz:
+    description: Permite usar o comando /luz
+    default: op
