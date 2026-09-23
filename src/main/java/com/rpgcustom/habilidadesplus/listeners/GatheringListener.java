@@ -285,10 +285,14 @@ public class GatheringListener implements Listener {
 
         String bonusText = bonusPercent > 0
                 ? String.format(java.util.Locale.US, "%.0f%% XP", bonusPercent)
-                : "XP normal";
+                : "";
 
-        player.sendActionBar(MessageUtil.colorize(
-                "&c&lCOMBO DE CORTE! &f" + combo + "x XP Bônus &8• &6+" + bonusText));
+        String actionBar = "&c&lCOMBO DE CORTE! &f" + combo + "x XP Bônus";
+        if (!bonusText.isEmpty()) {
+            actionBar += " &8• &6+" + bonusText;
+        }
+
+        player.sendActionBar(MessageUtil.colorize(actionBar));
 
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             if (actionBarSequences.getOrDefault(uuid, 0L) == sequence) {
