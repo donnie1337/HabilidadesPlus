@@ -31,6 +31,11 @@ public class LevelingManager {
         this.multiplicador = config.getDouble("nivelamento.multiplicador", 45);
         this.expoente = config.getDouble("nivelamento.expoente", 1.8);
         this.nivelMaximo = config.getInt("nivelamento.nivel-maximo", 1000);
+        this.fatorNivel100 = config.getDouble("nivelamento.fator-nivel-100", 1.25);
+        this.fatorNivel250 = config.getDouble("nivelamento.fator-nivel-250", 1.75);
+        this.fatorNivel500 = config.getDouble("nivelamento.fator-nivel-500", 2.75);
+        this.fatorNivel750 = config.getDouble("nivelamento.fator-nivel-750", 4.25);
+        this.fatorNivel1000 = config.getDouble("nivelamento.fator-nivel-1000", 6.0);
 
     }
 
@@ -48,7 +53,7 @@ public class LevelingManager {
      * O que varia entre elas e a quantidade de XP concedida por acao.
      */
     public double xpParaProximoNivel(SkillType skill, int currentLevel) {
-        return calcularXpBase(currentLevel);
+        return calcularXpBase(currentLevel) * fatorProgressivo(currentLevel);
     }
 
     private double calcularXpBase(int currentLevel) {
@@ -56,6 +61,27 @@ public class LevelingManager {
             case LINEAR -> xpBase + (currentLevel * multiplicador);
             case EXPONENCIAL -> xpBase * Math.pow(currentLevel + 1, expoente);
         };
+    }
+
+    private double fatorProgressivo(int level) {
+        if (level <= 100) {
+            return interpolar(0, 1.0, 100, fatorNivel100, level);
+        }
+        if (level <= 250) {
+            return interpolar(100, fatorNivel100, 250, fatorNivel250, level);
+        }
+        if (level <= 500) {
+            return interpolar(250, fatorNivel250, 500, fatorNivel500, level);
+        }
+        if (level <= 750) {
+            return interpolar(500, fatorNivel500, 750, fatorNivel750, level);
+        }
+        return interpolar(750, fatorNivel750, 1000, fatorNivel1000, Math.min(level, 1000));
+    }
+
+    private double interpolar(int nivelInicial, double fatorInicial, int nivelFinal, double fatorFinal, int nivel) {
+        double progresso = (double) (nivel - nivelInicial) / (nivelFinal - nivelInicial);
+        return fatorInicial + ((fatorFinal - fatorInicial) * progresso);
     }
 
     public int getNivelMaximo() {
