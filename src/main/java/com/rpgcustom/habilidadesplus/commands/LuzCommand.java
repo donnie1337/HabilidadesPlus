@@ -16,7 +16,9 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -26,7 +28,9 @@ public final class LuzCommand implements CommandExecutor, Listener {
     private static final int PISCADAS = 3;
     private static final long ACTION_BAR_DURATION_TICKS = 40L;
     private static final String MENSAGEM_LEITE = "Não apague sua luz para caber no mundo de ninguém.";
+    private static final long COOLDOWN_MENSAGEM_LEITE_MILLIS = 10_000L;
     private final Set<UUID> ativos = new HashSet<>();
+    private final Map<UUID, Long> ultimoEnvioMensagemLeite = new HashMap<>();
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -71,6 +75,14 @@ public final class LuzCommand implements CommandExecutor, Listener {
     }
 
     private void enviarMensagemGlobal(Player player) {
+        UUID uuid = player.getUniqueId();
+        long agora = System.currentTimeMillis();
+        Long ultimoEnvio = ultimoEnvioMensagemLeite.get(uuid);
+        if (ultimoEnvio != null && agora - ultimoEnvio < COOLDOWN_MENSAGEM_LEITE_MILLIS) {
+            return;
+        }
+        ultimoEnvioMensagemLeite.put(uuid, agora);
+
         Plugin chatPlus = Bukkit.getPluginManager().getPlugin("ChatPlus");
         if (chatPlus != null && chatPlus.isEnabled()) {
             try {
@@ -102,6 +114,7 @@ public final class LuzCommand implements CommandExecutor, Listener {
             }
         }
         ativos.clear();
+        ultimoEnvioMensagemLeite.clear();
     }
 
     private void mostrarActionBar(Player player, String mensagem) {
