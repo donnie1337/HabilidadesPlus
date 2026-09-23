@@ -12,9 +12,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.entity.Item;
 
 /**
  * Cobre 4 habilidades de uma vez, pois todas nascem do mesmo evento
@@ -124,4 +126,71 @@ public class GatheringListener implements Listener {
                 || material == Material.DIAMOND_PICKAXE
                 || material == Material.NETHERITE_PICKAXE;
     }
-}
+}    private void handleWoodBreak(BlockBreakEvent event, Player player, Block root) {
+        int level = xpManager.getDataManager().getProfile(player.getUniqueId()).getLevel(SkillType.LENHADOR);
+        ItemStack tool = player.getInventory().getItemInMainHand();
+
+        Double xp = configManager.xpDeSeConfigurado("lenhador", root.getType().name());
+        if (xp != null) {
+            xpManager.addXp(player, SkillType.LENHADOR, xp);
+        }
+
+        int unlock = configManager.config().getInt("lenhador.tree-feller.nivel-desbloqueio", 25);
+        if (level >= unlock && isAxe(tool.getType()) && !player.isSneaking()) {
+            event.setDropItems(false);
+            breakTree(player, root, tool, level);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onWoodDrop(BlockDropItemEvent event) {
+        if (!isWood(event.getBlockState().getType())) return;
+
+        Player player = event.getPlayer();
+        int level = xpManager.getDataManager().getProfile(player.getUniqueId()).getLevel(SkillType.LENHADOR);
+        if (level <= 0) return;
+
+        boolean doubled = shouldDoubleDrop(level);
+        for (Item item : event.getItems()) {
+            if (doubled) {
+                ItemStack stack = item.getItemStack();
+                stack.setAmount(Math.min(stack.getMaxStackSize(), stack.getAmount() * 2));
+                item.setItemStack(stack);
+            }
+        }
+        tryRareWoodDrop(player, level);
+    }
+
+    private void breakTree(Player player, Block root, ItemStack tool, int level) {
+        List<Block> logs = collectConnectedLogs(root);
+        int maxBlocks = Math.min(MAX_TREE_BLOCKS_HARD_LIMIT,
+                Math.max(1, configManager.config().getInt("lenhador.tree-feller.max-troncos", 64)));
+        if (logs.size() > maxBlocks) {
+            logs = new ArrayList<>(logs.subList(0, maxBlocks));
+        }
+
+        for (Block log : logs) {
+            if (placedBlockTracker.isPlaced(log)) continue;
+            if (!isWood(log.getType())) continue;
+
+            Double xp = configManager.xpDeSeConfigurado("lenhador", log.getType().name());
+            if (xp != null) xpManager.addXp(player, SkillType.LENHADOR, xp);
+
+            Collection<ItemStack> drops = log.getDrops(tool, player);
+            for (ItemStack drop : drops) {
+                ItemStack copy = drop.clone();
+                if (shouldDoubleDrop(level)) {
+                    copy.setAmount(Math.min(copy.getMaxStackSize(), copy.getAmount() * 2));
+                }
+                log.getWorld().dropItemNaturally(log.getLocation(), copy);
+            }
+            tryRareWoodDrop(player, level);
+            log.setType(Material.AIR, false);
+        }
+
+        if (configManager.config().getBoolean("lenhador.leaf-cutter.remover-folhas-automaticamente", true)) {
+            removeNearbyLeaves(logs, level);
+        }
+    }
+
+
