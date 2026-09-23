@@ -295,25 +295,38 @@ public class GatheringListener implements Listener {
     }
 
     private void showCuttingComboActionBar(Player player, int combo, double bonusPercent) {
-        String bonusText = bonusPercent > 0
-                ? String.format(java.util.Locale.US, "%.1f%% XP", bonusPercent)
-                : "";
-
         if (combo <= 1) {
             return;
         }
+
+        String bonusText = bonusPercent > 0
+                ? String.format(java.util.Locale.US, "%.1f%% XP", bonusPercent)
+                : "";
 
         String actionBar = "&c&lCOMBO DE CORTE! &f" + combo + "x XP Bônus";
         if (!bonusText.isEmpty()) {
             actionBar += " &8• &6+" + bonusText;
         }
 
-        player.sendActionBar(MessageUtil.colorize(actionBar));
+        UUID uuid = player.getUniqueId();
+        long sequence = actionBarSequences.getOrDefault(uuid, 0L) + 1L;
+        actionBarSequences.put(uuid, sequence);
 
-        // O aviso fica pouco tempo na Action Bar para não competir com o XP do mcMMO.
-        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            player.sendActionBar("");
-        }, 20L);
+        // O mcMMO pode atualizar a Action Bar no mesmo tick. Enviamos o combo
+        // no tick seguinte para garantir que o aviso seja o último conteúdo exibido.
+        plugin.getServer().getScheduler().runTask(plugin, () -> {
+            if (!player.isOnline() || actionBarSequences.getOrDefault(uuid, 0L) != sequence) {
+                return;
+            }
+
+            player.sendActionBar(MessageUtil.colorize(actionBar));
+
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                if (player.isOnline() && actionBarSequences.getOrDefault(uuid, 0L) == sequence) {
+                    player.sendActionBar("");
+                }
+            }, 20L);
+        });
     }
 
     private Material getReplantMaterial(Material log) {
@@ -342,8 +355,6 @@ public class GatheringListener implements Listener {
 
         int maxLeaves = Math.max(1, configManager.config().getInt("lenhador.leaf-cutter.max-folhas", 200));
 
-        // A busca começa nos troncos derrubados e só atravessa folhas.
-        // Assim, uma árvore próxima não é atingida apenas por estar dentro de um raio.
         Set<String> visited = new HashSet<>();
         ArrayDeque<Block> queue = new ArrayDeque<>(logs);
         List<Block> leaves = new ArrayList<>();
