@@ -148,7 +148,7 @@ escavacao:
         nivel: 25
         raridade: comum
         quantidade-min: 1
-        quantidade-max: 2
+        quantidade-max: 3
         habilitado: true
       ferro:
         item: IRON_NUGGET
@@ -157,6 +157,91 @@ escavacao:
         quantidade-min: 2
         quantidade-max: 5
         habilitado: true
+      pena:
+        item: FEATHER
+        nivel: 50
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
+      linha:
+        item: STRING
+        nivel: 50
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
+      olho-aranha:
+        item: SPIDER_EYE
+        nivel: 75
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 2
+        habilitado: true
+      disco-cat:
+        item: MUSIC_DISC_CAT
+        nivel: 250
+        raridade: raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+      disco-13:
+        item: MUSIC_DISC_13
+        nivel: 250
+        raridade: raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+      disco-otherside:
+        item: MUSIC_DISC_OTHERSIDE
+        nivel: 800
+        raridade: muito-raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+      disco-relic:
+        item: MUSIC_DISC_RELIC
+        nivel: 850
+        raridade: muito-raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+      disco-5:
+        item: MUSIC_DISC_5
+        nivel: 900
+        raridade: muito-raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+      disco-pigstep:
+        item: MUSIC_DISC_PIGSTEP
+        nivel: 950
+        raridade: lendario
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+      disco-creator:
+        item: MUSIC_DISC_CREATOR
+        nivel: 1000
+        raridade: lendario
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+      disco-creator-music-box:
+        item: MUSIC_DISC_CREATOR_MUSIC_BOX
+        nivel: 1000
+        raridade: lendario
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+      disco-precipice:
+        item: MUSIC_DISC_PRECIPICE
+        nivel: 1000
+        raridade: lendario
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+
     GRASS_BLOCK:
       sementes:
         item: WHEAT_SEEDS
@@ -167,10 +252,38 @@ escavacao:
         habilitado: true
       cenoura:
         item: CARROT
-        nivel: 50
+        nivel: 10
         raridade: comum
         quantidade-min: 1
         quantidade-max: 2
+        habilitado: true
+      pena:
+        item: FEATHER
+        nivel: 50
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
+      linha:
+        item: STRING
+        nivel: 50
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
+      disco-blocks:
+        item: MUSIC_DISC_BLOCKS
+        nivel: 350
+        raridade: raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+      disco-chirp:
+        item: MUSIC_DISC_CHIRP
+        nivel: 350
+        raridade: raro
+        quantidade-min: 1
+        quantidade-max: 1
         habilitado: true
       ouro:
         item: GOLD_NUGGET
@@ -179,6 +292,21 @@ escavacao:
         quantidade-min: 2
         quantidade-max: 5
         habilitado: true
+      disco-far:
+        item: MUSIC_DISC_FAR
+        nivel: 450
+        raridade: muito-raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+      disco-mellohi:
+        item: MUSIC_DISC_MELLOHI
+        nivel: 500
+        raridade: muito-raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+
     SAND:
       vidro:
         item: GLASS
@@ -187,13 +315,49 @@ escavacao:
         quantidade-min: 1
         quantidade-max: 3
         habilitado: true
+      carvao:
+        item: COAL
+        nivel: 25
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
+      ouro:
+        item: GOLD_NUGGET
+        nivel: 100
+        raridade: raro
+        quantidade-min: 2
+        quantidade-max: 5
+        habilitado: true
       esmeralda:
         item: EMERALD
-        nivel: 300
+        nivel: 200
         raridade: raro
         quantidade-min: 1
         quantidade-max: 2
         habilitado: true
+      disco-stal:
+        item: MUSIC_DISC_STAL
+        nivel: 550
+        raridade: muito-raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+      disco-strad:
+        item: MUSIC_DISC_STRAD
+        nivel: 600
+        raridade: muito-raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+      disco-ward:
+        item: MUSIC_DISC_WARD
+        nivel: 650
+        raridade: muito-raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+
     RED_SAND:
       vidro:
         item: GLASS
@@ -204,11 +368,26 @@ escavacao:
         habilitado: true
       ouro:
         item: GOLD_NUGGET
-        nivel: 300
+        nivel: 100
         raridade: raro
         quantidade-min: 2
         quantidade-max: 5
         habilitado: true
+      disco-mall:
+        item: MUSIC_DISC_MALL
+        nivel: 450
+        raridade: muito-raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+      diamante:
+        item: DIAMOND
+        nivel: 600
+        raridade: muito-raro
+        quantidade-min: 1
+        quantidade-max: 2
+        habilitado: true
+
     GRAVEL:
       pederneira:
         item: FLINT
@@ -217,6 +396,20 @@ escavacao:
         quantidade-min: 1
         quantidade-max: 2
         habilitado: true
+      carvao:
+        item: COAL
+        nivel: 25
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
+      osso:
+        item: BONE
+        nivel: 25
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
       ferro:
         item: IRON_NUGGET
         nivel: 100
@@ -224,6 +417,14 @@ escavacao:
         quantidade-min: 2
         quantidade-max: 4
         habilitado: true
+      disco-wait:
+        item: MUSIC_DISC_WAIT
+        nivel: 750
+        raridade: muito-raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+
     CLAY:
       tijolo:
         item: BRICK
@@ -234,12 +435,64 @@ escavacao:
         habilitado: true
       lapis:
         item: LAPIS_LAZULI
-        nivel: 250
+        nivel: 100
         raridade: raro
         quantidade-min: 2
         quantidade-max: 6
         habilitado: true
+      ametista:
+        item: AMETHYST_SHARD
+        nivel: 350
+        raridade: raro
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
+      disco-11:
+        item: MUSIC_DISC_11
+        nivel: 700
+        raridade: muito-raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+
     SOUL_SAND:
+      quartzo:
+        item: QUARTZ
+        nivel: 25
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 2
+        habilitado: true
+      osso:
+        item: BONE
+        nivel: 25
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
+      ouro:
+        item: GOLD_NUGGET
+        nivel: 100
+        raridade: raro
+        quantidade-min: 2
+        quantidade-max: 5
+        habilitado: true
+      disco-pigstep:
+        item: MUSIC_DISC_PIGSTEP
+        nivel: 950
+        raridade: lendario
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+
+    SOUL_SOIL:
+      osso:
+        item: BONE
+        nivel: 25
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
       quartzo:
         item: QUARTZ
         nivel: 25
@@ -249,26 +502,19 @@ escavacao:
         habilitado: true
       ouro:
         item: GOLD_NUGGET
-        nivel: 250
-        raridade: raro
-        quantidade-min: 2
-        quantidade-max: 5
-        habilitado: true
-    SOUL_SOIL:
-      osso:
-        item: BONE
-        nivel: 25
-        raridade: comum
-        quantidade-min: 1
-        quantidade-max: 2
-        habilitado: true
-      ouro:
-        item: GOLD_NUGGET
         nivel: 300
         raridade: raro
         quantidade-min: 2
         quantidade-max: 5
         habilitado: true
+      disco-5:
+        item: MUSIC_DISC_5
+        nivel: 900
+        raridade: muito-raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+
     MYCELIUM:
       fungos:
         item: BROWN_MUSHROOM
@@ -277,13 +523,28 @@ escavacao:
         quantidade-min: 1
         quantidade-max: 2
         habilitado: true
+      olho-aranha:
+        item: SPIDER_EYE
+        nivel: 75
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 2
+        habilitado: true
       slime:
         item: SLIME_BALL
-        nivel: 350
+        nivel: 150
         raridade: raro
         quantidade-min: 1
         quantidade-max: 2
         habilitado: true
+      disco-otherside:
+        item: MUSIC_DISC_OTHERSIDE
+        nivel: 800
+        raridade: muito-raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+
     PODZOL:
       sementes:
         item: SPRUCE_SAPLING
@@ -292,15 +553,30 @@ escavacao:
         quantidade-min: 1
         quantidade-max: 2
         habilitado: true
+      carvao:
+        item: COAL
+        nivel: 25
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
       ouro:
         item: GOLD_NUGGET
-        nivel: 300
+        nivel: 100
         raridade: raro
         quantidade-min: 2
         quantidade-max: 5
         habilitado: true
+      disco-relic:
+        item: MUSIC_DISC_RELIC
+        nivel: 850
+        raridade: muito-raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+
     ROOTED_DIRT:
-      glow_berries:
+      glow-berries:
         item: GLOW_BERRIES
         nivel: 1
         raridade: comum
@@ -309,11 +585,19 @@ escavacao:
         habilitado: true
       esmeralda:
         item: EMERALD
-        nivel: 350
+        nivel: 200
         raridade: raro
         quantidade-min: 1
         quantidade-max: 2
         habilitado: true
+      disco-strad:
+        item: MUSIC_DISC_STRAD
+        nivel: 600
+        raridade: muito-raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+
     MUD:
       clay:
         item: CLAY_BALL
@@ -322,13 +606,35 @@ escavacao:
         quantidade-min: 1
         quantidade-max: 3
         habilitado: true
+      ametista:
+        item: AMETHYST_SHARD
+        nivel: 350
+        raridade: raro
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
       esmeralda:
         item: EMERALD
-        nivel: 400
+        nivel: 300
         raridade: raro
         quantidade-min: 1
         quantidade-max: 2
         habilitado: true
+      diamante:
+        item: DIAMOND
+        nivel: 400
+        raridade: muito-raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+      disco-precipice:
+        item: MUSIC_DISC_PRECIPICE
+        nivel: 1000
+        raridade: lendario
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+
     SNOW_BLOCK:
       snowball:
         item: SNOWBALL
@@ -339,8 +645,22 @@ escavacao:
         habilitado: true
       diamante:
         item: DIAMOND
-        nivel: 500
-        raridade: raro
+        nivel: 400
+        raridade: muito-raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+      disco-creator:
+        item: MUSIC_DISC_CREATOR
+        nivel: 1000
+        raridade: lendario
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+      disco-creator-music-box:
+        item: MUSIC_DISC_CREATOR_MUSIC_BOX
+        nivel: 1000
+        raridade: lendario
         quantidade-min: 1
         quantidade-max: 1
         habilitado: true
