@@ -193,26 +193,58 @@ public class XpManager {
      * Nome colorido pelo cargo, usado exclusivamente nas mensagens de chat.
      * A GUI não passa por este método e permanece inalterada.
      */
-    private String getCargoColoredPlayerName(Player player) {
+private String getCargoColoredPlayerName(Player player) {
         String fallback = "&f" + player.getName();
-        org.bukkit.plugin.Plugin cargoPlus = Bukkit.getPluginManager().getPlugin("CargoPlus");
-        if (cargoPlus == null || !cargoPlus.isEnabled()) return fallback;
+        Plugin cargoPlus = Bukkit.getPluginManager().getPlugin("CargoPlus");
+        if (cargoPlus == null || !cargoPlus.isEnabled()) {
+            return fallback;
+        }
 
         try {
-            java.lang.reflect.Method getCargoColor = cargoPlus.getClass().getMethod("getCargoColor", String.class);
-            java.lang.reflect.Method apiMethod = cargoPlus.getClass().getMethod("api");
+            Method apiMethod = cargoPlus.getClass().getMethod("api");
             Object api = apiMethod.invoke(cargoPlus);
-            java.lang.reflect.Method apiGetGroup = api.getClass().getMethod("getGroup", UUID.class);
+            Method apiGetGroup = api.getClass().getMethod("getGroup", UUID.class);
             Object group = apiGetGroup.invoke(api, player.getUniqueId());
-            if (!(group instanceof String groupName) || groupName.isBlank()) return fallback;
+            if (!(group instanceof String groupName) || groupName.isBlank()) {
+                return fallback;
+            }
 
-            Object color = getCargoColor.invoke(cargoPlus, groupName);
-            if (color instanceof String colorText && !colorText.isBlank()) {
-                return colorText + player.getName();
+            // O CargoPlus usa "name-color" como a fonte oficial da cor do
+            // nickname. Ela pode ser RGB (<cor:#RRGGBB>) ou uma cor legacy
+            // configurada pelo nome do cargo.
+            Method groupsMethod = api.getClass().getMethod("groups");
+            Object groups = groupsMethod.invoke(api);
+            Method getGroup = groups.getClass().getMethod("get", String.class);
+            Object cargo = getGroup.invoke(groups, groupName);
+            if (cargo != null) {
+                Method nameColorMethod = cargo.getClass().getMethod("nameColor");
+                Object configuredColor = nameColorMethod.invoke(cargo);
+                if (configuredColor instanceof String colorText && !colorText.isBlank()) {
+                    String normalized = colorText.trim();
+
+                    java.util.regex.Matcher rgbMatcher = java.util.regex.Pattern
+                            .compile("<cor:(#[0-9a-fA-F]{6})>")
+                            .matcher(normalized);
+                    if (rgbMatcher.matches()) {
+                        String hex = rgbMatcher.group(1).substring(1).toUpperCase(java.util.Locale.ROOT);
+                        StringBuilder legacyHex = new StringBuilder("&x");
+                        for (char c : hex.toCharArray()) {
+                            legacyHex.append('&').append(c);
+                        }
+                        return legacyHex + player.getName();
+                    }
+
+                    Method getCargoColor = cargoPlus.getClass().getMethod("getCargoColor", String.class);
+                    Object legacyColor = getCargoColor.invoke(cargoPlus, groupName);
+                    if (legacyColor instanceof String color && !color.isBlank()) {
+                        return color + player.getName();
+                    }
+                }
             }
         } catch (ReflectiveOperationException | LinkageError ignored) {
             // CargoPlus é opcional; mantém o nome branco se a API não estiver disponível.
         }
+
         return fallback;
     }
 
