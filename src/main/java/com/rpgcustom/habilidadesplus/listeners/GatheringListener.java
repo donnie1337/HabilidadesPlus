@@ -63,6 +63,7 @@ public class GatheringListener implements Listener {
     private final Map<UUID, Long> lastTreeFellAt = new HashMap<>();
     private final Map<UUID, Integer> cuttingCombos = new HashMap<>();
     private final Map<UUID, Integer> comboTreeCounts = new HashMap<>();
+    private final Map<UUID, Long> comboStageStartedAt = new HashMap<>();
     private final Map<UUID, Long> actionBarSequences = new HashMap<>();
 
     public GatheringListener(JavaPlugin plugin, ConfigManager configManager, XpManager xpManager,
@@ -252,11 +253,13 @@ public class GatheringListener implements Listener {
         long last = lastTreeFellAt.getOrDefault(uuid, 0L);
         int multiplier = Math.max(1, cuttingCombos.getOrDefault(uuid, 1));
         int treesInCurrentStage = comboTreeCounts.getOrDefault(uuid, 0);
+        long stageStartedAt = comboStageStartedAt.getOrDefault(uuid, 0L);
 
         int currentWindow = multiplier <= 1 ? firstWindowSeconds : nextWindowSeconds;
-        if (last == 0L || now - last > currentWindow * 1000L) {
+        if (last == 0L || stageStartedAt == 0L || now - stageStartedAt > currentWindow * 1000L) {
             multiplier = 1;
             treesInCurrentStage = 0;
+            stageStartedAt = now;
         }
 
         treesInCurrentStage++;
@@ -265,10 +268,12 @@ public class GatheringListener implements Listener {
         if (treesInCurrentStage >= required && multiplier < maxMultiplier) {
             multiplier++;
             treesInCurrentStage = 0;
+            stageStartedAt = now;
         }
 
         cuttingCombos.put(uuid, multiplier);
         comboTreeCounts.put(uuid, treesInCurrentStage);
+        comboStageStartedAt.put(uuid, stageStartedAt);
         lastTreeFellAt.put(uuid, now);
 
         // A árvore que completa a meta já recebe o novo multiplicador.
