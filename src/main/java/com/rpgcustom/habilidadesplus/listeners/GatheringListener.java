@@ -203,9 +203,10 @@ public class GatheringListener implements Listener {
     private void removeNearbyLeaves(List<Block> logs, int level) {
         if (logs.isEmpty()) return;
 
-        int radius = Math.max(1, configManager.config().getInt("lenhador.leaf-cutter.raio", 5));
         int maxLeaves = Math.max(1, configManager.config().getInt("lenhador.leaf-cutter.max-folhas", 200));
 
+        // A busca começa nos troncos derrubados e só atravessa folhas.
+        // Assim, uma árvore próxima não é atingida apenas por estar dentro de um raio.
         Set<String> visited = new HashSet<>();
         ArrayDeque<Block> queue = new ArrayDeque<>(logs);
         List<Block> leaves = new ArrayList<>();
@@ -216,17 +217,15 @@ public class GatheringListener implements Listener {
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dy = -1; dy <= 1; dy++) {
                     for (int dz = -1; dz <= 1; dz++) {
+                        if (dx == 0 && dy == 0 && dz == 0) continue;
+
                         Block next = current.getRelative(dx, dy, dz);
                         String key = next.getWorld().getUID() + ":" + next.getX() + ":" + next.getY() + ":" + next.getZ();
 
                         if (!visited.add(key)) continue;
-                        if (Math.abs(next.getX() - current.getX()) > radius
-                                || Math.abs(next.getY() - current.getY()) > radius
-                                || Math.abs(next.getZ() - current.getZ()) > radius) {
-                            continue;
-                        }
+                        if (placedBlockTracker.isPlaced(next)) continue;
 
-                        if (isLeaves(next.getType()) && !placedBlockTracker.isPlaced(next)) {
+                        if (isLeaves(next.getType())) {
                             leaves.add(next);
                             queue.add(next);
                         }
