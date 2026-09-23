@@ -597,7 +597,7 @@ public class GatheringListener implements Listener {
 
     private void tryRareWoodDrop(Player player, int level) {
         int unlock = configManager.config().getInt(
-                "lenhador.critico-lenhador.nivel-desbloqueio", 500);
+                "lenhador.critico-lenhador.nivel-desbloqueio", 100);
         if (level < unlock) return;
 
         double chance = getLenhadorCriticoChance(level, unlock);
@@ -618,13 +618,25 @@ public class GatheringListener implements Listener {
 
     private double getLenhadorCriticoChance(int level, int unlock) {
         if (level < unlock) return 0.0;
-        double initial = Math.max(0.0, configManager.config().getDouble(
-                "lenhador.critico-lenhador.chance-inicial", 0.15));
-        double increment = Math.max(0.0, configManager.config().getDouble(
-                "lenhador.critico-lenhador.incremento-por-100-niveis", 0.05));
-        double maximum = Math.max(initial, configManager.config().getDouble(
-                "lenhador.critico-lenhador.chance-maxima", 0.50));
-        return Math.min(maximum, initial + ((level - unlock) / 100) * increment);
+
+        // Curva de chance do Crítico do Lenhador:
+        // 100=5%, 200=10%, 300=15%, 500=20%, 700=30%,
+        // 900=40%, 999=45%, 1000+=50%.
+        int[] levels = {100, 200, 300, 500, 700, 900, 999, 1000};
+        double[] chances = {5.0, 10.0, 15.0, 20.0, 30.0, 40.0, 45.0, 50.0};
+
+        if (level <= levels[0]) return chances[0];
+
+        for (int i = 1; i < levels.length; i++) {
+            if (level <= levels[i]) {
+                double levelSpan = levels[i] - levels[i - 1];
+                double chanceSpan = chances[i] - chances[i - 1];
+                double progress = (level - levels[i - 1]) / levelSpan;
+                return chances[i - 1] + progress * chanceSpan;
+            }
+        }
+
+        return chances[chances.length - 1];
     }
 
     private boolean shouldDoubleDrop(int level) {
