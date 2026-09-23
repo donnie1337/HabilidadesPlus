@@ -12,6 +12,12 @@ commands:
     usage: /mcmmo [reload|setnivel <habilidade> <nivel>]
     aliases: [mcmmo, habilidade, poder]
 
+  coleta:
+    description: Ativa ou desativa a coleta automatica de drops
+    usage: /coleta
+    permission: habilidadesplus.coleta
+    permission-message: "§cVoce nao tem permissao para usar /coleta."
+
   luz:
     description: Ativa ou desativa a visao noturna
     usage: /luz
@@ -22,6 +28,9 @@ commands:
 permissions:
   habilidadesplus.admin:
     description: Permite recarregar a configuracao do plugin e definir niveis para testes
+    default: op
+  habilidadesplus.coleta:
+    description: Permite usar o comando /coleta
     default: op
   habilidadesplus.luz:
     description: Permite usar o comando /luz
