@@ -189,10 +189,37 @@ public class XpManager {
         ActionBarUtil.send(player, MessageUtil.colorize(mensagem));
     }
 
+    /**
+     * Nome colorido pelo cargo, usado exclusivamente nas mensagens de chat.
+     * A GUI não passa por este método e permanece inalterada.
+     */
+    private String getCargoColoredPlayerName(Player player) {
+        String fallback = "&f" + player.getName();
+        org.bukkit.plugin.Plugin cargoPlus = Bukkit.getPluginManager().getPlugin("CargoPlus");
+        if (cargoPlus == null || !cargoPlus.isEnabled()) return fallback;
+
+        try {
+            java.lang.reflect.Method getCargoColor = cargoPlus.getClass().getMethod("getCargoColor", String.class);
+            java.lang.reflect.Method apiMethod = cargoPlus.getClass().getMethod("api");
+            Object api = apiMethod.invoke(cargoPlus);
+            java.lang.reflect.Method apiGetGroup = api.getClass().getMethod("getGroup", UUID.class);
+            Object group = apiGetGroup.invoke(api, player.getUniqueId());
+            if (!(group instanceof String groupName) || groupName.isBlank()) return fallback;
+
+            Object color = getCargoColor.invoke(cargoPlus, groupName);
+            if (color instanceof String colorText && !colorText.isBlank()) {
+                return colorText + player.getName();
+            }
+        } catch (ReflectiveOperationException | LinkageError ignored) {
+            // CargoPlus é opcional; mantém o nome branco se a API não estiver disponível.
+        }
+        return fallback;
+    }
+
     private void announcePowerMilestone(Player player, String messagePath, SkillType skill, int poder) {
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put("poder", String.valueOf(poder));
-        placeholders.put("jogador", player.getName());
+        placeholders.put("jogador", getCargoColoredPlayerName(player));
         if (skill != null) {
             placeholders.put("habilidade", skill.getDisplayName());
         }
@@ -205,7 +232,7 @@ public class XpManager {
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put("habilidade", skill.getDisplayName());
         placeholders.put("nivel", String.valueOf(result.getNewLevel()));
-        placeholders.put("jogador", player.getName());
+        placeholders.put("jogador", getCargoColoredPlayerName(player));
 
         String mensagem = MessageUtil.placeholders(configManager.msg("level-up.mensagem-global"), placeholders);
         Bukkit.broadcastMessage(MessageUtil.colorize(mensagem));
