@@ -86,6 +86,11 @@ public final class PlacedBlockTracker {
         return removed;
     }
 
+    /** Retorna se o bloco está protegido como bloco colocado por jogador. */
+    public synchronized boolean isPlaced(Block block) {
+        return placed.contains(key(block));
+    }
+
     /** Remove um marcador quando o bloco foi destruido por outro mecanismo. */
     public synchronized boolean discard(Block block) {
         boolean removed = placed.remove(key(block));
