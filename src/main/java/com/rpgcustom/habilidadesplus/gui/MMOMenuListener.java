@@ -3,6 +3,7 @@ package com.rpgcustom.habilidadesplus.gui;
 import com.rpgcustom.habilidadesplus.data.DataManager;
 import com.rpgcustom.habilidadesplus.SkillType;
 import com.rpgcustom.habilidadesplus.leveling.LevelingManager;
+import com.rpgcustom.habilidadesplus.top1.Top1SkillService;
 import com.rpgcustom.habilidadesplus.util.ConfigManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,11 +16,14 @@ public final class MMOMenuListener implements Listener {
     private final DataManager dataManager;
     private final LevelingManager levelingManager;
     private final ConfigManager configManager;
+    private final Top1SkillService top1SkillService;
 
-    public MMOMenuListener(DataManager dataManager, LevelingManager levelingManager, ConfigManager configManager) {
+    public MMOMenuListener(DataManager dataManager, LevelingManager levelingManager,
+                           ConfigManager configManager, Top1SkillService top1SkillService) {
         this.dataManager = dataManager;
         this.levelingManager = levelingManager;
         this.configManager = configManager;
+        this.top1SkillService = top1SkillService;
     }
 
     @EventHandler
@@ -52,7 +56,7 @@ public final class MMOMenuListener implements Listener {
 
         if (holder.skill() == null) {
             if (event.getRawSlot() == 51) {
-                MMOMenu.openRanking(player, SkillType.MINERACAO, dataManager, configManager);
+                MMOMenu.openPersonalizedRanking(player, dataManager, configManager, top1SkillService);
                 return;
             }
             SkillType skill = MMOMenu.skillAtSlot(event.getRawSlot());

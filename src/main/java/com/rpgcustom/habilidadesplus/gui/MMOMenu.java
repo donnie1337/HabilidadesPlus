@@ -5,6 +5,7 @@ import com.rpgcustom.habilidadesplus.data.DataManager;
 import com.rpgcustom.habilidadesplus.data.PlayerProfile;
 import com.rpgcustom.habilidadesplus.data.PlayerSkillData;
 import com.rpgcustom.habilidadesplus.leveling.LevelingManager;
+import com.rpgcustom.habilidadesplus.top1.Top1SkillService;
 import com.rpgcustom.habilidadesplus.util.ConfigManager;
 import com.rpgcustom.habilidadesplus.util.MessageUtil;
 import org.bukkit.Bukkit;
@@ -83,6 +84,28 @@ public final class MMOMenu {
         inventory.setItem(29, rankingFilterItem(selected));
         inventory.setItem(33, rankingBook(player, config, profiles, true));
         player.openInventory(inventory);
+    }
+
+    /**
+     * Abre o ranking já selecionando a habilidade em que o jogador é Top 1.
+     * Caso ele ainda não lidere nenhuma habilidade, mantém Mineração como
+     * filtro inicial padrão.
+     */
+    public static void openPersonalizedRanking(Player player, DataManager data,
+                                               ConfigManager config,
+                                               Top1SkillService top1Skills) {
+        if (!data.isAllProfilesLoaded()) {
+            player.sendMessage(MessageUtil.colorize("&7O ranking ainda está carregando. Aguarde um instante."));
+            data.whenAllProfilesLoaded(() -> {
+                if (player.isOnline()) {
+                    openPersonalizedRanking(player, data, config, top1Skills);
+                }
+            });
+            return;
+        }
+
+        SkillType selected = top1Skills.getTop1Skill(player.getUniqueId());
+        openRanking(player, selected == null ? SkillType.MINERACAO : selected, data, config);
     }
 
     private static ItemStack rankingBook(Player player, ConfigManager config,

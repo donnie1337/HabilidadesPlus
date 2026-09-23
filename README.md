@@ -30,6 +30,7 @@ servidor incompatível ou uma versao antiga do Java impede o registro dos comand
 - Action bar que agrupa ganhos de XP para evitar spam.
 - Menu com progresso, poder total e catalogo de poderes.
 - Ranking carregado em segundo plano e mantido em cache para evitar leitura de disco ao abrir a GUI.
+- Ao abrir o ranking pelo livro com pena, o filtro seleciona automaticamente a habilidade em que o jogador é Top 1.
 - Persistencia por UUID em `plugins/HabilidadesPlus/playerdata/`.
 - Autosave configuravel e escrita atomica dos arquivos dos jogadores.
 - Protecao antifarm persistente para blocos colocados por jogadores.

@@ -125,7 +125,7 @@ public final class HabilidadesPlus extends JavaPlugin {
         pm.registerEvents(new AlchemyListener(configManager, xpManager), this);
         pm.registerEvents(new ProductionListener(configManager, xpManager), this);
         pm.registerEvents(new PlayerJoinQuitListener(dataManager, xpManager), this);
-        pm.registerEvents(new MMOMenuListener(dataManager, levelingManager, configManager), this);
+        pm.registerEvents(new MMOMenuListener(dataManager, levelingManager, configManager, top1SkillService), this);
     }
 
     private void registerCommands() {
