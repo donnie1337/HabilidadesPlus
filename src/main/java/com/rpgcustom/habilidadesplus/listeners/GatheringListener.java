@@ -83,6 +83,7 @@ public class GatheringListener implements Listener {
     private final Map<UUID, Long> comboStageStartedAt = new HashMap<>();
     private final Map<UUID, Integer> lastShownCuttingCombo = new HashMap<>();
     private final Map<UUID, Long> excavationCooldownUntil = new HashMap<>();
+    private final Map<UUID, Long> excavationReadyUntil = new HashMap<>();
     private final Map<UUID, Long> excavationActiveUntil = new HashMap<>();
     private final Set<UUID> treeFellerInProgress = new HashSet<>();
 
@@ -139,6 +140,10 @@ public class GatheringListener implements Listener {
                 return;
             }
 
+            if (HABILIDADES[i] == SkillType.ESCAVACAO && isExcavationGigaReady(player)) {
+                activateExcavationGiga(player);
+            }
+
             xpManager.addXp(player, HABILIDADES[i], xp);
             if (HABILIDADES[i] == SkillType.ESCAVACAO && isExcavationGigaActive(player)) {
                 // Giga Broca segue a referência do mcMMO: 3x EXP durante a habilidade.
@@ -169,6 +174,12 @@ public class GatheringListener implements Listener {
         if (level < unlock) return;
 
         long now = System.currentTimeMillis();
+
+        if (isExcavationGigaActive(player)) {
+            event.setCancelled(true);
+            return;
+        }
+
         long cooldown = excavationCooldownUntil.getOrDefault(player.getUniqueId(), 0L);
         if (cooldown > now) {
             long remaining = Math.max(1L, (cooldown - now + 999L) / 1000L);
@@ -177,26 +188,23 @@ public class GatheringListener implements Listener {
             return;
         }
 
-        double duration = getExcavationGigaDuration(level);
-        excavationActiveUntil.put(player.getUniqueId(), now + Math.round(duration * 1000.0));
-        long cooldownMillis = Math.round(configManager.config().getDouble(
-                "escavacao.giga-broca.recarga-segundos", 120.0) * 1000.0);
-        excavationCooldownUntil.put(player.getUniqueId(), now + cooldownMillis);
+        double readyWindow = Math.max(0.5, configManager.config().getDouble(
+                "escavacao.giga-broca.janela-preparacao-segundos", 4.0));
+        excavationReadyUntil.put(player.getUniqueId(), now + Math.round(readyWindow * 1000.0));
 
-        int amplifier = Math.max(0, configManager.config().getInt(
-                "escavacao.giga-broca.amplificador-pressa", 4));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE,
-                Math.max(1, (int) Math.round(duration * 20.0)), amplifier, false, false, true));
-        player.sendMessage(MessageUtil.colorize("&3&lGIGA BROCA &8• &fAtivada por &e" +
-                String.format(java.util.Locale.US, "%.1f", duration).replace(".", ",") + "s"));
+        player.sendActionBar(MessageUtil.colorize("&3Você prepara sua &ePá&3! &7Quebre um bloco de Escavação para ativar a Giga Broca."));
         event.setCancelled(true);
 
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            if (player.isOnline()) {
-                player.sendMessage(MessageUtil.colorize("&7Giga Broca foi encerrada."));
+            UUID uuid = player.getUniqueId();
+            long readyUntil = excavationReadyUntil.getOrDefault(uuid, 0L);
+            if (readyUntil <= System.currentTimeMillis()) {
+                excavationReadyUntil.remove(uuid);
+                if (player.isOnline()) {
+                    player.sendActionBar(MessageUtil.colorize("&7Giga Broca: preparação encerrada."));
+                }
             }
-            excavationActiveUntil.remove(player.getUniqueId());
-        }, Math.max(1L, Math.round(duration * 20.0)));
+        }, Math.max(1L, Math.round(readyWindow * 20.0)));
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -260,6 +268,7 @@ public class GatheringListener implements Listener {
         clearCuttingCombo(event.getPlayer().getUniqueId());
         treeFellerInProgress.remove(event.getPlayer().getUniqueId());
         excavationCooldownUntil.remove(event.getPlayer().getUniqueId());
+        excavationReadyUntil.remove(event.getPlayer().getUniqueId());
         excavationActiveUntil.remove(event.getPlayer().getUniqueId());
     }
 
@@ -373,8 +382,42 @@ public class GatheringListener implements Listener {
         return random.nextDouble() * 100.0 < Math.min(100.0, chance);
     }
 
+    private boolean isExcavationGigaReady(Player player) {
+        return excavationReadyUntil.getOrDefault(player.getUniqueId(), 0L) > System.currentTimeMillis();
+    }
+
     private boolean isExcavationGigaActive(Player player) {
         return excavationActiveUntil.getOrDefault(player.getUniqueId(), 0L) > System.currentTimeMillis();
+    }
+
+    private void activateExcavationGiga(Player player) {
+        UUID uuid = player.getUniqueId();
+        excavationReadyUntil.remove(uuid);
+
+        int level = getExcavationLevel(player);
+        long now = System.currentTimeMillis();
+        double duration = getExcavationGigaDuration(level);
+
+        excavationActiveUntil.put(uuid, now + Math.round(duration * 1000.0));
+
+        long cooldownMillis = Math.round(configManager.config().getDouble(
+                "escavacao.giga-broca.recarga-segundos", 120.0) * 1000.0);
+        excavationCooldownUntil.put(uuid, now + cooldownMillis);
+
+        int amplifier = Math.max(0, configManager.config().getInt(
+                "escavacao.giga-broca.amplificador-pressa", 4));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE,
+                Math.max(1, (int) Math.round(duration * 20.0)), amplifier, false, false, true));
+
+        player.sendMessage(MessageUtil.colorize("&a&lGIGA BROCA ATIVADA!"));
+        player.sendActionBar(MessageUtil.colorize("&3Giga Broca &8• &f3x EXP &7• &f3x Tesouros &7• &fVelocidade aumentada"));
+
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            if (player.isOnline()) {
+                player.sendMessage(MessageUtil.colorize("&c&lGIGA BROCA ENCERRADA"));
+            }
+            excavationActiveUntil.remove(uuid);
+        }, Math.max(1L, Math.round(duration * 20.0)));
     }
 
     private boolean isExcavationBlock(Material material) {
