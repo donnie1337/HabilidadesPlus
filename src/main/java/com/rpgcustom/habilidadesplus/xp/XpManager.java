@@ -79,16 +79,13 @@ public class XpManager {
         top1SkillService.invalidate();
 
         int poderGeralDepois = profile.getPowerLevel();
-        int nivelHabilidadeDepois = profile.getLevel(skill);
 
+        // O marco de Poder 100 e independente do marco da habilidade.
+        // Assim, se uma habilidade chegar a 100 e isso fizer o Poder chegar
+        // a 100 na mesma ação, os dois anúncios aparecem.
         boolean atingiuPoderGeral100 = poderGeralAntes < 100 && poderGeralDepois >= 100;
-        boolean atingiuPoderHabilidade100 = nivelHabilidadeAntes < 100 && nivelHabilidadeDepois >= 100;
-
         if (atingiuPoderGeral100) {
             announcePowerMilestone(player, "poder.milestone-geral", null, poderGeralDepois);
-        }
-        if (atingiuPoderHabilidade100) {
-            announcePowerMilestone(player, "poder.milestone-habilidade", skill, nivelHabilidadeDepois);
         }
 
         boolean levelUp = result.isLeveledUp();
@@ -99,6 +96,8 @@ public class XpManager {
             showXpActionbar(player, skill, amount);
         }
 
+        // Todo marco de 100 níveis da habilidade é anunciado para o servidor:
+        // 100, 200, 300, ..., 1000.
         boolean milestone = levelUp && result.getNewLevel() % 100 == 0;
         if (milestone) {
             announceLevelUp(player, skill, result);
@@ -206,6 +205,10 @@ public class XpManager {
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put("habilidade", skill.getDisplayName());
         placeholders.put("nivel", String.valueOf(result.getNewLevel()));
+        placeholders.put("jogador", player.getName());
+
+        String mensagem = MessageUtil.placeholders(configManager.msg("level-up.mensagem-global"), placeholders);
+        Bukkit.broadcastMessage(MessageUtil.colorize(mensagem));
 
         String tituloTexto = MessageUtil.placeholders(configManager.msg("level-up.titulo"), placeholders);
         String subtituloTexto = MessageUtil.placeholders(configManager.msg("level-up.subtitulo"), placeholders);
