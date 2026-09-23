@@ -40,6 +40,7 @@ mineracao:
 escavacao:
   super-escavacao-ativada: "&6&lSUPER ESCAVAÇÃO! &fAtivada por &e{duracao}s&f."
   super-escavacao-finalizada: "&eSuper Escavação finalizada! &7A habilidade entrou em recarga."
+  super-escavacao-em-recarga: "&cSuper Escavação em recarga! &fAguarde &e{segundos}s &fpara usar novamente."
 
 acrobacia:
   mensagem-role: "&b&lVocê rolou e absorveu o dano da queda!"
