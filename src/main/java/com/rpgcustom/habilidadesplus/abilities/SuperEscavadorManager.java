@@ -80,7 +80,8 @@ public final class SuperEscavadorManager implements Listener {
             long remainingSeconds = (long) Math.ceil((cooldownEnd - now) / 1000.0);
             long nextMessage = cooldownMessageUntil.getOrDefault(uuid, 0L);
             if (now >= nextMessage) {
-                player.sendActionBar(MessageUtil.colorize("&cGiga Broca em recarga: &e" + remainingSeconds + "s"));
+                player.sendMessage(MessageUtil.colorize(configManager.msg("escavacao.super-escavacao-em-recarga")
+                        .replace("{segundos}", String.valueOf(remainingSeconds))));
                 cooldownMessageUntil.put(uuid, now + 1000L);
             }
             return;
