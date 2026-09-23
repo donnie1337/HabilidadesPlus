@@ -15,11 +15,11 @@ public class LevelingManager {
     private double expoente;
     private int nivelMaximo;
 
-    private double mineracaoFatorNivel100;
-    private double mineracaoFatorNivel250;
-    private double mineracaoFatorNivel500;
-    private double mineracaoFatorNivel750;
-    private double mineracaoFatorNivel1000;
+    private double fatorNivel100;
+    private double fatorNivel250;
+    private double fatorNivel500;
+    private double fatorNivel750;
+    private double fatorNivel1000;
 
     public LevelingManager(FileConfiguration config) {
         reload(config);
