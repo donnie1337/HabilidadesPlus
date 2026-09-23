@@ -240,7 +240,7 @@ public class GatheringListener implements Listener {
             xpManager.addXp(player, SkillType.LENHADOR, treeBaseXp * bonusPercent / 100.0);
         }
 
-        showCuttingComboActionBar(player, combo, bonusPercent);
+        showCuttingComboMessage(player, combo, bonusPercent);
     }
 
     private void tryAutoReplant(Player player, Block root, Material rootMaterial, int level) {
@@ -279,27 +279,22 @@ public class GatheringListener implements Listener {
         }
     }
 
-    private void showCuttingComboActionBar(Player player, int combo, double bonusPercent) {
-        UUID uuid = player.getUniqueId();
-        long sequence = actionBarSequences.getOrDefault(uuid, 0L) + 1L;
-        actionBarSequences.put(uuid, sequence);
-
+    private void showCuttingComboMessage(Player player, int combo, double bonusPercent) {
         String bonusText = bonusPercent > 0
-                ? String.format(java.util.Locale.US, "%.0f%% XP", bonusPercent)
+                ? String.format(java.util.Locale.US, "%.1f%% XP", bonusPercent)
                 : "";
 
-        String actionBar = "&c&lCOMBO DE CORTE! &f" + combo + "x XP Bônus";
+        String subtitle = "&f" + combo + "x XP Bônus";
         if (!bonusText.isEmpty()) {
-            actionBar += " &8• &6+" + bonusText;
+            subtitle += " &8• &6+" + bonusText;
         }
 
-        player.sendActionBar(MessageUtil.colorize(actionBar));
-
-        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            if (actionBarSequences.getOrDefault(uuid, 0L) == sequence) {
-                player.sendActionBar("");
-            }
-        }, 40L);
+        // Subtitle não sobrescreve as mensagens de XP exibidas na action bar.
+        player.sendTitle(
+                MessageUtil.colorize("&c&lCOMBO DE CORTE!"),
+                MessageUtil.colorize(subtitle),
+                0, 40, 0
+        );
     }
 
     private Material getReplantMaterial(Material log) {
