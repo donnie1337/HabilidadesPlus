@@ -204,6 +204,8 @@ public final class MMOMenu {
             lore.add("");
             if (selected == SkillType.LENHADOR) {
                 lore.add(MessageUtil.colorize("&fÁrvores replantadas: &a" + profile.getLenhadorArvoresReplantadas()));
+            } else if (selected == SkillType.MINERACAO) {
+                lore.add(MessageUtil.colorize("&fBlocos minerados: &a" + profile.getMineracaoBlocosMinerados()));
             }
             lore.add(MessageUtil.colorize("&fNível: &a" + level));
             meta.setLore(lore);
