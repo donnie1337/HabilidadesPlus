@@ -164,6 +164,24 @@ public class GatheringListener implements Listener {
         }
 
         int level = getExcavationLevel(player);
+        if (superEscavadorManager.isActive(player.getUniqueId())) {
+            if (level < 100) return;
+
+            double chance = Math.min(100.0, Math.floor(level / 10.0)
+                    * configManager.config().getDouble(
+                            "escavacao.giga-broca.chance-drop-triplo-por-10-niveis", 0.5));
+            if (random.nextDouble() * 100.0 >= chance) return;
+
+            int multiplicador = Math.max(1, (int) Math.round(configManager.config().getDouble(
+                    "escavacao.giga-broca.multiplicador-drop", 3.0)));
+            for (Item item : event.getItems()) {
+                ItemStack stack = item.getItemStack();
+                stack.setAmount(Math.min(stack.getMaxStackSize(), stack.getAmount() * multiplicador));
+                item.setItemStack(stack);
+            }
+            return;
+        }
+
         if (!shouldExcavationDoubleDrop(level)) return;
 
         for (Item item : event.getItems()) {
