@@ -296,7 +296,7 @@ public final class MMOMenu {
         }
 
         if (skill == SkillType.LENHADOR) {
-            if (power.name().equals("Tree Feller")) {
+            if (power.name().equals("Derrubada de Árvores")) {
                 int leafLevel = Math.max(1, level);
                 double tempoNivel1 = config.config().getDouble(
                         "lenhador.leaf-cutter.tempo-nivel-1-segundos", 120.0);
@@ -312,10 +312,10 @@ public final class MMOMenu {
                     double t = Math.min(1.0, (leafLevel - 500) / 500.0);
                     tempo = tempoNivel500 + (tempoNivel1000 - tempoNivel500) * t;
                 }
-                lore.add("&6Leaf Cutter: &e" + formatPercent(tempo) + "s para folhas");
+                lore.add("&6Corte de Folhas: &e" + formatPercent(tempo) + "s para folhas");
             }
 
-            if (power.name().equals("Double Drop")) {
+            if (power.name().equals("Duplo Drop")) {
                 double chance = Math.min(50.0, level * config.config().getDouble(
                         "lenhador.double-drop.chance-por-nivel", 0.05));
                 lore.add("&6Chance atual: &e" + formatPercent(chance) + "%");
