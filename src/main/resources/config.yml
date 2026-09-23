@@ -138,9 +138,10 @@ lenhador:
     chance-maxima: 0.50
 
   combo-de-corte:
-    # Tempo máximo entre árvores completas para manter o combo.
-    # A janela curta exige uma sequência rápida de cortes.
-    janela-segundos: 6
+    # Janela máxima entre árvores no início da sequência.
+    janela-segundos: 12
+    # Janela mínima exigida nos combos altos.
+    janela-minima-segundos: 6
     # São necessárias 9 árvores consecutivas para atingir o bônus máximo.
     combo-maximo: 9
     # Cada nível de combo adiciona 2,5% do XP base da árvore.
