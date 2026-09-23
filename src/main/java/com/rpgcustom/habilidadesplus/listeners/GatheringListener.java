@@ -1,6 +1,7 @@
 package com.rpgcustom.habilidadesplus.listeners;
 
 import com.rpgcustom.habilidadesplus.SkillType;
+import com.rpgcustom.habilidadesplus.data.PlayerProfile;
 import com.rpgcustom.habilidadesplus.util.ConfigManager;
 import com.rpgcustom.habilidadesplus.util.PlacedBlockTracker;
 import com.rpgcustom.habilidadesplus.xp.XpManager;
@@ -28,6 +29,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Coleta de Mineracao, Escavacao, Lenhador e Ervanismo.
@@ -55,6 +59,8 @@ public class GatheringListener implements Listener {
     private final XpManager xpManager;
     private final PlacedBlockTracker placedBlockTracker;
     private final Random random = new Random();
+    private final Map<UUID, Long> lastTreeFellAt = new HashMap<>();
+    private final Map<UUID, Integer> cuttingCombos = new HashMap<>();
 
     public GatheringListener(JavaPlugin plugin, ConfigManager configManager, XpManager xpManager,
                              PlacedBlockTracker placedBlockTracker) {
@@ -151,15 +157,16 @@ public class GatheringListener implements Listener {
         int level = getLenhadorLevel(player);
         ItemStack tool = player.getInventory().getItemInMainHand();
 
-        Double xp = configManager.xpDeSeConfigurado("lenhador", root.getType().name());
-        if (xp != null) {
-            xpManager.addXp(player, SkillType.LENHADOR, xp);
-        }
-
         int unlock = configManager.config().getInt("lenhador.tree-feller.nivel-desbloqueio", 25);
         if (level >= unlock && isAxe(tool.getType()) && !player.isSneaking()) {
             event.setDropItems(false);
             breakTree(player, root, tool, level);
+            return;
+        }
+
+        Double xp = configManager.xpDeSeConfigurado("lenhador", root.getType().name());
+        if (xp != null) {
+            xpManager.addXp(player, SkillType.LENHADOR, xp);
         }
     }
 
@@ -173,11 +180,13 @@ public class GatheringListener implements Listener {
             logs = new ArrayList<>(logs.subList(0, maxBlocks));
         }
 
+        double treeBaseXp = 0.0;
         for (Block log : logs) {
             if (placedBlockTracker.isPlaced(log) || !isWood(log.getType())) continue;
 
             Double xp = configManager.xpDeSeConfigurado("lenhador", log.getType().name());
             if (xp != null) {
+                treeBaseXp += xp;
                 xpManager.addXp(player, SkillType.LENHADOR, xp);
             }
 
@@ -194,10 +203,83 @@ public class GatheringListener implements Listener {
             log.setType(Material.AIR, false);
         }
 
+        applyCuttingComboBonus(player, treeBaseXp);
+        tryAutoReplant(player, root, level);
+
         if (configManager.config().getBoolean(
                 "lenhador.leaf-cutter.remover-folhas-automaticamente", true)) {
             removeNearbyLeaves(logs, level);
         }
+    }
+
+    private void applyCuttingComboBonus(Player player, double treeBaseXp) {
+        if (treeBaseXp <= 0) return;
+
+        int windowSeconds = Math.max(1, configManager.config().getInt(
+                "lenhador.combo-de-corte.janela-segundos", 10));
+        int maxCombo = Math.max(1, configManager.config().getInt(
+                "lenhador.combo-de-corte.combo-maximo", 5));
+        double bonusPorCombo = Math.max(0.0, configManager.config().getDouble(
+                "lenhador.combo-de-corte.bonus-xp-por-combo", 5.0));
+
+        UUID uuid = player.getUniqueId();
+        long now = System.currentTimeMillis();
+        long last = lastTreeFellAt.getOrDefault(uuid, 0L);
+        int combo = last > 0L && now - last <= windowSeconds * 1000L
+                ? Math.min(maxCombo, cuttingCombos.getOrDefault(uuid, 0) + 1)
+                : 1;
+
+        cuttingCombos.put(uuid, combo);
+        lastTreeFellAt.put(uuid, now);
+
+        double bonusPercent = Math.max(0, combo - 1) * bonusPorCombo;
+        if (bonusPercent > 0) {
+            xpManager.addXp(player, SkillType.LENHADOR, treeBaseXp * bonusPercent / 100.0);
+        }
+    }
+
+    private void tryAutoReplant(Player player, Block root, int level) {
+        int unlock = configManager.config().getInt(
+                "lenhador.replantio-automatico.nivel-desbloqueio", 100);
+        if (level < unlock) return;
+
+        double chance = Math.min(100.0, level * configManager.config().getDouble(
+                "lenhador.replantio-automatico.chance-por-nivel", 0.10));
+        if (random.nextDouble() * 100.0 >= chance) return;
+
+        Material sapling = getReplantMaterial(root.getType());
+        if (sapling == null) return;
+
+        Block target = root;
+        if (!target.getType().isAir() || !canPlaceSapling(target, sapling)) {
+            return;
+        }
+
+        target.setType(sapling, false);
+        PlayerProfile profile = xpManager.getDataManager().getProfile(player.getUniqueId());
+        profile.incrementLenhadorArvoresReplantadas();
+        xpManager.getDataManager().markDirty(player.getUniqueId());
+    }
+
+    private Material getReplantMaterial(Material log) {
+        return switch (log) {
+            case OAK_LOG -> Material.OAK_SAPLING;
+            case SPRUCE_LOG -> Material.SPRUCE_SAPLING;
+            case BIRCH_LOG -> Material.BIRCH_SAPLING;
+            case JUNGLE_LOG -> Material.JUNGLE_SAPLING;
+            case ACACIA_LOG -> Material.ACACIA_SAPLING;
+            case DARK_OAK_LOG -> Material.DARK_OAK_SAPLING;
+            case MANGROVE_LOG -> Material.MANGROVE_PROPAGULE;
+            case CHERRY_LOG -> Material.CHERRY_SAPLING;
+            default -> null;
+        };
+    }
+
+    private boolean canPlaceSapling(Block target, Material sapling) {
+        Block below = target.getRelative(org.bukkit.block.BlockFace.DOWN);
+        return below.getType().isSolid()
+                && !placedBlockTracker.isPlaced(target)
+                && (sapling != Material.MANGROVE_PROPAGULE || below.getType() != Material.NETHER_WART_BLOCK);
     }
 
     private void removeNearbyLeaves(List<Block> logs, int level) {
