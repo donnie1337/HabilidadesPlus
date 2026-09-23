@@ -351,9 +351,16 @@ public class GatheringListener implements Listener, CommandExecutor {
         String itemId = section.getString(selected + ".item", "COAL");
         int min = Math.max(1, section.getInt(selected + ".quantidade-min", 1));
         int max = Math.max(min, section.getInt(selected + ".quantidade-max", min));
-        int amount = min + random.nextInt(max - min + 1);
 
         if ("XP_ORB".equalsIgnoreCase(itemId)) {
+            double minPorNivel = Math.max(0.0, section.getDouble(selected + ".xp-min-por-nivel", 0.01));
+            double maxPorNivel = Math.max(0.0, section.getDouble(selected + ".xp-max-por-nivel", 0.03));
+            int xpMinimo = Math.max(1, (int) Math.floor(min + level * minPorNivel));
+            int xpMaximo = Math.max(xpMinimo, (int) Math.floor(max + level * maxPorNivel));
+            int limite = Math.max(xpMaximo, section.getInt(selected + ".xp-maximo", 50));
+            xpMinimo = Math.min(xpMinimo, limite);
+            xpMaximo = Math.min(xpMaximo, limite);
+            int amount = xpMinimo + random.nextInt(xpMaximo - xpMinimo + 1);
             ExperienceOrb orb = block.getWorld().spawn(block.getLocation().add(0.5, 0.5, 0.5), ExperienceOrb.class);
             orb.setExperience(amount);
             player.sendTitle("", MessageUtil.colorize("&e&lARQUEOLOGIA! &fVocê encontrou &6" +
