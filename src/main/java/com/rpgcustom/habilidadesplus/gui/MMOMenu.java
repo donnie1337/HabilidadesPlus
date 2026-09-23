@@ -296,6 +296,25 @@ public final class MMOMenu {
         }
 
         if (skill == SkillType.LENHADOR) {
+            if (power.name().equals("Tree Feller")) {
+                int leafLevel = Math.max(1, level);
+                double tempoNivel1 = config.config().getDouble(
+                        "lenhador.leaf-cutter.tempo-nivel-1-segundos", 120.0);
+                double tempoNivel500 = config.config().getDouble(
+                        "lenhador.leaf-cutter.tempo-nivel-500-segundos", 30.0);
+                double tempoNivel1000 = config.config().getDouble(
+                        "lenhador.leaf-cutter.tempo-nivel-1000-segundos", 12.0);
+                double tempo;
+                if (leafLevel <= 500) {
+                    double t = (leafLevel - 1) / 499.0;
+                    tempo = tempoNivel1 + (tempoNivel500 - tempoNivel1) * t;
+                } else {
+                    double t = Math.min(1.0, (leafLevel - 500) / 500.0);
+                    tempo = tempoNivel500 + (tempoNivel1000 - tempoNivel500) * t;
+                }
+                lore.add("&6Leaf Cutter: &e" + formatPercent(tempo) + "s para folhas");
+            }
+
             if (power.name().equals("Double Drop")) {
                 double chance = Math.min(50.0, level * config.config().getDouble(
                         "lenhador.double-drop.chance-por-nivel", 0.05));
