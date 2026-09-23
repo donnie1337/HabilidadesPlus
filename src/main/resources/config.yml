@@ -183,7 +183,8 @@ escavacao:
         raridade: raro
         quantidade-min: 1
         quantidade-max: 1
-        peso: 0.1
+        peso: 0.005
+        peso: 0.005
         habilitado: true
       disco-13:
         item: MUSIC_DISC_13
@@ -191,7 +192,8 @@ escavacao:
         raridade: raro
         quantidade-min: 1
         quantidade-max: 1
-        peso: 0.1
+        peso: 0.005
+        peso: 0.005
         habilitado: true
       disco-otherside:
         item: MUSIC_DISC_OTHERSIDE
@@ -199,7 +201,8 @@ escavacao:
         raridade: muito-raro
         quantidade-min: 1
         quantidade-max: 1
-        peso: 0.03
+        peso: 0.005
+        peso: 0.005
         habilitado: true
       disco-relic:
         item: MUSIC_DISC_RELIC
@@ -207,7 +210,8 @@ escavacao:
         raridade: muito-raro
         quantidade-min: 1
         quantidade-max: 1
-        peso: 0.03
+        peso: 0.005
+        peso: 0.005
         habilitado: true
       disco-5:
         item: MUSIC_DISC_5
@@ -215,7 +219,8 @@ escavacao:
         raridade: muito-raro
         quantidade-min: 1
         quantidade-max: 1
-        peso: 0.02
+        peso: 0.005
+        peso: 0.005
         habilitado: true
       disco-pigstep:
         item: MUSIC_DISC_PIGSTEP
@@ -223,7 +228,8 @@ escavacao:
         raridade: lendario
         quantidade-min: 1
         quantidade-max: 1
-        peso: 0.01
+        peso: 0.005
+        peso: 0.005
         habilitado: true
       disco-creator:
         item: MUSIC_DISC_CREATOR
@@ -231,6 +237,7 @@ escavacao:
         raridade: lendario
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         peso: 0.005
         habilitado: true
       disco-creator-music-box:
@@ -240,6 +247,7 @@ escavacao:
         quantidade-min: 1
         quantidade-max: 1
         peso: 0.005
+        peso: 0.005
         habilitado: true
       disco-precipice:
         item: MUSIC_DISC_PRECIPICE
@@ -247,6 +255,7 @@ escavacao:
         raridade: lendario
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         peso: 0.005
         habilitado: true
 
@@ -344,6 +353,7 @@ escavacao:
         raridade: raro
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
       disco-chirp:
         item: MUSIC_DISC_CHIRP
@@ -351,6 +361,7 @@ escavacao:
         raridade: raro
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
       ouro:
         item: GOLD_NUGGET
@@ -365,6 +376,7 @@ escavacao:
         raridade: muito-raro
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
       disco-mellohi:
         item: MUSIC_DISC_MELLOHI
@@ -372,6 +384,7 @@ escavacao:
         raridade: muito-raro
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
 
     SAND:
@@ -409,6 +422,7 @@ escavacao:
         raridade: muito-raro
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
       disco-strad:
         item: MUSIC_DISC_STRAD
@@ -416,6 +430,7 @@ escavacao:
         raridade: muito-raro
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
       disco-ward:
         item: MUSIC_DISC_WARD
@@ -423,6 +438,7 @@ escavacao:
         raridade: muito-raro
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
 
     RED_SAND:
@@ -446,6 +462,7 @@ escavacao:
         raridade: muito-raro
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
       diamante:
         item: DIAMOND
@@ -490,6 +507,7 @@ escavacao:
         raridade: muito-raro
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
 
     CLAY:
@@ -520,6 +538,7 @@ escavacao:
         raridade: muito-raro
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
 
     SOUL_SAND:
@@ -550,6 +569,7 @@ escavacao:
         raridade: lendario
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
 
     SOUL_SOIL:
@@ -580,6 +600,7 @@ escavacao:
         raridade: muito-raro
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
 
     MYCELIUM:
@@ -610,6 +631,7 @@ escavacao:
         raridade: muito-raro
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
 
     PODZOL:
@@ -640,6 +662,7 @@ escavacao:
         raridade: muito-raro
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
 
     ROOTED_DIRT:
@@ -663,6 +686,7 @@ escavacao:
         raridade: muito-raro
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
 
     MUD:
@@ -700,6 +724,7 @@ escavacao:
         raridade: lendario
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
 
     SNOW_BLOCK:
@@ -723,6 +748,7 @@ escavacao:
         raridade: lendario
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
       disco-creator-music-box:
         item: MUSIC_DISC_CREATOR_MUSIC_BOX
@@ -730,6 +756,7 @@ escavacao:
         raridade: lendario
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
 
 # ------------------------------------------------------------
