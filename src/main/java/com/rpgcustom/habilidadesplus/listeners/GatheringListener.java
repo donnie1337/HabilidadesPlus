@@ -184,7 +184,7 @@ public class GatheringListener implements Listener, CommandExecutor {
                     item.setItemStack(restante);
                     long agora = System.currentTimeMillis();
                     long ultimaMensagem = ultimaMensagemInventarioCheio.getOrDefault(player.getUniqueId(), 0L);
-                    if (agora - ultimaMensagem >= 100L) {
+                    if (agora - ultimaMensagem >= 2000L) {
                         ultimaMensagemInventarioCheio.put(player.getUniqueId(), agora);
                         player.sendMessage(MessageUtil.colorize(
                                 "&c&lᴄᴏʟᴇᴛᴀ &8• &fSeu inventário está cheio."));
