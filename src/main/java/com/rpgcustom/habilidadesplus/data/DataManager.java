@@ -155,10 +155,6 @@ public class DataManager {
         return profile;
     }
 
-    public boolean save(PlayerProfile profile) {        }
-        return profile;
-    }
-
     public boolean save(PlayerProfile profile) {
         allProfiles.put(profile.getUuid(), profile);
         YamlConfiguration yaml = new YamlConfiguration();
