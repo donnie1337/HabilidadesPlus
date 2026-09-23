@@ -311,7 +311,28 @@ public class GatheringListener implements Listener {
         }
 
         player.sendTitle("", MessageUtil.colorize("&e&lARQUEOLOGIA! &fVocê encontrou &6" +
-                amount + "x " + material.name()), 5, 60, 10);
+                amount + " " + getPortugueseItemName(material, amount)), 5, 60, 10);
+    }
+
+    private String getPortugueseItemName(Material material, int amount) {
+        String singular = switch (material) {
+            case DIAMOND -> "diamante";
+            case EMERALD -> "esmeralda";
+            case GOLD_INGOT -> "lingote de ouro";
+            case IRON_INGOT -> "lingote de ferro";
+            case LAPIS_LAZULI -> "lápis-lazúli";
+            case REDSTONE -> "redstone";
+            default -> material.name().toLowerCase(java.util.Locale.ROOT).replace('_', ' ');
+        };
+        if (amount == 1) return singular;
+        return switch (material) {
+            case DIAMOND -> "diamantes";
+            case EMERALD -> "esmeraldas";
+            case GOLD_INGOT -> "lingotes de ouro";
+            case IRON_INGOT -> "lingotes de ferro";
+            case LAPIS_LAZULI -> "lápis-lazúli";
+            default -> singular;
+        };
     }
 
     private String selectExcavationTreasure(ConfigurationSection section, List<String> eligible) {
