@@ -33,22 +33,35 @@ public final class MMOMenu {
                 MessageUtil.colorize(config.msg("gui.titulo-menu")));
         holder.setInventory(inventory);
         PlayerProfile profile = data.getProfile(player.getUniqueId());
+        boolean profilesReady = data.isAllProfilesLoaded();
+        Map<java.util.UUID, PlayerProfile> profiles = data.getAllProfiles();
         SkillType[] skills = SkillType.values();
         for (int index = 0; index < skills.length && index < SLOTS.length; index++) {
             inventory.setItem(SLOTS[index], skillItem(skills[index], profile, levels, config));
         }
-        inventory.setItem(51, rankingBook(player, data, config));
+        inventory.setItem(51, rankingBook(player, config, profiles, profilesReady));
         inventory.setItem(47, profileItem(player, profile, config));
         player.openInventory(inventory);
     }
 
     public static void openRanking(Player player, SkillType selected, DataManager data,
                                   ConfigManager config) {
+        if (!data.isAllProfilesLoaded()) {
+            player.sendMessage(MessageUtil.colorize("&7O ranking ainda está carregando. Aguarde um instante."));
+            data.whenAllProfilesLoaded(() -> {
+                if (player.isOnline()) {
+                    openRanking(player, selected, data, config);
+                }
+            });
+            return;
+        }
+
+        Map<java.util.UUID, PlayerProfile> profiles = data.getAllProfiles();
         MMOMenuHolder holder = new MMOMenuHolder(selected, true);
         Inventory inventory = Bukkit.createInventory(holder, 36, MessageUtil.colorize("&8Ranking de Habilidades"));
         holder.setInventory(inventory);
 
-        List<Map.Entry<java.util.UUID, PlayerProfile>> ranking = data.getAllProfiles().entrySet().stream()
+        List<Map.Entry<java.util.UUID, PlayerProfile>> ranking = profiles.entrySet().stream()
                 .filter(entry -> entry.getValue().getLevel(selected) > 0)
                 .sorted(Comparator
                         .<Map.Entry<java.util.UUID, PlayerProfile>>comparingInt(entry -> entry.getValue().getLevel(selected))
@@ -68,30 +81,37 @@ public final class MMOMenu {
 
         inventory.setItem(31, item(Material.ARROW, "&cVoltar", List.of("", "&7Voltar ao menu principal.")));
         inventory.setItem(29, rankingFilterItem(selected));
-        inventory.setItem(33, rankingBook(player, data, config));
+        inventory.setItem(33, rankingBook(player, config, profiles, true));
         player.openInventory(inventory);
     }
 
-    private static ItemStack rankingBook(Player player, DataManager data, ConfigManager config) {
+    private static ItemStack rankingBook(Player player, ConfigManager config,
+                                         Map<java.util.UUID, PlayerProfile> profiles,
+                                         boolean profilesReady) {
         List<String> lore = new ArrayList<>();
         lore.add("");
+        if (!profilesReady) {
+            lore.add("&eO ranking está sendo carregado...");
+            lore.add("&7Clique novamente em alguns instantes.");
+            return item(Material.WRITABLE_BOOK, "&bRanking de Habilidades", lore);
+        }
         lore.add("&7Sua posição em cada habilidade:");
 
         addRankingCategory(lore, "&eColeta e recursos", new SkillType[]{
                 SkillType.MINERACAO, SkillType.LENHADOR, SkillType.ESCAVACAO, SkillType.ERVANISMO, SkillType.PESCA
-        }, player, data);
+        }, player, profiles);
         addRankingCategory(lore, "&eProdução e utilidade", new SkillType[]{
                 SkillType.FUNDICAO, SkillType.ALQUIMIA, SkillType.REPARACAO
-        }, player, data);
+        }, player, profiles);
         addRankingCategory(lore, "&eCombate corpo a corpo", new SkillType[]{
                 SkillType.ESPADAS, SkillType.MACHADOS, SkillType.CLAVA, SkillType.DESARMADO
-        }, player, data);
+        }, player, profiles);
         addRankingCategory(lore, "&eCombate à distância", new SkillType[]{
                 SkillType.ARQUERIA, SkillType.BESTAS, SkillType.TRIDENTES, SkillType.LANCAS
-        }, player, data);
+        }, player, profiles);
         addRankingCategory(lore, "&eMobilidade e companheiros", new SkillType[]{
                 SkillType.ACROBACIA, SkillType.DOMESTICACAO
-        }, player, data);
+        }, player, profiles);
 
         lore.add("");
         lore.add("&7Clique para abrir o ranking.");
@@ -99,9 +119,14 @@ public final class MMOMenu {
     }
 
     private static void addRankingCategory(List<String> lore, String category, SkillType[] skills,
-                                           Player player, DataManager data) {
-        Map<java.util.UUID, PlayerProfile> profiles = data.getAllProfiles();
-        PlayerProfile profile = data.getProfile(player.getUniqueId());
+                                           Player player,
+                                           Map<java.util.UUID, PlayerProfile> profiles) {
+        PlayerProfile profile = profiles.get(player.getUniqueId());
+        if (profile == null) {
+            // O jogador normalmente já está no snapshot, mas manter o fallback
+            // evita uma GUI vazia em caso de entrada durante o preload.
+            profile = new PlayerProfile(player.getUniqueId());
+        }
         lore.add("");
         lore.add(category);
         for (SkillType skill : skills) {

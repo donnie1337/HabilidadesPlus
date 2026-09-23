@@ -50,6 +50,11 @@ public final class HabilidadesPlus extends JavaPlugin {
         this.placedBlockTracker = new PlacedBlockTracker(this);
         this.levelingManager = new LevelingManager(configManager.config());
         this.top1SkillService = new Top1SkillService(dataManager);
+        dataManager.preloadAllProfilesAsync().whenComplete((ignored, error) -> {
+            // O indice e carregado fora da thread principal. Quando terminar,
+            // qualquer cache de Top 1 construido durante o startup fica invalido.
+            top1SkillService.invalidate();
+        });
         if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             new Top1PlaceholderExpansion(this).register();
         }
