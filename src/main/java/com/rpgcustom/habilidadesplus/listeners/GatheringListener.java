@@ -67,6 +67,7 @@ public class GatheringListener implements Listener {
     private final Map<UUID, Integer> cuttingCombos = new HashMap<>();
     private final Map<UUID, Integer> comboTreeCounts = new HashMap<>();
     private final Map<UUID, Long> comboStageStartedAt = new HashMap<>();
+    private final Map<UUID, Integer> lastShownCuttingCombo = new HashMap<>();
 
     public GatheringListener(JavaPlugin plugin, ConfigManager configManager, XpManager xpManager,
                              PlacedBlockTracker placedBlockTracker) {
@@ -276,7 +277,10 @@ public class GatheringListener implements Listener {
             xpManager.addXp(player, SkillType.LENHADOR, treeBaseXp * (bonusMultiplier - 1.0));
         }
 
-        showCuttingComboMessage(player, multiplier);
+        if (lastShownCuttingCombo.getOrDefault(uuid, 1) != multiplier) {
+            lastShownCuttingCombo.put(uuid, multiplier);
+            showCuttingComboMessage(player, multiplier);
+        }
     }
 
     private Block findTreeBase(List<Block> logs) {
