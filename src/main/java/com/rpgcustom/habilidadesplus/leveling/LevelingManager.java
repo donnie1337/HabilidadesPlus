@@ -32,11 +32,6 @@ public class LevelingManager {
         this.expoente = config.getDouble("nivelamento.expoente", 1.8);
         this.nivelMaximo = config.getInt("nivelamento.nivel-maximo", 1000);
 
-        this.mineracaoFatorNivel100 = config.getDouble("nivelamento.mineracao.fator-nivel-100", 1.25);
-        this.mineracaoFatorNivel250 = config.getDouble("nivelamento.mineracao.fator-nivel-250", 1.75);
-        this.mineracaoFatorNivel500 = config.getDouble("nivelamento.mineracao.fator-nivel-500", 2.75);
-        this.mineracaoFatorNivel750 = config.getDouble("nivelamento.mineracao.fator-nivel-750", 4.25);
-        this.mineracaoFatorNivel1000 = config.getDouble("nivelamento.mineracao.fator-nivel-1000", 6.0);
     }
 
     /**
@@ -49,16 +44,11 @@ public class LevelingManager {
 
     /**
      * XP necessario para uma habilidade especifica.
-     * Mineracao possui uma curva progressivamente mais pesada.
+     * Todas as habilidades usam a mesma dificuldade de progressao.
+     * O que varia entre elas e a quantidade de XP concedida por acao.
      */
     public double xpParaProximoNivel(SkillType skill, int currentLevel) {
-        double xp = calcularXpBase(currentLevel);
-
-        if (skill != SkillType.MINERACAO) {
-            return xp;
-        }
-
-        return xp * fatorProgressivoMineracao(currentLevel);
+        return calcularXpBase(currentLevel);
     }
 
     private double calcularXpBase(int currentLevel) {
@@ -66,27 +56,6 @@ public class LevelingManager {
             case LINEAR -> xpBase + (currentLevel * multiplicador);
             case EXPONENCIAL -> xpBase * Math.pow(currentLevel + 1, expoente);
         };
-    }
-
-    private double fatorProgressivoMineracao(int level) {
-        if (level <= 100) {
-            return interpolar(0, 1.0, 100, mineracaoFatorNivel100, level);
-        }
-        if (level <= 250) {
-            return interpolar(100, mineracaoFatorNivel100, 250, mineracaoFatorNivel250, level);
-        }
-        if (level <= 500) {
-            return interpolar(250, mineracaoFatorNivel250, 500, mineracaoFatorNivel500, level);
-        }
-        if (level <= 750) {
-            return interpolar(500, mineracaoFatorNivel500, 750, mineracaoFatorNivel750, level);
-        }
-        return interpolar(750, mineracaoFatorNivel750, 1000, mineracaoFatorNivel1000, Math.min(level, 1000));
-    }
-
-    private double interpolar(int nivelInicial, double fatorInicial, int nivelFinal, double fatorFinal, int nivel) {
-        double progresso = (double) (nivel - nivelInicial) / (nivelFinal - nivelInicial);
-        return fatorInicial + ((fatorFinal - fatorInicial) * progresso);
     }
 
     public int getNivelMaximo() {
