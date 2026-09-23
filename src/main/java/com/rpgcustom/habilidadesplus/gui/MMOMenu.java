@@ -297,6 +297,48 @@ public final class MMOMenu {
                     Map.of("chance", formatPercent(chance))));
         }
 
+        if (skill == SkillType.ESCAVACAO) {
+            if (power.name().equals("Duplo Drop")) {
+                double chance = Math.min(
+                        config.config().getDouble("escavacao.duplo-drop.chance-maxima", 50.0),
+                        level * config.config().getDouble("escavacao.duplo-drop.chance-por-nivel", 0.05));
+                lore.add("&6Chance atual: &e" + formatPercent(chance) + "%");
+            }
+            if (power.name().equals("Giga Broca")) {
+                double duration = Math.min(
+                        config.config().getDouble("escavacao.giga-broca.duracao-maxima", 20.0),
+                        config.config().getDouble("escavacao.giga-broca.duracao-nivel-25", 5.0)
+                                + Math.max(0, level - 25) * config.config().getDouble(
+                                "escavacao.giga-broca.duracao-por-nivel", 0.01));
+                lore.add("&6Duração atual: &e" + formatPercent(duration) + "s");
+                lore.add("&6Recarga: &e" + formatPercent(config.config().getDouble(
+                        "escavacao.giga-broca.recarga-segundos", 120.0)) + "s");
+            }
+            if (power.name().equals("Arqueologia")) {
+                int unlock = config.config().getInt("escavacao.arqueologia.nivel-desbloqueio", 10);
+                double chance = level >= unlock
+                        ? Math.min(config.config().getDouble("escavacao.arqueologia.chance-maxima", 12.5),
+                        config.config().getDouble("escavacao.arqueologia.chance-base", 0.25)
+                                + level * config.config().getDouble("escavacao.arqueologia.chance-por-nivel", 0.015))
+                        : 0.0;
+                lore.add("&6Chance de tesouro: &e" + formatPercent(chance) + "%");
+            }
+            if (power.name().equals("Tesouro Raro")) {
+                int unlock = config.config().getInt("escavacao.tesouro-raro.nivel-desbloqueio", 250);
+                lore.add("&6Desbloqueio: &eNível " + unlock);
+            }
+            if (power.name().equals("Escavador Experiente")) {
+                int unlock = config.config().getInt("escavacao.escavador-experiente.nivel-desbloqueio", 100);
+                double bonus = config.config().getDouble("escavacao.escavador-experiente.bonus-xp", 0.10) * 100.0;
+                lore.add("&6Bônus de XP em tesouros: &e+" + formatPercent(level >= unlock ? bonus : 0.0) + "%");
+            }
+            if (power.name().equals("Mestre da Escavação")) {
+                int unlock = config.config().getInt("escavacao.mestre-da-escavacao.nivel-desbloqueio", 750);
+                double bonus = config.config().getDouble("escavacao.mestre-da-escavacao.bonus-chance", 3.0);
+                lore.add("&6Bônus de chance: &e+" + formatPercent(level >= unlock ? bonus : 0.0) + "%");
+            }
+        }
+
         if (skill == SkillType.LENHADOR) {
             if (power.name().equals("Derrubada de Árvores")) {
                 int leafLevel = Math.max(1, level);
