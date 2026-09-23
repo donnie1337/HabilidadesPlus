@@ -10,7 +10,7 @@ commands:
   mcmmo:
     description: Abre o menu do HabilidadesPlus
     usage: /mcmmo [reload|setnivel <habilidade> <nivel>]
-    aliases: [cmmo, habilidade, habilidades]
+    aliases: [cmmo, habilidade, habilidades, poder]
     permission: habilidadesplus.use
     permission-message: "§cVoce nao tem permissao para usar este comando."
   luz:
