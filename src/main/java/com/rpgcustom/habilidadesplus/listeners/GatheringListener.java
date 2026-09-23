@@ -140,6 +140,10 @@ public class GatheringListener implements Listener {
             }
 
             xpManager.addXp(player, HABILIDADES[i], xp);
+            if (HABILIDADES[i] == SkillType.ESCAVACAO && isExcavationGigaActive(player)) {
+                // Giga Broca segue a referência do mcMMO: 3x EXP durante a habilidade.
+                xpManager.addXp(player, SkillType.ESCAVACAO, xp * 2.0);
+            }
             if (HABILIDADES[i] == SkillType.ESCAVACAO) {
                 tryExcavationTreasure(player, block, tool);
             }
@@ -315,7 +319,8 @@ public class GatheringListener implements Listener {
         }
         if (eligible.isEmpty()) return;
 
-        String selected = eligible.get(random.nextInt(eligible.size()));
+        String selected = selectExcavationTreasure(section, eligible);
+        if (selected == null) return;
         String path = "escavacao.tesouros." + block.getType().name() + "." + selected;
         Material material = Material.matchMaterial(section.getString(selected + ".item", "COAL"));
         if (material == null) return;
@@ -338,6 +343,21 @@ public class GatheringListener implements Listener {
 
         player.sendActionBar(MessageUtil.colorize("&e&lARQUEOLOGIA! &fVocê encontrou &6" +
                 amount + "x " + material.name()));
+    }
+
+    private String selectExcavationTreasure(ConfigurationSection section, List<String> eligible) {
+        double totalWeight = 0.0;
+        for (String key : eligible) {
+            totalWeight += Math.max(0.0, section.getDouble(key + ".peso", 1.0));
+        }
+        if (totalWeight <= 0.0) return null;
+
+        double roll = random.nextDouble() * totalWeight;
+        for (String key : eligible) {
+            roll -= Math.max(0.0, section.getDouble(key + ".peso", 1.0));
+            if (roll < 0.0) return key;
+        }
+        return eligible.get(eligible.size() - 1);
     }
 
     private boolean shouldExcavationDoubleDrop(int level) {
