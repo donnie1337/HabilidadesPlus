@@ -24,7 +24,7 @@ public final class SkillCatalog {
                     implemented("Replantio Automático",10,Material.OAK_SAPLING,"Passiva desbloqueada no nível 10. Ao derrubar uma árvore completa, há chance de replantar automaticamente a muda correspondente; chega a 100% no nível 1000."));
             case ESCAVACAO -> d("Encontre materiais escondidos e abra caminho pelo terreno.",
                     implemented("Duplo Drop",1,Material.GRAVEL,"Chance de receber o drop natural em dobro ao escavar."),
-                    active("Giga Broca",25,Material.DIAMOND_SHOVEL,"Ativa a habilidade clássica do mcMMO: velocidade extrema, tesouros e drops potencializados por alguns segundos."),
+                    active("Super Escavação",25,Material.DIAMOND_SHOVEL,"Aumenta a eficiência de escavação por um período progressivo conforme o nível de Escavação. Em níveis mais altos, também pode potencializar os drops."),
                     implemented("Arqueologia",10,Material.BRUSH,"Aumenta a chance de encontrar tesouros ao escavar."),
                     implemented("Tesouro Raro",250,Material.GOLD_INGOT,"Desbloqueia tesouros raros nas tabelas de Arqueologia."),
                     implemented("Escavador Experiente",100,Material.EXPERIENCE_BOTTLE,"Encontrar um tesouro também concede XP extra de Escavação."),
