@@ -16,6 +16,7 @@ public class PlayerProfile {
     private final UUID uuid;
     private final Map<SkillType, PlayerSkillData> skills = new EnumMap<>(SkillType.class);
     private long lenhadorArvoresReplantadas;
+    private long mineracaoBlocosMinerados;
 
     public PlayerProfile(UUID uuid) {
         this.uuid = uuid;
@@ -51,6 +52,18 @@ public class PlayerProfile {
 
     public long incrementLenhadorArvoresReplantadas() {
         return ++lenhadorArvoresReplantadas;
+    }
+
+    public long getMineracaoBlocosMinerados() {
+        return mineracaoBlocosMinerados;
+    }
+
+    public void setMineracaoBlocosMinerados(long value) {
+        mineracaoBlocosMinerados = Math.max(0L, value);
+    }
+
+    public long incrementMineracaoBlocosMinerados() {
+        return ++mineracaoBlocosMinerados;
     }
 
     public int getPowerLevel() {
