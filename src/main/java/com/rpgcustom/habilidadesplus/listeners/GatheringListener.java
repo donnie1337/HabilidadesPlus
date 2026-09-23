@@ -22,6 +22,11 @@ import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.block.Action;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.inventory.ItemStack;
@@ -77,6 +82,8 @@ public class GatheringListener implements Listener {
     private final Map<UUID, Integer> comboTreeCounts = new HashMap<>();
     private final Map<UUID, Long> comboStageStartedAt = new HashMap<>();
     private final Map<UUID, Integer> lastShownCuttingCombo = new HashMap<>();
+    private final Map<UUID, Long> excavationCooldownUntil = new HashMap<>();
+    private final Map<UUID, Long> excavationActiveUntil = new HashMap<>();
     private final Set<UUID> treeFellerInProgress = new HashSet<>();
 
     public GatheringListener(JavaPlugin plugin, ConfigManager configManager, XpManager xpManager,
@@ -128,13 +135,84 @@ public class GatheringListener implements Listener {
             if (HABILIDADES[i] == SkillType.MINERACAO && !isValidMiningTool(block, tool)) {
                 return;
             }
+            if (HABILIDADES[i] == SkillType.ESCAVACAO && !isValidExcavationTool(tool)) {
+                return;
+            }
 
             xpManager.addXp(player, HABILIDADES[i], xp);
+            if (HABILIDADES[i] == SkillType.ESCAVACAO) {
+                tryExcavationTreasure(player, block, tool);
+            }
             if (HABILIDADES[i] == SkillType.MINERACAO) {
                 xpManager.getDataManager().getProfile(player.getUniqueId()).incrementMineracaoBlocosMinerados();
                 xpManager.getDataManager().markDirty(player.getUniqueId());
             }
             return;
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onExcavationReady(PlayerInteractEvent event) {
+        if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+
+        Player player = event.getPlayer();
+        ItemStack tool = player.getInventory().getItemInMainHand();
+        if (!isValidExcavationTool(tool)) return;
+        if (!configManager.habilidadeAtiva(player)) return;
+
+        int level = getExcavationLevel(player);
+        int unlock = configManager.config().getInt("escavacao.giga-broca.nivel-desbloqueio", 25);
+        if (level < unlock) return;
+
+        long now = System.currentTimeMillis();
+        long cooldown = excavationCooldownUntil.getOrDefault(player.getUniqueId(), 0L);
+        if (cooldown > now) {
+            long remaining = Math.max(1L, (cooldown - now + 999L) / 1000L);
+            player.sendActionBar(MessageUtil.colorize("&cGiga Broca em recarga: &e" + remaining + "s"));
+            event.setCancelled(true);
+            return;
+        }
+
+        double duration = getExcavationGigaDuration(level);
+        excavationActiveUntil.put(player.getUniqueId(), now + Math.round(duration * 1000.0));
+        long cooldownMillis = Math.round(configManager.config().getDouble(
+                "escavacao.giga-broca.recarga-segundos", 120.0) * 1000.0);
+        excavationCooldownUntil.put(player.getUniqueId(), now + cooldownMillis);
+
+        int amplifier = Math.max(0, configManager.config().getInt(
+                "escavacao.giga-broca.amplificador-pressa", 4));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE,
+                Math.max(1, (int) Math.round(duration * 20.0)), amplifier, false, false, true));
+        player.sendMessage(MessageUtil.colorize("&3&lGIGA BROCA &8• &fAtivada por &e" +
+                String.format(java.util.Locale.US, "%.1f", duration).replace(".", ",") + "s"));
+        event.setCancelled(true);
+
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            if (player.isOnline()) {
+                player.sendMessage(MessageUtil.colorize("&7Giga Broca foi encerrada."));
+            }
+            excavationActiveUntil.remove(player.getUniqueId());
+        }, Math.max(1L, Math.round(duration * 20.0)));
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onExcavationDrop(BlockDropItemEvent event) {
+        Block block = event.getBlock();
+        if (!isExcavationBlock(block.getType())) return;
+        if (placedBlockTracker.consumeProtectedDrop(block)) return;
+
+        Player player = event.getPlayer();
+        if (!configManager.habilidadeAtiva(player) || !isValidExcavationTool(player.getInventory().getItemInMainHand())) {
+            return;
+        }
+
+        int level = getExcavationLevel(player);
+        if (!shouldExcavationDoubleDrop(level)) return;
+
+        for (Item item : event.getItems()) {
+            ItemStack stack = item.getItemStack();
+            stack.setAmount(Math.min(stack.getMaxStackSize(), stack.getAmount() * 2));
+            item.setItemStack(stack);
         }
     }
 
@@ -177,6 +255,8 @@ public class GatheringListener implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         clearCuttingCombo(event.getPlayer().getUniqueId());
         treeFellerInProgress.remove(event.getPlayer().getUniqueId());
+        excavationCooldownUntil.remove(event.getPlayer().getUniqueId());
+        excavationActiveUntil.remove(event.getPlayer().getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -189,6 +269,120 @@ public class GatheringListener implements Listener {
         if (level <= 0) return;
 
         if (shouldPreserveAxe(level)) event.setCancelled(true);
+    }
+
+    private void tryExcavationTreasure(Player player, Block block, ItemStack tool) {
+        int level = getExcavationLevel(player);
+        int archaeologyUnlock = configManager.config().getInt(
+                "escavacao.arqueologia.nivel-desbloqueio", 10);
+        if (level < archaeologyUnlock || !isExcavationBlock(block.getType())) return;
+
+        double chance = configManager.config().getDouble("escavacao.arqueologia.chance-base", 0.25)
+                + level * configManager.config().getDouble("escavacao.arqueologia.chance-por-nivel", 0.015);
+
+        int masterUnlock = configManager.config().getInt(
+                "escavacao.mestre-da-escavacao.nivel-desbloqueio", 750);
+        if (level >= masterUnlock) {
+            chance += configManager.config().getDouble(
+                    "escavacao.mestre-da-escavacao.bonus-chance", 3.0);
+        }
+        chance = Math.min(configManager.config().getDouble(
+                "escavacao.arqueologia.chance-maxima", 12.5), chance);
+
+        if (isExcavationGigaActive(player)) {
+            chance *= configManager.config().getDouble(
+                    "escavacao.giga-broca.multiplicador-tesouro", 3.0);
+        }
+        if (random.nextDouble() * 100.0 >= chance) return;
+
+        ConfigurationSection section = configManager.config().getConfigurationSection(
+                "escavacao.tesouros." + block.getType().name());
+        if (section == null) return;
+
+        List<String> keys = new ArrayList<>(section.getKeys(false));
+        List<String> eligible = new ArrayList<>();
+        for (String key : keys) {
+            String path = "escavacao.tesouros." + block.getType().name() + "." + key;
+            int minLevel = section.getInt(key + ".nivel", 1);
+            String rarity = section.getString(key + ".raridade", "comum");
+            int rareUnlock = configManager.config().getInt(
+                    "escavacao.tesouro-raro.nivel-desbloqueio", 250);
+            if (level < minLevel) continue;
+            if ("raro".equalsIgnoreCase(rarity) && level < rareUnlock) continue;
+            if (configManager.config().getBoolean(path + ".habilitado", true)) {
+                eligible.add(key);
+            }
+        }
+        if (eligible.isEmpty()) return;
+
+        String selected = eligible.get(random.nextInt(eligible.size()));
+        String path = "escavacao.tesouros." + block.getType().name() + "." + selected;
+        Material material = Material.matchMaterial(section.getString(selected + ".item", "COAL"));
+        if (material == null) return;
+
+        int min = Math.max(1, section.getInt(selected + ".quantidade-min", 1));
+        int max = Math.max(min, section.getInt(selected + ".quantidade-max", min));
+        int amount = min + random.nextInt(max - min + 1);
+        block.getWorld().dropItemNaturally(block.getLocation(), new ItemStack(material, amount));
+
+        int experiencedUnlock = configManager.config().getInt(
+                "escavacao.escavador-experiente.nivel-desbloqueio", 100);
+        if (level >= experiencedUnlock) {
+            double xpBonus = Math.max(0.0, configManager.config().getDouble(
+                    "escavacao.escavador-experiente.bonus-xp", 0.10));
+            Double baseXp = configManager.xpDeSeConfigurado("escavacao", block.getType().name());
+            if (baseXp != null) {
+                xpManager.addXp(player, SkillType.ESCAVACAO, baseXp * xpBonus);
+            }
+        }
+
+        player.sendActionBar(MessageUtil.colorize("&e&lARQUEOLOGIA! &fVocê encontrou &6" +
+                amount + "x " + material.name()));
+    }
+
+    private boolean shouldExcavationDoubleDrop(int level) {
+        int unlock = configManager.config().getInt(
+                "escavacao.duplo-drop.nivel-desbloqueio", 1);
+        if (level < unlock) return false;
+
+        double chance = Math.min(
+                configManager.config().getDouble("escavacao.duplo-drop.chance-maxima", 50.0),
+                level * configManager.config().getDouble("escavacao.duplo-drop.chance-por-nivel", 0.05));
+        // O multiplicador da Giga Broca é aplicado diretamente na chance do drop raro
+        // pelo sistema de tesouros; aqui mantemos o Double Drop independente.
+        return random.nextDouble() * 100.0 < Math.min(100.0, chance);
+    }
+
+    private boolean isExcavationGigaActive(Player player) {
+        return excavationActiveUntil.getOrDefault(player.getUniqueId(), 0L) > System.currentTimeMillis();
+    }
+
+    private boolean isExcavationBlock(Material material) {
+        return configManager.xpDeSeConfigurado("escavacao", material.name()) != null;
+    }
+
+    private boolean isValidExcavationTool(ItemStack tool) {
+        return isShovel(tool.getType());
+    }
+
+    private int getExcavationLevel(Player player) {
+        return xpManager.getDataManager().getProfile(player.getUniqueId()).getLevel(SkillType.ESCAVACAO);
+    }
+
+    private double getExcavationGigaDuration(int level) {
+        double base = configManager.config().getDouble("escavacao.giga-broca.duracao-nivel-25", 5.0);
+        double perLevel = configManager.config().getDouble("escavacao.giga-broca.duracao-por-nivel", 0.01);
+        double max = configManager.config().getDouble("escavacao.giga-broca.duracao-maxima", 20.0);
+        return Math.min(max, base + Math.max(0, level - 25) * perLevel);
+    }
+
+    private boolean isShovel(Material material) {
+        return material == Material.WOODEN_SHOVEL
+                || material == Material.STONE_SHOVEL
+                || material == Material.IRON_SHOVEL
+                || material == Material.GOLDEN_SHOVEL
+                || material == Material.DIAMOND_SHOVEL
+                || material == Material.NETHERITE_SHOVEL;
     }
 
     private void handleWoodBreak(BlockBreakEvent event, Player player, Block root) {
