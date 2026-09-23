@@ -62,6 +62,7 @@ public class GatheringListener implements Listener {
     private final Random random = new Random();
     private final Map<UUID, Long> lastTreeFellAt = new HashMap<>();
     private final Map<UUID, Integer> cuttingCombos = new HashMap<>();
+    private final Map<UUID, Integer> comboTreeCounts = new HashMap<>();
     private final Map<UUID, Long> actionBarSequences = new HashMap<>();
 
     public GatheringListener(JavaPlugin plugin, ConfigManager configManager, XpManager xpManager,
@@ -230,67 +231,53 @@ public class GatheringListener implements Listener {
     private void applyCuttingComboBonus(Player player, double treeBaseXp) {
         if (treeBaseXp <= 0) return;
 
-        int baseWindowSeconds = Math.max(1, configManager.config().getInt(
-                "lenhador.combo-de-corte.janela-segundos", 12));
-        int minWindowSeconds = Math.max(1, configManager.config().getInt(
-                "lenhador.combo-de-corte.janela-minima-segundos", 6));
-        int maxCombo = Math.max(1, configManager.config().getInt(
-                "lenhador.combo-de-corte.combo-maximo", 9));
-        double bonusPorCombo = Math.max(0.0, configManager.config().getDouble(
-                "lenhador.combo-de-corte.bonus-xp-por-combo", 5.0));
+        // O combo agora é por quantidade de árvores quebradas, e não por
+        // "uma árvore = +1x". Exemplo:
+        // 6 árvores em até 15s -> 2x XP;
+        // mais 5 árvores em até 12s -> 3x XP;
+        // mais 5 -> 4x, e assim por diante.
+        int firstThreshold = Math.max(1, configManager.config().getInt(
+                "lenhador.combo-de-corte.arvores-para-x2", 6));
+        int nextThreshold = Math.max(1, configManager.config().getInt(
+                "lenhador.combo-de-corte.arvores-por-proximo-nivel", 5));
+        int firstWindowSeconds = Math.max(1, configManager.config().getInt(
+                "lenhador.combo-de-corte.janela-inicial-segundos", 15));
+        int nextWindowSeconds = Math.max(1, configManager.config().getInt(
+                "lenhador.combo-de-corte.janela-apos-x2-segundos", 12));
+        int maxMultiplier = Math.max(2, configManager.config().getInt(
+                "lenhador.combo-de-corte.multiplicador-maximo", 10));
 
         UUID uuid = player.getUniqueId();
         long now = System.currentTimeMillis();
         long last = lastTreeFellAt.getOrDefault(uuid, 0L);
-        int previousCombo = cuttingCombos.getOrDefault(uuid, 0);
-        int comboWindowSeconds = getComboWindowSeconds(previousCombo, baseWindowSeconds, minWindowSeconds, maxCombo);
-        int combo = last > 0L && now - last <= comboWindowSeconds * 1000L
-                ? Math.min(maxCombo, previousCombo + 1)
-                : 1;
+        int multiplier = Math.max(1, cuttingCombos.getOrDefault(uuid, 1));
+        int treesInCurrentStage = comboTreeCounts.getOrDefault(uuid, 0);
 
-        cuttingCombos.put(uuid, combo);
+        int currentWindow = multiplier <= 1 ? firstWindowSeconds : nextWindowSeconds;
+        if (last == 0L || now - last > currentWindow * 1000L) {
+            multiplier = 1;
+            treesInCurrentStage = 0;
+        }
+
+        treesInCurrentStage++;
+
+        int required = multiplier <= 1 ? firstThreshold : nextThreshold;
+        if (treesInCurrentStage >= required && multiplier < maxMultiplier) {
+            multiplier++;
+            treesInCurrentStage = 0;
+        }
+
+        cuttingCombos.put(uuid, multiplier);
+        comboTreeCounts.put(uuid, treesInCurrentStage);
         lastTreeFellAt.put(uuid, now);
 
-        double bonusPercent = Math.max(0, combo - 1) * bonusPorCombo;
-        if (bonusPercent > 0) {
-            xpManager.addXp(player, SkillType.LENHADOR, treeBaseXp * bonusPercent / 100.0);
+        // A árvore que completa a meta já recebe o novo multiplicador.
+        double bonusMultiplier = Math.max(1.0, multiplier);
+        if (bonusMultiplier > 1.0) {
+            xpManager.addXp(player, SkillType.LENHADOR, treeBaseXp * (bonusMultiplier - 1.0));
         }
 
-        showCuttingComboActionBar(player, combo, bonusPercent);
-    }
-
-    private int getComboWindowSeconds(int previousCombo, int baseWindowSeconds, int minWindowSeconds, int maxCombo) {
-        if (maxCombo <= 1) return baseWindowSeconds;
-        double progress = Math.min(1.0, Math.max(0.0, previousCombo / (double) Math.max(1, maxCombo - 1)));
-        double seconds = baseWindowSeconds + (minWindowSeconds - baseWindowSeconds) * progress;
-        return Math.max(minWindowSeconds, (int) Math.round(seconds));
-    }
-
-    private Block findTreeBase(List<Block> logs) {
-        Block best = null;
-        for (Block log : logs) {
-            if (placedBlockTracker.isPlaced(log) || !isWood(log.getType())) continue;
-
-            Block below = log.getRelative(org.bukkit.block.BlockFace.DOWN);
-            if (!below.getType().isSolid()) continue;
-
-            if (best == null || log.getY() < best.getY()) {
-                best = log;
-            }
-        }
-
-        // Fallback para árvores cujo tronco tenha sido coletado sem um bloco
-        // imediatamente sólido abaixo (ex.: terreno especial).
-        if (best == null) {
-            for (Block log : logs) {
-                if (placedBlockTracker.isPlaced(log) || !isWood(log.getType())) continue;
-                if (best == null || log.getY() < best.getY()) {
-                    best = log;
-                }
-            }
-        }
-
-        return best;
+        showCuttingComboActionBar(player, multiplier);
     }
 
     private void tryAutoReplant(Player player, Block root, Material rootMaterial, int level) {
@@ -329,27 +316,18 @@ public class GatheringListener implements Listener {
         }
     }
 
-    private void showCuttingComboActionBar(Player player, int combo, double bonusPercent) {
-        if (combo <= 1) {
+    private void showCuttingComboActionBar(Player player, int multiplier) {
+        if (multiplier <= 1) {
             return;
         }
 
-        String bonusText = bonusPercent > 0
-                ? String.format(java.util.Locale.US, "%.1f%% XP", bonusPercent)
-                : "";
-
-        String actionBar = "&c&lCOMBO DE CORTE! &f" + combo + "x XP Bônus";
-        if (!bonusText.isEmpty()) {
-            actionBar += " &8• &6+" + bonusText;
-        }
+        String actionBar = "&c&lCOMBO DE CORTE! &f" + multiplier + "x XP";
 
         final String finalActionBar = actionBar;
         UUID uuid = player.getUniqueId();
         long sequence = actionBarSequences.getOrDefault(uuid, 0L) + 1L;
         actionBarSequences.put(uuid, sequence);
 
-        // O mcMMO pode atualizar a Action Bar no mesmo tick. Enviamos o combo
-        // no tick seguinte para garantir que o aviso seja o último conteúdo exibido.
         plugin.getServer().getScheduler().runTask(plugin, () -> {
             if (!player.isOnline() || actionBarSequences.getOrDefault(uuid, 0L) != sequence) {
                 return;
