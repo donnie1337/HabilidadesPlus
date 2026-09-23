@@ -363,8 +363,6 @@ public class GatheringListener implements Listener, CommandExecutor {
             int amount = xpMinimo + random.nextInt(xpMaximo - xpMinimo + 1);
             ExperienceOrb orb = block.getWorld().spawn(block.getLocation().add(0.5, 0.5, 0.5), ExperienceOrb.class);
             orb.setExperience(amount);
-            player.sendTitle("", MessageUtil.colorize("&e&lARQUEOLOGIA! &fVocê encontrou &6" +
-                    amount + (amount == 1 ? " ponto de XP" : " pontos de XP")), 5, 60, 10);
             if (coletaAutomaticaAtiva.contains(player.getUniqueId())) {
                 orb.teleport(player.getLocation());
             }
