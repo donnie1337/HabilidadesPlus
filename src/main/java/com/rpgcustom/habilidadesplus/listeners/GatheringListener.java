@@ -14,6 +14,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -347,29 +348,30 @@ public class GatheringListener implements Listener, CommandExecutor {
         String selected = selectExcavationTreasure(section, eligible);
         if (selected == null) return;
         String path = "escavacao.tesouros." + block.getType().name() + "." + selected;
-        Material material = Material.matchMaterial(section.getString(selected + ".item", "COAL"));
-        if (material == null) return;
-
+        String itemId = section.getString(selected + ".item", "COAL");
         int min = Math.max(1, section.getInt(selected + ".quantidade-min", 1));
         int max = Math.max(min, section.getInt(selected + ".quantidade-max", min));
         int amount = min + random.nextInt(max - min + 1);
+
+        if ("XP_ORB".equalsIgnoreCase(itemId)) {
+            ExperienceOrb orb = block.getWorld().spawn(block.getLocation().add(0.5, 0.5, 0.5), ExperienceOrb.class);
+            orb.setExperience(amount);
+            player.sendTitle("", MessageUtil.colorize("&e&lARQUEOLOGIA! &fVocê encontrou &6" +
+                    amount + (amount == 1 ? " ponto de XP" : " pontos de XP")), 5, 60, 10);
+            if (coletaAutomaticaAtiva.contains(player.getUniqueId())) {
+                orb.teleport(player.getLocation());
+            }
+            return;
+        }
+
+        Material material = Material.matchMaterial(itemId);
+        if (material == null) return;
         ItemStack treasure = new ItemStack(material, amount);
         if (coletaAutomaticaAtiva.contains(player.getUniqueId())) {
             Map<Integer, ItemStack> leftovers = player.getInventory().addItem(treasure.clone());
             leftovers.values().forEach(stack -> block.getWorld().dropItemNaturally(block.getLocation(), stack));
         } else {
             block.getWorld().dropItemNaturally(block.getLocation(), treasure);
-        }
-
-        int experiencedUnlock = configManager.config().getInt(
-                "escavacao.escavador-experiente.nivel-desbloqueio", 100);
-        if (level >= experiencedUnlock) {
-            double xpBonus = Math.max(0.0, configManager.config().getDouble(
-                    "escavacao.escavador-experiente.bonus-xp", 0.10));
-            Double baseXp = configManager.xpDeSeConfigurado("escavacao", block.getType().name());
-            if (baseXp != null) {
-                xpManager.addXp(player, SkillType.ESCAVACAO, baseXp * xpBonus);
-            }
         }
 
         player.sendTitle("", MessageUtil.colorize("&e&lARQUEOLOGIA! &fVocê encontrou &6" +
