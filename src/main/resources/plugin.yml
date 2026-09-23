@@ -2,7 +2,7 @@ name: HabilidadesPlus
 version: '${project.version}'
 main: com.rpgcustom.habilidadesplus.HabilidadesPlus
 api-version: '26.2'
-softdepend: [PlaceholderAPI, CargoPlus]
+softdepend: [PlaceholderAPI, CargoPlus, ChatPlus]
 author: SeuServidor
 description: Plugin de RPG customizado inspirado no mcMMO - XP e nivel na action bar, menu via /mcmmo
 
