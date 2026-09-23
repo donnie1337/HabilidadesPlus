@@ -151,6 +151,11 @@ public class DataManager {
             data.setLevel(level);
             data.setCurrentXp(xp);
         }
+        profile.setLenhadorArvoresReplantadas(yaml.getLong("LENHADOR.arvores-replantadas", 0));
+        return profile;
+    }
+
+    public boolean save(PlayerProfile profile) {        }
         return profile;
     }
 
@@ -162,6 +167,7 @@ public class DataManager {
             yaml.set(type.name() + ".nivel", data.getLevel());
             yaml.set(type.name() + ".xp", data.getCurrentXp());
         }
+        yaml.set("LENHADOR.arvores-replantadas", profile.getLenhadorArvoresReplantadas());
 
         File file = new File(folder, profile.getUuid() + ".yml");
         File temporary = new File(folder, profile.getUuid() + ".yml.tmp");
