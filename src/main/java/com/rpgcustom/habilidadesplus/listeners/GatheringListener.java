@@ -244,7 +244,7 @@ public class GatheringListener implements Listener {
             xpManager.addXp(player, SkillType.LENHADOR, treeBaseXp * bonusPercent / 100.0);
         }
 
-        showCuttingComboMessage(player, combo, bonusPercent);
+        showCuttingComboActionBar(player, combo, bonusPercent);
     }
 
     private int getComboWindowSeconds(int previousCombo, int baseWindowSeconds, int minWindowSeconds, int maxCombo) {
@@ -290,22 +290,22 @@ public class GatheringListener implements Listener {
         }
     }
 
-    private void showCuttingComboMessage(Player player, int combo, double bonusPercent) {
+    private void showCuttingComboActionBar(Player player, int combo, double bonusPercent) {
         String bonusText = bonusPercent > 0
                 ? String.format(java.util.Locale.US, "%.1f%% XP", bonusPercent)
                 : "";
 
-        String subtitle = "&f" + combo + "x XP Bônus";
+        String actionBar = "&c&lCOMBO DE CORTE! &f" + combo + "x XP Bônus";
         if (!bonusText.isEmpty()) {
-            subtitle += " &8• &6+" + bonusText;
+            actionBar += " &8• &6+" + bonusText;
         }
 
-        // Subtitle não sobrescreve as mensagens de XP exibidas na action bar.
-        player.sendTitle(
-                MessageUtil.colorize("&c&lCOMBO DE CORTE!"),
-                MessageUtil.colorize(subtitle),
-                0, 40, 0
-        );
+        player.sendActionBar(MessageUtil.colorize(actionBar));
+
+        // O aviso fica pouco tempo na Action Bar para não competir com o XP do mcMMO.
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            player.sendActionBar("");
+        }, 20L);
     }
 
     private Material getReplantMaterial(Material log) {
