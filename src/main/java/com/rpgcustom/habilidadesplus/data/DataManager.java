@@ -152,6 +152,7 @@ public class DataManager {
             data.setCurrentXp(xp);
         }
         profile.setLenhadorArvoresReplantadas(yaml.getLong("LENHADOR.arvores-replantadas", 0));
+        profile.setMineracaoBlocosMinerados(yaml.getLong("MINERACAO.blocos-minerados", 0));
         return profile;
     }
 
@@ -164,6 +165,7 @@ public class DataManager {
             yaml.set(type.name() + ".xp", data.getCurrentXp());
         }
         yaml.set("LENHADOR.arvores-replantadas", profile.getLenhadorArvoresReplantadas());
+        yaml.set("MINERACAO.blocos-minerados", profile.getMineracaoBlocosMinerados());
 
         File file = new File(folder, profile.getUuid() + ".yml");
         File temporary = new File(folder, profile.getUuid() + ".yml.tmp");
