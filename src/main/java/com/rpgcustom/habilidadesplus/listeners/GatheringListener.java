@@ -338,8 +338,11 @@ public class GatheringListener implements Listener {
         String jogador = getCargoColoredPlayerName(player);
         message = message.replace("{jogador}", jogador)
                 .replace("{arvores}", String.valueOf(replanted));
-        for (String line : message.split("\\n")) {
-            player.getServer().broadcastMessage(MessageUtil.colorize(line));
+        for (String line : message.split("\\n", -1)) {
+            // O chat pode ocultar mensagens totalmente vazias; um espaço preserva
+            // visualmente cada linha em branco configurada antes/depois do anúncio.
+            String linha = line.isEmpty() ? " " : line;
+            player.getServer().broadcastMessage(MessageUtil.colorize(linha));
         }
     }
 
