@@ -47,7 +47,7 @@ public final class HabilidadesPlus extends JavaPlugin {
     public void onEnable() {
         this.configManager = new ConfigManager(this);
         this.dataManager = new DataManager(this);
-        this.placedBlockTracker = new PlacedBlockTracker(this);
+        this.placedBlockTracker = new PlacedBlockTracker(this, configManager.maxBlocosProtegidos());
         this.levelingManager = new LevelingManager(configManager.config());
         this.top1SkillService = new Top1SkillService(dataManager);
         dataManager.preloadAllProfilesAsync().whenComplete((ignored, error) -> {
@@ -60,7 +60,9 @@ public final class HabilidadesPlus extends JavaPlugin {
         }
         this.xpManager = new XpManager(this, dataManager, levelingManager, configManager, top1SkillService);
         this.superBreakerManager = new SuperBreakerManager(this, configManager, dataManager);
-        this.veioFartoManager = new VeioFartoManager(dataManager, configManager, superBreakerManager);
+        this.veioFartoManager = new VeioFartoManager(
+                dataManager, configManager, superBreakerManager, placedBlockTracker
+        );
         this.precisionMiningManager = new PrecisionMiningManager(dataManager, configManager);
         this.luzCommand = new LuzCommand();
 
@@ -146,6 +148,7 @@ public final class HabilidadesPlus extends JavaPlugin {
 
     private void reloadRuntime() {
         configManager.load();
+        placedBlockTracker.setMaxEntries(configManager.maxBlocosProtegidos());
         levelingManager.reload(configManager.config());
         xpManager.startTask();
         startAutosave();

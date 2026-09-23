@@ -3,6 +3,7 @@ package com.rpgcustom.habilidadesplus.abilities;
 import com.rpgcustom.habilidadesplus.SkillType;
 import com.rpgcustom.habilidadesplus.data.DataManager;
 import com.rpgcustom.habilidadesplus.util.ConfigManager;
+import com.rpgcustom.habilidadesplus.util.PlacedBlockTracker;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.EventHandler;
@@ -33,17 +34,26 @@ public final class VeioFartoManager implements Listener {
     private final DataManager dataManager;
     private final ConfigManager configManager;
     private final SuperBreakerManager superBreakerManager;
+    private final PlacedBlockTracker placedBlockTracker;
 
     public VeioFartoManager(DataManager dataManager, ConfigManager configManager,
-                            SuperBreakerManager superBreakerManager) {
+                            SuperBreakerManager superBreakerManager,
+                            PlacedBlockTracker placedBlockTracker) {
         this.dataManager = dataManager;
         this.configManager = configManager;
         this.superBreakerManager = superBreakerManager;
+        this.placedBlockTracker = placedBlockTracker;
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onOreDrop(BlockDropItemEvent event) {
         if (!MINERIOS.contains(event.getBlockState().getType())) {
+            return;
+        }
+        if (placedBlockTracker.consumeProtectedDrop(event.getBlock())) {
+            return;
+        }
+        if (!configManager.habilidadeAtiva(event.getPlayer())) {
             return;
         }
 
@@ -63,12 +73,12 @@ public final class VeioFartoManager implements Listener {
             return;
         }
         String path = superQuebrador
-                ? "mineracao.superbreaker.chance-drop-triplo-por-nivel"
+                ? "mineracao.superbreaker.chance-drop-triplo-por-10-niveis"
                 : "mineracao.veio-farto.chance-drop-duplo-por-nivel";
         double chance;
         if (superQuebrador) {
-            double chancePorDezNiveis = configManager.config().getDouble(path, 0.5);
-            chance = Math.min(100.0, Math.floor(level / 10.0) * chancePorDezNiveis);
+            chance = Math.min(100.0, Math.floor(level / 10.0)
+                    * configManager.chanceDropTriploPorDezNiveis());
         } else {
             chance = Math.min(100.0, level * configManager.config().getDouble(path, 0.1));
         }

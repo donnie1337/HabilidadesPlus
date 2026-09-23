@@ -4,6 +4,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import com.rpgcustom.habilidadesplus.SkillType;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -79,6 +80,31 @@ public class ConfigManager {
 
     public int autosaveMinutos() {
         return Math.max(1, config.getInt("geral.autosave-minutos", 3));
+    }
+
+    /**
+     * Regra comum de acesso às habilidades: permissao e mundo habilitado.
+     */
+    public boolean habilidadeAtiva(Player player) {
+        return player != null
+                && player.hasPermission("habilidadesplus.use")
+                && !mundoDesabilitado(player.getWorld().getName());
+    }
+
+    public int maxBlocosProtegidos() {
+        return Math.max(1, config.getInt("geral.max-blocos-protegidos", 100_000));
+    }
+
+    /**
+     * O valor e configurado por cada dez niveis para manter o balanceamento
+     * original. O nome antigo continua como fallback para configs existentes.
+     */
+    public double chanceDropTriploPorDezNiveis() {
+        double value = config.getDouble(
+                "mineracao.superbreaker.chance-drop-triplo-por-10-niveis",
+                config.getDouble("mineracao.superbreaker.chance-drop-triplo-por-nivel", 0.5)
+        );
+        return Math.max(0.0, value);
     }
 
     public String top1Tag(SkillType skill) {

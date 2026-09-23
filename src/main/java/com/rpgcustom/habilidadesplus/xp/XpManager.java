@@ -59,8 +59,7 @@ public class XpManager {
 
     public void addXp(Player player, SkillType skill, double baseAmount) {
         if (baseAmount <= 0) return;
-        if (!player.hasPermission("habilidadesplus.use")) return;
-        if (configManager.mundoDesabilitado(player.getWorld().getName())) return;
+        if (!configManager.habilidadeAtiva(player)) return;
 
         double amount = baseAmount * configManager.xpMultiplicadorGlobal();
         if (amount <= 0) return;

@@ -9,6 +9,8 @@ geral:
   multiplicador-xp-global: 1.0
   # Salva jogadores alterados e a protecao antifarm periodicamente.
   autosave-minutos: 3
+  # Limite de marcadores persistidos para blocos colocados que nao podem dar XP.
+  max-blocos-protegidos: 100000
   # Mundos onde o plugin fica totalmente desativado (sem ganho de XP)
   mundos-desabilitados: []
 
@@ -198,5 +200,5 @@ mineracao:
     recarga-nivel-10: 120
     recarga-nivel-50: 140
     recarga-incremento-50-niveis: 20
-    # Chance de drop triplo durante o Super Quebrador, em pontos percentuais por nível.
-    chance-drop-triplo-por-nivel: 0.5
+    # Chance de drop triplo durante o Super Quebrador, em pontos percentuais por 10 níveis.
+    chance-drop-triplo-por-10-niveis: 0.5

@@ -31,6 +31,8 @@ servidor incompatível ou uma versao antiga do Java impede o registro dos comand
 - Menu com progresso, poder total e catalogo de poderes.
 - Ranking carregado em segundo plano e mantido em cache para evitar leitura de disco ao abrir a GUI.
 - Ao abrir o ranking pelo livro com pena, o filtro seleciona automaticamente a habilidade em que o jogador é Top 1.
+- Mineração respeita permissão, mundos desativados, ferramenta adequada e proteção contra blocos colocados.
+- Marcadores de blocos colocados são limitados e salvos de forma assíncrona durante o autosave.
 - Persistencia por UUID em `plugins/HabilidadesPlus/playerdata/`.
 - Autosave configuravel e escrita atomica dos arquivos dos jogadores.
 - Protecao antifarm persistente para blocos colocados por jogadores.
@@ -60,6 +62,8 @@ jogador pode usar os comandos e ganhar XP sem configuracao adicional.
 - `messages.yml`: mensagens, cores e textos da GUI.
 - `playerdata/<uuid>.yml`: progresso individual.
 - `placed-blocks.yml`: blocos colocados protegidos contra farm de XP.
+
+O limite de marcadores persistidos pode ser ajustado em `geral.max-blocos-protegidos`.
 
 Depois de alterar `config.yml` ou `messages.yml`, execute `/mcmmo reload`.
 
