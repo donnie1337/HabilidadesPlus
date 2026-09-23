@@ -294,6 +294,80 @@ public final class MMOMenu {
             lore.add(message(config, "gui.mineracao-precisa-chance",
                     Map.of("chance", formatPercent(chance))));
         }
+
+        if (skill == SkillType.LENHADOR) {
+            if (power.name().equals("Double Drop")) {
+                double chance = Math.min(50.0, level * config.config().getDouble(
+                        "lenhador.double-drop.chance-por-nivel", 0.05));
+                lore.add("&6Chance atual: &e" + formatPercent(chance) + "%");
+            }
+
+            if (power.name().equals("Machado Reforçado")) {
+                double baseChance = level * config.config().getDouble(
+                        "lenhador.machado-reforcado.chance-preservar-por-nivel", 0.05);
+                int efficientUnlock = config.config().getInt(
+                        "lenhador.colheita-eficiente.nivel-desbloqueio", 100);
+                double efficientBonus = level >= efficientUnlock
+                        ? (level - efficientUnlock + 1) * config.config().getDouble(
+                        "lenhador.colheita-eficiente.bonus-por-nivel", 0.025)
+                        : 0.0;
+                double chance = Math.min(75.0, baseChance + efficientBonus);
+                lore.add("&6Chance atual: &e" + formatPercent(chance) + "%");
+            }
+
+            if (power.name().equals("Colheita Eficiente")) {
+                int unlock = config.config().getInt(
+                        "lenhador.colheita-eficiente.nivel-desbloqueio", 100);
+                double bonus = level >= unlock
+                        ? (level - unlock + 1) * config.config().getDouble(
+                        "lenhador.colheita-eficiente.bonus-por-nivel", 0.025)
+                        : 0.0;
+                lore.add("&6Bônus atual: &e+" + formatPercent(bonus) + "%");
+                double baseChance = level * config.config().getDouble(
+                        "lenhador.machado-reforcado.chance-preservar-por-nivel", 0.05);
+                double totalChance = Math.min(75.0, baseChance + bonus);
+                lore.add("&6Chance total do machado: &e" + formatPercent(totalChance) + "%");
+            }
+
+            if (power.name().equals("Crítico do Lenhador")) {
+                int unlock = config.config().getInt(
+                        "lenhador.critico-lenhador.nivel-desbloqueio", 500);
+                double chance = 0.0;
+                if (level >= unlock) {
+                    double base = config.config().getDouble(
+                            "lenhador.critico-lenhador.chance-no-nivel-desbloqueio", 0.15);
+                    double increment = config.config().getDouble(
+                            "lenhador.critico-lenhador.incremento-por-100-niveis", 0.05);
+                    chance = Math.min(
+                            config.config().getDouble("lenhador.critico-lenhador.chance-maxima", 0.50),
+                            base + Math.max(0, (level - unlock) / 100) * increment
+                    );
+                }
+                lore.add("&6Chance atual: &e" + formatPercent(chance) + "%");
+            }
+
+            if (power.name().equals("Replantio Automático")) {
+                int unlock = config.config().getInt(
+                        "lenhador.replantio-automatico.nivel-desbloqueio", 10);
+                double chance = level >= unlock
+                        ? Math.min(100.0, level * config.config().getDouble(
+                        "lenhador.replantio-automatico.chance-por-nivel", 0.10))
+                        : 0.0;
+                lore.add("&6Chance atual: &e" + formatPercent(chance) + "%");
+            }
+
+            if (power.name().equals("Combo de Corte")) {
+                int unlock = config.config().getInt(
+                        "lenhador.combo-de-corte.nivel-desbloqueio", 150);
+                int maxCombo = Math.max(1, config.config().getInt(
+                        "lenhador.combo-de-corte.combo-maximo", 5));
+                double bonusPorCombo = Math.max(0.0, config.config().getDouble(
+                        "lenhador.combo-de-corte.bonus-xp-por-combo", 5.0));
+                double maxBonus = level >= unlock ? (maxCombo - 1) * bonusPorCombo : 0.0;
+                lore.add("&6Bônus máximo atual: &e+" + formatPercent(maxBonus) + "% XP");
+            }
+        }
+
         lore.add("");
         lore.add(message(config, "gui.item-poder-nivel", Map.of("nivel", String.valueOf(power.level()))));
         String color = !power.implemented() ? "&8" : unlocked ? "&a" : "&8";
