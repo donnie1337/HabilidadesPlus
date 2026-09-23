@@ -112,9 +112,13 @@ lenhador:
     remover-folhas-automaticamente: true
     raio: 5
     max-folhas: 200
-    # Nível 1 = 20 ticks; nível 1000 = 1 tick.
-    atraso-nivel-1: 20.0
-    atraso-nivel-1000: 1.0
+    # O Leaf Cutter acelera a decadência natural das folhas, sem quebrá-las instantaneamente.
+    # Nível 1 usa como referência ~120s; níveis altos chegam a ~12s.
+    tempo-nivel-1-segundos: 120.0
+    tempo-nivel-500-segundos: 30.0
+    tempo-nivel-1000-segundos: 12.0
+    # Variação aleatória para as folhas não desaparecerem todas juntas.
+    variacao-aleatoria-segundos: 0.35
 
   machado-reforcado:
     # Chance de impedir 1 ponto de dano de durabilidade por nível.
