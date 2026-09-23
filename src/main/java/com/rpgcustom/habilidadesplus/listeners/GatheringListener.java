@@ -218,18 +218,22 @@ public class GatheringListener implements Listener {
     private void applyCuttingComboBonus(Player player, double treeBaseXp) {
         if (treeBaseXp <= 0) return;
 
-        int windowSeconds = Math.max(1, configManager.config().getInt(
-                "lenhador.combo-de-corte.janela-segundos", 10));
+        int baseWindowSeconds = Math.max(1, configManager.config().getInt(
+                "lenhador.combo-de-corte.janela-segundos", 12));
+        int minWindowSeconds = Math.max(1, configManager.config().getInt(
+                "lenhador.combo-de-corte.janela-minima-segundos", 6));
         int maxCombo = Math.max(1, configManager.config().getInt(
-                "lenhador.combo-de-corte.combo-maximo", 5));
+                "lenhador.combo-de-corte.combo-maximo", 9));
         double bonusPorCombo = Math.max(0.0, configManager.config().getDouble(
                 "lenhador.combo-de-corte.bonus-xp-por-combo", 5.0));
 
         UUID uuid = player.getUniqueId();
         long now = System.currentTimeMillis();
         long last = lastTreeFellAt.getOrDefault(uuid, 0L);
-        int combo = last > 0L && now - last <= windowSeconds * 1000L
-                ? Math.min(maxCombo, cuttingCombos.getOrDefault(uuid, 0) + 1)
+        int previousCombo = cuttingCombos.getOrDefault(uuid, 0);
+        int comboWindowSeconds = getComboWindowSeconds(previousCombo, baseWindowSeconds, minWindowSeconds, maxCombo);
+        int combo = last > 0L && now - last <= comboWindowSeconds * 1000L
+                ? Math.min(maxCombo, previousCombo + 1)
                 : 1;
 
         cuttingCombos.put(uuid, combo);
@@ -241,6 +245,13 @@ public class GatheringListener implements Listener {
         }
 
         showCuttingComboMessage(player, combo, bonusPercent);
+    }
+
+    private int getComboWindowSeconds(int previousCombo, int baseWindowSeconds, int minWindowSeconds, int maxCombo) {
+        if (maxCombo <= 1) return baseWindowSeconds;
+        double progress = Math.min(1.0, Math.max(0.0, previousCombo / (double) Math.max(1, maxCombo - 1)));
+        double seconds = baseWindowSeconds + (minWindowSeconds - baseWindowSeconds) * progress;
+        return Math.max(minWindowSeconds, (int) Math.round(seconds));
     }
 
     private void tryAutoReplant(Player player, Block root, Material rootMaterial, int level) {
