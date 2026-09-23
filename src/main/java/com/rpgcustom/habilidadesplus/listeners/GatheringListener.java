@@ -285,6 +285,22 @@ public class GatheringListener implements Listener {
         showCuttingComboActionBar(player, multiplier);
     }
 
+    private Block findTreeBase(List<Block> logs) {
+        Block best = null;
+        for (Block log : logs) {
+            if (!isWood(log.getType())) continue;
+            Block below = log.getRelative(org.bukkit.block.BlockFace.DOWN);
+            if (!below.getType().isSolid()) continue;
+            if (best == null || log.getY() < best.getY()) best = log;
+        }
+        if (best != null) return best;
+        for (Block log : logs) {
+            if (!isWood(log.getType())) continue;
+            if (best == null || log.getY() < best.getY()) best = log;
+        }
+        return best;
+    }
+
     private void tryAutoReplant(Player player, Block root, Material rootMaterial, int level) {
         int unlock = configManager.config().getInt(
                 "lenhador.replantio-automatico.nivel-desbloqueio", 10);
