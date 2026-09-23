@@ -357,7 +357,7 @@ public class GatheringListener implements Listener, CommandExecutor {
             double maxPorNivel = Math.max(0.0, section.getDouble(selected + ".xp-max-por-nivel", 0.03));
             int xpMinimo = Math.max(1, (int) Math.floor(min + level * minPorNivel));
             int xpMaximo = Math.max(xpMinimo, (int) Math.floor(max + level * maxPorNivel));
-            int limite = Math.max(xpMaximo, section.getInt(selected + ".xp-maximo", 50));
+            int limite = Math.max(1, section.getInt(selected + ".xp-maximo", 50));
             xpMinimo = Math.min(xpMinimo, limite);
             xpMaximo = Math.min(xpMaximo, limite);
             int amount = xpMinimo + random.nextInt(xpMaximo - xpMinimo + 1);
@@ -371,6 +371,7 @@ public class GatheringListener implements Listener, CommandExecutor {
             return;
         }
 
+        int amount = min + random.nextInt(max - min + 1);
         Material material = Material.matchMaterial(itemId);
         if (material == null) return;
         ItemStack treasure = new ItemStack(material, amount);
