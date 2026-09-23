@@ -151,6 +151,15 @@ lenhador:
     nivel-desbloqueio: 10
     # Chance em pontos percentuais por nível. Nível 10 = 1%, nível 1000 = 100%.
     chance-por-nivel: 0.10
+    # Mensagem global exibida a cada 100 árvores replantadas automaticamente.
+    # {jogador} = nickname e {arvores} = total acumulado pelo jogador.
+    mensagem-marco: |
+      &8&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      &6🌱 &e&lGUARDIÃO DA FLORESTA &6🌱
+      &fO jogador &a&l{jogador} &festá ajudando a combater o desmatamento!
+      &7Já são &2&l{arvores} &7árvores replantadas através do Replantio Automático do Lenhador.
+      &6✦ &fCada árvore conta. A floresta agradece! &a🌳
+      &8&m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   ervanismo:
     WHEAT: 45
