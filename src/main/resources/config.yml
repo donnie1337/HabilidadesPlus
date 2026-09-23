@@ -135,15 +135,15 @@ lenhador:
     chance-maxima: 50.0
 
   combo-de-corte:
-    # Janela máxima entre árvores no início da sequência.
-    janela-segundos: 12
-    # Janela mínima exigida nos combos altos.
-    janela-minima-segundos: 6
-    # São necessárias 9 árvores consecutivas para atingir o bônus máximo.
-    combo-maximo: 9
-    # Cada nível de combo adiciona 2,5% do XP base da árvore.
-    # Ex.: combo 2 = +2,5%, combo 5 = +10%, combo 9 = +20%.
-    bonus-xp-por-combo: 2.5
+    # 6 árvores quebradas em até 15s ativam o multiplicador 2x.
+    arvores-para-x2: 6
+    janela-inicial-segundos: 15
+    # Depois do 2x, cada novo nível exige mais 5 árvores em até 12s.
+    # Ex.: +5 árvores -> 3x, +5 -> 4x, e assim por diante.
+    arvores-por-proximo-nivel: 5
+    janela-apos-x2-segundos: 12
+    # Limite de segurança para o multiplicador.
+    multiplicador-maximo: 10
 
   replantio-automatico:
     # Passiva desbloqueada a partir deste nível.
