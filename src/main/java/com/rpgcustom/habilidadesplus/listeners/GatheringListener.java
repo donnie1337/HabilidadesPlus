@@ -5,6 +5,7 @@ import com.rpgcustom.habilidadesplus.util.ConfigManager;
 import com.rpgcustom.habilidadesplus.util.PlacedBlockTracker;
 import com.rpgcustom.habilidadesplus.xp.XpManager;
 import org.bukkit.GameMode;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -41,12 +42,14 @@ public class GatheringListener implements Listener {
             "ervanismo"
     };
 
+    private final JavaPlugin plugin;
     private final ConfigManager configManager;
     private final XpManager xpManager;
     private final PlacedBlockTracker placedBlockTracker;
 
-    public GatheringListener(ConfigManager configManager, XpManager xpManager,
+    public GatheringListener(JavaPlugin plugin, ConfigManager configManager, XpManager xpManager,
                              PlacedBlockTracker placedBlockTracker) {
+        this.plugin = plugin;
         this.configManager = configManager;
         this.xpManager = xpManager;
         this.placedBlockTracker = placedBlockTracker;
