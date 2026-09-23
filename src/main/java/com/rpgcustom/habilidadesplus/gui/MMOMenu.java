@@ -77,7 +77,7 @@ public final class MMOMenu {
         int slot = 10;
         int position = 1;
         for (Map.Entry<java.util.UUID, PlayerProfile> entry : ranking) {
-            inventory.setItem(slot++, rankingPlayerItem(entry.getKey(), entry.getValue().getLevel(selected), position++, config));
+            inventory.setItem(slot++, rankingPlayerItem(entry.getKey(), entry.getValue(), entry.getValue().getLevel(selected), position++, selected, config));
         }
 
         inventory.setItem(31, item(Material.ARROW, "&cVoltar", List.of("", "&7Voltar ao menu principal.")));
@@ -191,8 +191,8 @@ public final class MMOMenu {
         return item(Material.HOPPER, "&bFiltro de Habilidade", lore);
     }
 
-    private static ItemStack rankingPlayerItem(java.util.UUID uuid, int level, int position,
-                                               ConfigManager config) {
+    private static ItemStack rankingPlayerItem(java.util.UUID uuid, PlayerProfile profile, int level, int position,
+                                               SkillType selected, ConfigManager config) {
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) head.getItemMeta();
         if (meta != null) {
@@ -200,7 +200,13 @@ public final class MMOMenu {
             String name = offline.getName() == null ? uuid.toString().substring(0, 8) : offline.getName();
             meta.setOwningPlayer(offline);
             meta.setDisplayName(MessageUtil.colorize("&b#" + position + " &8• &a" + name));
-            meta.setLore(List.of("", MessageUtil.colorize("&fNível: &a" + level)));
+            List<String> lore = new ArrayList<>();
+            lore.add("");
+            if (selected == SkillType.LENHADOR) {
+                lore.add(MessageUtil.colorize("&fÁrvores replantadas: &a" + profile.getLenhadorArvoresReplantadas()));
+            }
+            lore.add(MessageUtil.colorize("&fNível: &a" + level));
+            meta.setLore(lore);
             head.setItemMeta(meta);
         }
         return head;
