@@ -156,29 +156,33 @@ public class GatheringListener implements Listener, CommandExecutor {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onColetaAutomatica(BlockDropItemEvent event) {
         Player player = event.getPlayer();
         if (!coletaAutomaticaAtiva.contains(player.getUniqueId())) return;
 
-        var iterator = event.getItems().iterator();
-        while (iterator.hasNext()) {
-            Item item = iterator.next();
-            ItemStack drop = item.getItemStack();
-            if (drop == null || drop.getType().isAir() || drop.getAmount() <= 0) {
-                iterator.remove();
-                continue;
-            }
+        List<Item> itens = new ArrayList<>(event.getItems());
+        plugin.getServer().getScheduler().runTask(plugin, () -> {
+            if (!player.isOnline()) return;
 
-            Map<Integer, ItemStack> leftovers = player.getInventory().addItem(drop.clone());
-            if (leftovers.isEmpty()) {
-                iterator.remove();
-                continue;
-            }
+            for (Item item : itens) {
+                if (item == null || !item.isValid()) continue;
 
-            ItemStack restante = leftovers.values().iterator().next();
-            item.setItemStack(restante);
-        }
+                ItemStack drop = item.getItemStack();
+                if (drop == null || drop.getType().isAir() || drop.getAmount() <= 0) {
+                    item.remove();
+                    continue;
+                }
+
+                Map<Integer, ItemStack> leftovers = player.getInventory().addItem(drop.clone());
+                if (leftovers.isEmpty()) {
+                    item.remove();
+                } else {
+                    ItemStack restante = leftovers.values().iterator().next();
+                    item.setItemStack(restante);
+                }
+            }
+        });
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
