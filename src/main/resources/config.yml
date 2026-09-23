@@ -184,6 +184,7 @@ escavacao:
         raridade: raro
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.1
         habilitado: true
       disco-13:
         item: MUSIC_DISC_13
@@ -191,6 +192,7 @@ escavacao:
         raridade: raro
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.1
         habilitado: true
       disco-otherside:
         item: MUSIC_DISC_OTHERSIDE
@@ -198,6 +200,7 @@ escavacao:
         raridade: muito-raro
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.03
         habilitado: true
       disco-relic:
         item: MUSIC_DISC_RELIC
@@ -205,6 +208,7 @@ escavacao:
         raridade: muito-raro
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.03
         habilitado: true
       disco-5:
         item: MUSIC_DISC_5
@@ -212,6 +216,7 @@ escavacao:
         raridade: muito-raro
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.02
         habilitado: true
       disco-pigstep:
         item: MUSIC_DISC_PIGSTEP
@@ -219,6 +224,7 @@ escavacao:
         raridade: lendario
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.01
         habilitado: true
       disco-creator:
         item: MUSIC_DISC_CREATOR
@@ -226,6 +232,7 @@ escavacao:
         raridade: lendario
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
       disco-creator-music-box:
         item: MUSIC_DISC_CREATOR_MUSIC_BOX
@@ -233,6 +240,7 @@ escavacao:
         raridade: lendario
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
       disco-precipice:
         item: MUSIC_DISC_PRECIPICE
@@ -240,6 +248,7 @@ escavacao:
         raridade: lendario
         quantidade-min: 1
         quantidade-max: 1
+        peso: 0.005
         habilitado: true
 
     GRASS_BLOCK:
