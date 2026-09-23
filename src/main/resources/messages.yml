@@ -17,7 +17,7 @@ poder:
 level-up:
   # Aviso exibido no chat e no titulo ao atingir 100, 200, 300, 400, 500... em uma habilidade.
   mensagem-global: "&b&lᴘᴏᴅᴇʀ &8• &fO jogador {jogador} &fatingiu o nível &a{nivel} &fem {habilidade}!"
-  actionbar: "&a&lSUBIU DE NÍVEL! &fAgora você é nível &e{nivel} &fem {habilidade}&f!"
+  actionbar: "&a&lSUBIU DE NÍVEL! &fAgora você está no nível &e{nivel} &fem {habilidade}&f!"
   titulo: "&a&lSUBIU DE NÍVEL!"
   subtitulo: "&f{habilidade} agora é nível &e{nivel}&f!"
   som: ENTITY_PLAYER_LEVELUP
