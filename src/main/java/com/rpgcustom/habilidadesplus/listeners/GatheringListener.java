@@ -4,28 +4,35 @@ import com.rpgcustom.habilidadesplus.SkillType;
 import com.rpgcustom.habilidadesplus.util.ConfigManager;
 import com.rpgcustom.habilidadesplus.util.PlacedBlockTracker;
 import com.rpgcustom.habilidadesplus.xp.XpManager;
+import io.papermc.paper.event.entity.EntityDamageItemEvent;
 import org.bukkit.GameMode;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockDropItemEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.entity.Item;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 /**
- * Cobre 4 habilidades de uma vez, pois todas nascem do mesmo evento
- * (quebrar um bloco): Mineracao, Escavacao, Lenhador e Ervanismo.
- *
- * Inclui protecao basica contra "farm" de XP: um bloco colocado pelo
- * proprio jogador nao da XP ao ser quebrado (evita, por exemplo, colocar
- * e quebrar areia repetidamente).
+ * Coleta de Mineracao, Escavacao, Lenhador e Ervanismo.
+ * As mecanicas de Lenhador sao voltadas a madeira e manejo de arvores,
+ * sem misturar com o dano de combate da habilidade Machados.
  */
 public class GatheringListener implements Listener {
 
@@ -41,11 +48,13 @@ public class GatheringListener implements Listener {
             "lenhador",
             "ervanismo"
     };
+    private static final int MAX_TREE_BLOCKS_HARD_LIMIT = 512;
 
     private final JavaPlugin plugin;
     private final ConfigManager configManager;
     private final XpManager xpManager;
     private final PlacedBlockTracker placedBlockTracker;
+    private final Random random = new Random();
 
     public GatheringListener(JavaPlugin plugin, ConfigManager configManager, XpManager xpManager,
                              PlacedBlockTracker placedBlockTracker) {
@@ -55,82 +64,90 @@ public class GatheringListener implements Listener {
         this.placedBlockTracker = placedBlockTracker;
     }
 
-    @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
         if (!configManager.mundoDesabilitado(event.getBlock().getWorld().getName())
-                && isConfiguredGatheringBlock(event.getBlock().getType())) {
-            if (!placedBlockTracker.add(event.getBlock())) {
-                event.setCancelled(true);
-            }
+                && isConfiguredGatheringBlock(event.getBlock().getType())
+                && !placedBlockTracker.add(event.getBlock())) {
+            event.setCancelled(true);
         }
     }
 
-    @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         Block block = event.getBlock();
 
         if (player.getGameMode() == GameMode.CREATIVE) return;
+        if (placedBlockTracker.removeIfPlaced(block)) return;
 
-        if (placedBlockTracker.removeIfPlaced(block)) {
+        Material material = block.getType();
+
+        if (isWood(material)) {
+            handleWoodBreak(event, player, block);
             return;
         }
 
-        Material material = block.getType();
         ItemStack tool = player.getInventory().getItemInMainHand();
         for (int i = 0; i < HABILIDADES.length; i++) {
             Double xp = configManager.xpDeSeConfigurado(SECOES[i], material.name());
-            if (xp == null) {
-                continue;
-            }
+            if (xp == null) continue;
+
             if (HABILIDADES[i] == SkillType.MINERACAO && !isValidMiningTool(block, tool)) {
                 return;
             }
+
             xpManager.addXp(player, HABILIDADES[i], xp);
             return;
         }
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void onBlockExplode(BlockExplodeEvent event) {
-        for (Block block : event.blockList()) {
-            placedBlockTracker.discard(block);
-        }
-    }
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onWoodDrop(BlockDropItemEvent event) {
+        if (!isWood(event.getBlockState().getType())) return;
 
-    @EventHandler(ignoreCancelled = true)
-    public void onEntityExplode(EntityExplodeEvent event) {
-        for (Block block : event.blockList()) {
-            placedBlockTracker.discard(block);
-        }
-    }
+        Player player = event.getPlayer();
+        int level = getLenhadorLevel(player);
+        if (level <= 0) return;
 
-    private boolean isConfiguredGatheringBlock(Material material) {
-        for (String section : SECOES) {
-            if (configManager.xpDeSeConfigurado(section, material.name()) != null) {
-                return true;
+        if (shouldDoubleDrop(level)) {
+            for (Item item : event.getItems()) {
+                ItemStack stack = item.getItemStack();
+                stack.setAmount(Math.min(stack.getMaxStackSize(), stack.getAmount() * 2));
+                item.setItemStack(stack);
             }
         }
-        return false;
+
+        tryRareWoodDrop(player, level);
     }
 
-    private boolean isValidMiningTool(Block block, ItemStack tool) {
-        if (!isPickaxe(tool.getType())) {
-            return false;
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onAxeDamage(EntityDamageItemEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (!isAxe(event.getItem().getType())) return;
+        if (configManager.mundoDesabilitado(player.getWorld().getName())) return;
+
+        int level = getLenhadorLevel(player);
+        if (level <= 0) return;
+
+        double baseChance = level * configManager.config().getDouble(
+                "lenhador.machado-reforcado.chance-preservar-por-nivel", 0.05);
+
+        int efficientUnlock = configManager.config().getInt(
+                "lenhador.colheita-eficiente.nivel-desbloqueio", 100);
+        double efficientBonus = level >= efficientUnlock
+                ? (level - efficientUnlock + 1) * configManager.config().getDouble(
+                "lenhador.colheita-eficiente.bonus-por-nivel", 0.025)
+                : 0.0;
+
+        double chance = Math.min(75.0, baseChance + efficientBonus);
+        if (random.nextDouble() * 100.0 < chance) {
+            event.setCancelled(true);
         }
-        return block.isPreferredTool(tool);
     }
 
-    private boolean isPickaxe(Material material) {
-        return material == Material.WOODEN_PICKAXE
-                || material == Material.STONE_PICKAXE
-                || material == Material.IRON_PICKAXE
-                || material == Material.GOLDEN_PICKAXE
-                || material == Material.DIAMOND_PICKAXE
-                || material == Material.NETHERITE_PICKAXE;
-    }
-}    private void handleWoodBreak(BlockBreakEvent event, Player player, Block root) {
-        int level = xpManager.getDataManager().getProfile(player.getUniqueId()).getLevel(SkillType.LENHADOR);
+    private void handleWoodBreak(BlockBreakEvent event, Player player, Block root) {
+        int level = getLenhadorLevel(player);
         ItemStack tool = player.getInventory().getItemInMainHand();
 
         Double xp = configManager.xpDeSeConfigurado("lenhador", root.getType().name());
@@ -145,39 +162,23 @@ public class GatheringListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onWoodDrop(BlockDropItemEvent event) {
-        if (!isWood(event.getBlockState().getType())) return;
-
-        Player player = event.getPlayer();
-        int level = xpManager.getDataManager().getProfile(player.getUniqueId()).getLevel(SkillType.LENHADOR);
-        if (level <= 0) return;
-
-        boolean doubled = shouldDoubleDrop(level);
-        for (Item item : event.getItems()) {
-            if (doubled) {
-                ItemStack stack = item.getItemStack();
-                stack.setAmount(Math.min(stack.getMaxStackSize(), stack.getAmount() * 2));
-                item.setItemStack(stack);
-            }
-        }
-        tryRareWoodDrop(player, level);
-    }
-
     private void breakTree(Player player, Block root, ItemStack tool, int level) {
         List<Block> logs = collectConnectedLogs(root);
-        int maxBlocks = Math.min(MAX_TREE_BLOCKS_HARD_LIMIT,
-                Math.max(1, configManager.config().getInt("lenhador.tree-feller.max-troncos", 64)));
+        int maxBlocks = Math.min(
+                MAX_TREE_BLOCKS_HARD_LIMIT,
+                Math.max(1, configManager.config().getInt("lenhador.tree-feller.max-troncos", 64))
+        );
         if (logs.size() > maxBlocks) {
             logs = new ArrayList<>(logs.subList(0, maxBlocks));
         }
 
         for (Block log : logs) {
-            if (placedBlockTracker.isPlaced(log)) continue;
-            if (!isWood(log.getType())) continue;
+            if (placedBlockTracker.isPlaced(log) || !isWood(log.getType())) continue;
 
             Double xp = configManager.xpDeSeConfigurado("lenhador", log.getType().name());
-            if (xp != null) xpManager.addXp(player, SkillType.LENHADOR, xp);
+            if (xp != null) {
+                xpManager.addXp(player, SkillType.LENHADOR, xp);
+            }
 
             Collection<ItemStack> drops = log.getDrops(tool, player);
             for (ItemStack drop : drops) {
@@ -187,13 +188,179 @@ public class GatheringListener implements Listener {
                 }
                 log.getWorld().dropItemNaturally(log.getLocation(), copy);
             }
+
             tryRareWoodDrop(player, level);
             log.setType(Material.AIR, false);
         }
 
-        if (configManager.config().getBoolean("lenhador.leaf-cutter.remover-folhas-automaticamente", true)) {
+        if (configManager.config().getBoolean(
+                "lenhador.leaf-cutter.remover-folhas-automaticamente", true)) {
             removeNearbyLeaves(logs, level);
         }
     }
 
+    private void removeNearbyLeaves(List<Block> logs, int level) {
+        if (logs.isEmpty()) return;
 
+        int radius = Math.max(1, configManager.config().getInt("lenhador.leaf-cutter.raio", 5));
+        int maxLeaves = Math.max(1, configManager.config().getInt("lenhador.leaf-cutter.max-folhas", 200));
+
+        Set<String> visited = new HashSet<>();
+        ArrayDeque<Block> queue = new ArrayDeque<>(logs);
+        List<Block> leaves = new ArrayList<>();
+
+        while (!queue.isEmpty() && leaves.size() < maxLeaves) {
+            Block current = queue.poll();
+
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dy = -1; dy <= 1; dy++) {
+                    for (int dz = -1; dz <= 1; dz++) {
+                        Block next = current.getRelative(dx, dy, dz);
+                        String key = next.getWorld().getUID() + ":" + next.getX() + ":" + next.getY() + ":" + next.getZ();
+
+                        if (!visited.add(key)) continue;
+                        if (Math.abs(next.getX() - current.getX()) > radius
+                                || Math.abs(next.getY() - current.getY()) > radius
+                                || Math.abs(next.getZ() - current.getZ()) > radius) {
+                            continue;
+                        }
+
+                        if (isLeaves(next.getType())) {
+                            if (!placedBlockTracker.isPlaced(next)) {
+                                leaves.add(next);
+                                queue.add(next);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        double delayAtLevel1 = configManager.config().getDouble(
+                "lenhador.leaf-cutter.atraso-nivel-1", 20.0);
+        double delayAtLevel1000 = configManager.config().getDouble(
+                "lenhador.leaf-cutter.atraso-nivel-1000", 1.0);
+        int delay = Math.max(1, (int) Math.round(
+                delayAtLevel1 + (delayAtLevel1000 - delayAtLevel1)
+                        * Math.min(1000, level) / 1000.0
+        ));
+
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            for (Block leaf : leaves) {
+                if (isLeaves(leaf.getType()) && !placedBlockTracker.isPlaced(leaf)) {
+                    leaf.setType(Material.AIR, false);
+                }
+            }
+        }, delay);
+    }
+
+    private List<Block> collectConnectedLogs(Block root) {
+        List<Block> result = new ArrayList<>();
+        ArrayDeque<Block> queue = new ArrayDeque<>();
+        Set<String> visited = new HashSet<>();
+        queue.add(root);
+
+        while (!queue.isEmpty() && result.size() < MAX_TREE_BLOCKS_HARD_LIMIT) {
+            Block current = queue.poll();
+            String key = current.getWorld().getUID() + ":" + current.getX() + ":" + current.getY() + ":" + current.getZ();
+            if (!visited.add(key)) continue;
+            if (!isWood(current.getType())) continue;
+
+            result.add(current);
+
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dy = -1; dy <= 1; dy++) {
+                    for (int dz = -1; dz <= 1; dz++) {
+                        if (dx == 0 && dy == 0 && dz == 0) continue;
+                        queue.add(current.getRelative(dx, dy, dz));
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private void tryRareWoodDrop(Player player, int level) {
+        int unlock = configManager.config().getInt(
+                "lenhador.critico-lenhador.nivel-desbloqueio", 500);
+        if (level < unlock) return;
+
+        double base = configManager.config().getDouble(
+                "lenhador.critico-lenhador.chance-no-nivel-desbloqueio", 0.15);
+        double increment = configManager.config().getDouble(
+                "lenhador.critico-lenhador.incremento-por-100-niveis", 0.05);
+        double chance = Math.min(
+                configManager.config().getDouble("lenhador.critico-lenhador.chance-maxima", 0.50),
+                base + Math.max(0, (level - unlock) / 100) * increment
+        );
+
+        if (random.nextDouble() * 100.0 >= chance) return;
+
+        Material[] rewards = {
+                Material.DIAMOND,
+                Material.EMERALD,
+                Material.GOLD_INGOT,
+                Material.IRON_INGOT,
+                Material.LAPIS_LAZULI,
+                Material.REDSTONE
+        };
+        Material reward = rewards[random.nextInt(rewards.length)];
+        player.getWorld().dropItemNaturally(player.getLocation(), new ItemStack(reward));
+    }
+
+    private boolean shouldDoubleDrop(int level) {
+        double chance = Math.min(
+                configManager.config().getDouble("lenhador.double-drop.chance-maxima", 50.0),
+                level * configManager.config().getDouble("lenhador.double-drop.chance-por-nivel", 0.05)
+        );
+        return random.nextDouble() * 100.0 < chance;
+    }
+
+    private int getLenhadorLevel(Player player) {
+        return xpManager.getDataManager().getProfile(player.getUniqueId()).getLevel(SkillType.LENHADOR);
+    }
+
+    private boolean isWood(Material material) {
+        String name = material.name();
+        return name.endsWith("_LOG") || name.endsWith("_STEM");
+    }
+
+    private boolean isLeaves(Material material) {
+        String name = material.name();
+        return name.endsWith("_LEAVES")
+                || material == Material.NETHER_WART_BLOCK
+                || material == Material.WARPED_WART_BLOCK;
+    }
+
+    private boolean isAxe(Material material) {
+        return material == Material.WOODEN_AXE
+                || material == Material.STONE_AXE
+                || material == Material.IRON_AXE
+                || material == Material.GOLDEN_AXE
+                || material == Material.DIAMOND_AXE
+                || material == Material.NETHERITE_AXE;
+    }
+
+    private boolean isConfiguredGatheringBlock(Material material) {
+        for (String section : SECOES) {
+            if (configManager.xpDeSeConfigurado(section, material.name()) != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isValidMiningTool(Block block, ItemStack tool) {
+        return isPickaxe(tool.getType()) && block.isPreferredTool(tool);
+    }
+
+    private boolean isPickaxe(Material material) {
+        return material == Material.WOODEN_PICKAXE
+                || material == Material.STONE_PICKAXE
+                || material == Material.IRON_PICKAXE
+                || material == Material.GOLDEN_PICKAXE
+                || material == Material.DIAMOND_PICKAXE
+                || material == Material.NETHERITE_PICKAXE;
+    }
+}
