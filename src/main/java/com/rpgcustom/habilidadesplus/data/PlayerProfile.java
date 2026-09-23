@@ -15,6 +15,7 @@ public class PlayerProfile {
 
     private final UUID uuid;
     private final Map<SkillType, PlayerSkillData> skills = new EnumMap<>(SkillType.class);
+    private long lenhadorArvoresReplantadas;
 
     public PlayerProfile(UUID uuid) {
         this.uuid = uuid;
@@ -38,6 +39,18 @@ public class PlayerProfile {
     public void setLevel(SkillType type, int level) {
         skills.get(type).setLevel(level);
         skills.get(type).setCurrentXp(0);
+    }
+
+    public long getLenhadorArvoresReplantadas() {
+        return lenhadorArvoresReplantadas;
+    }
+
+    public void setLenhadorArvoresReplantadas(long value) {
+        lenhadorArvoresReplantadas = Math.max(0L, value);
+    }
+
+    public long incrementLenhadorArvoresReplantadas() {
+        return ++lenhadorArvoresReplantadas;
     }
 
     public int getPowerLevel() {
