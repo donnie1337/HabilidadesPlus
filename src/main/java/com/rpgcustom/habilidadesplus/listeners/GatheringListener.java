@@ -106,6 +106,10 @@ public class GatheringListener implements Listener {
             }
 
             xpManager.addXp(player, HABILIDADES[i], xp);
+            if (HABILIDADES[i] == SkillType.MINERACAO) {
+                xpManager.getDataManager().getProfile(player.getUniqueId()).incrementMineracaoBlocosMinerados();
+                xpManager.getDataManager().markDirty(player.getUniqueId());
+            }
             return;
         }
     }
