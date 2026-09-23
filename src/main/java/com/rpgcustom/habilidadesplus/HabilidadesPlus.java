@@ -1,6 +1,7 @@
 package com.rpgcustom.habilidadesplus;
 
 import com.rpgcustom.habilidadesplus.abilities.SuperBreakerManager;
+import com.rpgcustom.habilidadesplus.abilities.SuperEscavadorManager;
 import com.rpgcustom.habilidadesplus.abilities.PrecisionMiningManager;
 import com.rpgcustom.habilidadesplus.abilities.VeioFartoManager;
 import com.rpgcustom.habilidadesplus.commands.LuzCommand;
@@ -37,6 +38,7 @@ public final class HabilidadesPlus extends JavaPlugin {
     private Top1SkillService top1SkillService;
     private PlacedBlockTracker placedBlockTracker;
     private SuperBreakerManager superBreakerManager;
+    private SuperEscavadorManager superEscavadorManager;
     private VeioFartoManager veioFartoManager;
     private PrecisionMiningManager precisionMiningManager;
     private LuzCommand luzCommand;
@@ -60,6 +62,7 @@ public final class HabilidadesPlus extends JavaPlugin {
         }
         this.xpManager = new XpManager(this, dataManager, levelingManager, configManager, top1SkillService);
         this.superBreakerManager = new SuperBreakerManager(this, configManager, dataManager);
+        this.superEscavadorManager = new SuperEscavadorManager(this, configManager, dataManager);
         this.veioFartoManager = new VeioFartoManager(
                 dataManager, configManager, superBreakerManager, placedBlockTracker
         );
@@ -96,6 +99,9 @@ public final class HabilidadesPlus extends JavaPlugin {
         if (superBreakerManager != null) {
             superBreakerManager.stopAll();
         }
+        if (superEscavadorManager != null) {
+            superEscavadorManager.stopAll();
+        }
         if (luzActionBarTask != null) {
             luzActionBarTask.cancel();
         }
@@ -116,8 +122,9 @@ public final class HabilidadesPlus extends JavaPlugin {
 
     private void registerListeners() {
         PluginManager pm = getServer().getPluginManager();
-        pm.registerEvents(new GatheringListener(this, configManager, xpManager, placedBlockTracker), this);
+        pm.registerEvents(new GatheringListener(this, configManager, xpManager, placedBlockTracker, superEscavadorManager), this);
         pm.registerEvents(superBreakerManager, this);
+        pm.registerEvents(superEscavadorManager, this);
         pm.registerEvents(veioFartoManager, this);
         pm.registerEvents(precisionMiningManager, this);
         pm.registerEvents(new FishingListener(configManager, xpManager), this);
