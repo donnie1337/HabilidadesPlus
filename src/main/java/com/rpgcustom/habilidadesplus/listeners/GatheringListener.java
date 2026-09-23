@@ -318,14 +318,24 @@ public class GatheringListener implements Listener {
             return;
         }
 
-        target.setType(sapling, false);
-        PlayerProfile profile = xpManager.getDataManager().getProfile(player.getUniqueId());
-        long replanted = profile.incrementLenhadorArvoresReplantadas();
-        xpManager.getDataManager().markDirty(player.getUniqueId());
+        // Se o tronco clicado for justamente a base da árvore, o BlockBreakEvent
+        // ainda não terminou. Colocar a muda imediatamente faz o processamento
+        // vanilla da quebra destruir a muda junto. Agenda para o próximo tick.
+        plugin.getServer().getScheduler().runTask(plugin, () -> {
+            if (!player.isOnline() || !target.getType().isAir() || !canPlaceSapling(target, sapling)) {
+                return;
+            }
 
-        if (replanted > 0 && replanted % 100 == 0) {
-            broadcastReplantMilestone(player, replanted);
-        }
+            target.setType(sapling, false);
+
+            PlayerProfile profile = xpManager.getDataManager().getProfile(player.getUniqueId());
+            long replanted = profile.incrementLenhadorArvoresReplantadas();
+            xpManager.getDataManager().markDirty(player.getUniqueId());
+
+            if (replanted > 0 && replanted % 100 == 0) {
+                broadcastReplantMilestone(player, replanted);
+            }
+        });
     }
 
     private void broadcastReplantMilestone(Player player, long replanted) {
