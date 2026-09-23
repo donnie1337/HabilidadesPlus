@@ -307,7 +307,7 @@ escavacao:
         quantidade-max: 1
         habilitado: true
       orbe-xp:
-        item: EXPERIENCE_BOTTLE
+        item: XP_ORB
         nivel: 75
         raridade: raro
         quantidade-min: 1
