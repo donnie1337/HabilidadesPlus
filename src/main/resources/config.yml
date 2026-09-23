@@ -132,10 +132,10 @@ lenhador:
   critico-lenhador:
     nivel-desbloqueio: 100
     # 1,0% no nível 100.
-    chance-no-nivel-desbloqueio: 1.0
+    chance-no-nivel-desbloqueio: 2.0
     # +0,25 ponto percentual a cada 100 níveis acima do desbloqueio.
-    incremento-por-100-niveis: 0.25
-    chance-maxima: 5.0
+    incremento-por-100-niveis: 0.50
+    chance-maxima: 10.0
 
   combo-de-corte:
     # Janela máxima entre árvores no início da sequência.
