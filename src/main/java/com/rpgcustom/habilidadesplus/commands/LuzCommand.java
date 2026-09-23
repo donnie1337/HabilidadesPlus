@@ -65,17 +65,17 @@ public final class LuzCommand implements CommandExecutor, Listener {
                 () -> {
                     if (!ativos.contains(player.getUniqueId()) || !player.isOnline()) return;
                     aplicarVisaoNoturna(player);
-                    enviarMensagemGlobal();
+                    enviarMensagemGlobal(player);
                 }
         );
     }
 
-    private void enviarMensagemGlobal() {
+    private void enviarMensagemGlobal(Player player) {
         Plugin chatPlus = Bukkit.getPluginManager().getPlugin("ChatPlus");
         if (chatPlus != null && chatPlus.isEnabled()) {
             try {
-                Method method = chatPlus.getClass().getMethod("sendSystemGlobalMessage", String.class);
-                method.invoke(chatPlus, MENSAGEM_LEITE);
+                Method method = chatPlus.getClass().getMethod("forceGlobalMessage", Player.class, String.class);
+                method.invoke(chatPlus, player, MENSAGEM_LEITE);
                 return;
             } catch (ReflectiveOperationException | LinkageError ignored) {
                 // Cai para o broadcast simples caso a API do ChatPlus não esteja disponível.
