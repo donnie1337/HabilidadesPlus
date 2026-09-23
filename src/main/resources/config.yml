@@ -93,6 +93,38 @@ xp:
     CRIMSON_STEM: 35
     WARPED_STEM: 35
 
+# ------------------------------------------------------------
+# Habilidades de Lenhador
+# ------------------------------------------------------------
+lenhador:
+  double-drop:
+    # Chance base em pontos percentuais por nível. 0,05 = 5% no nível 100.
+    chance-por-nivel: 0.05
+    chance-maxima: 50.0
+
+  tree-feller:
+    nivel-desbloqueio: 25
+    # Limite de segurança para evitar derrubar estruturas enormes.
+    max-troncos: 64
+
+  leaf-cutter:
+    # Remove folhas próximas depois que uma árvore é derrubada pelo Tree Feller.
+    remover-folhas-automaticamente: true
+    raio: 5
+    max-folhas: 200
+
+  machado-reforcado:
+    # Chance de impedir 1 ponto de dano de durabilidade por nível.
+    chance-preservar-por-nivel: 0.05
+
+  critico-lenhador:
+    nivel-desbloqueio: 500
+    # 0,15% no nível 500.
+    chance-no-nivel-desbloqueio: 0.15
+    # +0,05 ponto percentual a cada 100 níveis acima do desbloqueio.
+    incremento-por-100-niveis: 0.05
+    chance-maxima: 0.50
+
   ervanismo:
     WHEAT: 45
     CARROTS: 30
