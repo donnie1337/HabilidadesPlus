@@ -4,19 +4,28 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public final class LuzCommand implements CommandExecutor {
+public final class LuzCommand implements CommandExecutor, Listener {
 
     private static final int DURACAO = PotionEffect.INFINITE_DURATION;
     private static final int PISCADAS = 3;
     private static final long ACTION_BAR_DURATION_TICKS = 40L;
+    private static final String MENSAGEM_LEITE = "Não apague sua luz para caber no mundo de ninguém.";
     private final Set<UUID> ativos = new HashSet<>();
 
     @Override
@@ -42,6 +51,37 @@ public final class LuzCommand implements CommandExecutor {
             mostrarActionBar(player, "§aLuz noturna ativada");
         }
         return true;
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void aoTomarLeite(PlayerItemConsumeEvent event) {
+        if (event.getItem().getType() != Material.MILK_BUCKET) return;
+
+        Player player = event.getPlayer();
+        if (!ativos.contains(player.getUniqueId())) return;
+
+        Bukkit.getScheduler().runTask(
+                org.bukkit.plugin.java.JavaPlugin.getProvidingPlugin(getClass()),
+                () -> {
+                    if (!ativos.contains(player.getUniqueId()) || !player.isOnline()) return;
+                    aplicarVisaoNoturna(player);
+                    enviarMensagemGlobal();
+                }
+        );
+    }
+
+    private void enviarMensagemGlobal() {
+        Plugin chatPlus = Bukkit.getPluginManager().getPlugin("ChatPlus");
+        if (chatPlus != null && chatPlus.isEnabled()) {
+            try {
+                Method method = chatPlus.getClass().getMethod("sendSystemGlobalMessage", String.class);
+                method.invoke(chatPlus, MENSAGEM_LEITE);
+                return;
+            } catch (ReflectiveOperationException | LinkageError ignored) {
+                // Cai para o broadcast simples caso a API do ChatPlus não esteja disponível.
+            }
+        }
+        Bukkit.broadcastMessage("§7[G]§r §f" + MENSAGEM_LEITE);
     }
 
     public void atualizarActionBars() {
