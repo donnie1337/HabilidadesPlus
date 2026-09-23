@@ -95,13 +95,22 @@ public final class SuperEscavadorManager implements Listener {
             removeEfficiencyBonus(player);
             activeTasks.remove(uuid);
             if (player.isOnline()) {
-                player.sendMessage(MessageUtil.colorize("&c&lGIGA BROCA ENCERRADA"));
+                player.sendMessage(MessageUtil.colorize(
+                        configManager.msg("escavacao.super-escavacao-finalizada")
+                ));
             }
         }, durationTicks);
         activeTasks.put(uuid, task);
 
-        player.sendMessage(MessageUtil.colorize("&a&lGIGA BROCA ATIVADA!"));
-        player.sendActionBar(MessageUtil.colorize("&3Giga Broca &8• &f3x EXP &7• &f3x Tesouros &7• &fVelocidade aumentada"));
+        String mensagem = MessageUtil.placeholders(
+                configManager.msg("escavacao.super-escavacao-ativada"),
+                Map.of(
+                        "nivel", String.valueOf(level),
+                        "duracao", formatSeconds(durationTicks),
+                        "recarga", formatSeconds(cooldownTicks)
+                )
+        );
+        player.sendMessage(MessageUtil.colorize(mensagem));
         event.setCancelled(true);
     }
 
@@ -199,6 +208,14 @@ public final class SuperEscavadorManager implements Listener {
             AttributeModifier existing = attribute.getModifier(EFICIENCIA_KEY);
             if (existing != null) attribute.removeModifier(existing);
         }
+    }
+
+    private String formatSeconds(long ticks) {
+        double seconds = ticks / 20.0;
+        if (seconds == Math.rint(seconds)) {
+            return String.valueOf((long) seconds);
+        }
+        return String.format(java.util.Locale.ROOT, "%.1f", seconds);
     }
 
     private long calculateDurationTicks(int level) {
