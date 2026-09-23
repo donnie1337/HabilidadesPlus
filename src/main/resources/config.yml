@@ -112,10 +112,18 @@ lenhador:
     remover-folhas-automaticamente: true
     raio: 5
     max-folhas: 200
+    # Nível 1 = 20 ticks; nível 1000 = 1 tick.
+    atraso-nivel-1: 20.0
+    atraso-nivel-1000: 1.0
 
   machado-reforcado:
     # Chance de impedir 1 ponto de dano de durabilidade por nível.
     chance-preservar-por-nivel: 0.05
+
+  colheita-eficiente:
+    nivel-desbloqueio: 100
+    # Bônus adicional de preservação por nível após o desbloqueio.
+    bonus-por-nivel: 0.025
 
   critico-lenhador:
     nivel-desbloqueio: 500
