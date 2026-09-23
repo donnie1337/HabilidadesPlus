@@ -93,6 +93,257 @@ xp:
     CRIMSON_STEM: 35
     WARPED_STEM: 35
 
+
+# ------------------------------------------------------------
+# Habilidade de Escavacao inspirada no mcMMO
+# Giga Broca, Arqueologia e tesouros configuraveis.
+# ------------------------------------------------------------
+escavacao:
+  duplo-drop:
+    nivel-desbloqueio: 1
+    chance-por-nivel: 0.05
+    chance-maxima: 50.0
+
+  giga-broca:
+    nivel-desbloqueio: 25
+    duracao-nivel-25: 5.0
+    duracao-por-nivel: 0.01
+    duracao-maxima: 20.0
+    recarga-segundos: 120.0
+    amplificador-pressa: 4
+    multiplicador-tesouro: 3.0
+    multiplicador-drop: 3.0
+
+  arqueologia:
+    nivel-desbloqueio: 10
+    chance-base: 0.25
+    chance-por-nivel: 0.015
+    chance-maxima: 12.5
+
+  tesouro-raro:
+    nivel-desbloqueio: 250
+
+  escavador-experiente:
+    nivel-desbloqueio: 100
+    bonus-xp: 0.10
+
+  mestre-da-escavacao:
+    nivel-desbloqueio: 750
+    bonus-chance: 3.0
+
+  # Cada bloco possui sua propria tabela de tesouros, como no mcMMO.
+  # nivel = nivel minimo; raridade = comum ou raro; quantidade = faixa sorteada.
+  tesouros:
+    DIRT:
+      sementes:
+        item: WHEAT_SEEDS
+        nivel: 1
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
+      carvao:
+        item: COAL
+        nivel: 25
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 2
+        habilitado: true
+      ferro:
+        item: IRON_NUGGET
+        nivel: 100
+        raridade: raro
+        quantidade-min: 2
+        quantidade-max: 5
+        habilitado: true
+    GRASS_BLOCK:
+      sementes:
+        item: WHEAT_SEEDS
+        nivel: 1
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
+      cenoura:
+        item: CARROT
+        nivel: 50
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 2
+        habilitado: true
+      ouro:
+        item: GOLD_NUGGET
+        nivel: 250
+        raridade: raro
+        quantidade-min: 2
+        quantidade-max: 5
+        habilitado: true
+    SAND:
+      vidro:
+        item: GLASS
+        nivel: 1
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
+      esmeralda:
+        item: EMERALD
+        nivel: 300
+        raridade: raro
+        quantidade-min: 1
+        quantidade-max: 2
+        habilitado: true
+    RED_SAND:
+      vidro:
+        item: GLASS
+        nivel: 1
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
+      ouro:
+        item: GOLD_NUGGET
+        nivel: 300
+        raridade: raro
+        quantidade-min: 2
+        quantidade-max: 5
+        habilitado: true
+    GRAVEL:
+      pederneira:
+        item: FLINT
+        nivel: 1
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 2
+        habilitado: true
+      ferro:
+        item: IRON_NUGGET
+        nivel: 100
+        raridade: raro
+        quantidade-min: 2
+        quantidade-max: 4
+        habilitado: true
+    CLAY:
+      tijolo:
+        item: BRICK
+        nivel: 1
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
+      lapis:
+        item: LAPIS_LAZULI
+        nivel: 250
+        raridade: raro
+        quantidade-min: 2
+        quantidade-max: 6
+        habilitado: true
+    SOUL_SAND:
+      quartzo:
+        item: QUARTZ
+        nivel: 25
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 2
+        habilitado: true
+      ouro:
+        item: GOLD_NUGGET
+        nivel: 250
+        raridade: raro
+        quantidade-min: 2
+        quantidade-max: 5
+        habilitado: true
+    SOUL_SOIL:
+      osso:
+        item: BONE
+        nivel: 25
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 2
+        habilitado: true
+      ouro:
+        item: GOLD_NUGGET
+        nivel: 300
+        raridade: raro
+        quantidade-min: 2
+        quantidade-max: 5
+        habilitado: true
+    MYCELIUM:
+      fungos:
+        item: BROWN_MUSHROOM
+        nivel: 1
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 2
+        habilitado: true
+      slime:
+        item: SLIME_BALL
+        nivel: 350
+        raridade: raro
+        quantidade-min: 1
+        quantidade-max: 2
+        habilitado: true
+    PODZOL:
+      sementes:
+        item: SPRUCE_SAPLING
+        nivel: 1
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 2
+        habilitado: true
+      ouro:
+        item: GOLD_NUGGET
+        nivel: 300
+        raridade: raro
+        quantidade-min: 2
+        quantidade-max: 5
+        habilitado: true
+    ROOTED_DIRT:
+      glow_berries:
+        item: GLOW_BERRIES
+        nivel: 1
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 2
+        habilitado: true
+      esmeralda:
+        item: EMERALD
+        nivel: 350
+        raridade: raro
+        quantidade-min: 1
+        quantidade-max: 2
+        habilitado: true
+    MUD:
+      clay:
+        item: CLAY_BALL
+        nivel: 1
+        raridade: comum
+        quantidade-min: 1
+        quantidade-max: 3
+        habilitado: true
+      esmeralda:
+        item: EMERALD
+        nivel: 400
+        raridade: raro
+        quantidade-min: 1
+        quantidade-max: 2
+        habilitado: true
+    SNOW_BLOCK:
+      snowball:
+        item: SNOWBALL
+        nivel: 1
+        raridade: comum
+        quantidade-min: 2
+        quantidade-max: 5
+        habilitado: true
+      diamante:
+        item: DIAMOND
+        nivel: 500
+        raridade: raro
+        quantidade-min: 1
+        quantidade-max: 1
+        habilitado: true
+
 # ------------------------------------------------------------
 # Habilidades de Lenhador
 # ------------------------------------------------------------
