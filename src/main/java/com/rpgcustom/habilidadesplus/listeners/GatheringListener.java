@@ -86,6 +86,7 @@ public class GatheringListener implements Listener, CommandExecutor {
     private final Map<UUID, Integer> lastShownCuttingCombo = new HashMap<>();
     private final Set<UUID> treeFellerInProgress = new HashSet<>();
     private final Set<UUID> coletaAutomaticaAtiva = new HashSet<>();
+    private final Map<UUID, Long> ultimaMensagemInventarioCheio = new HashMap<>();
 
     public GatheringListener(JavaPlugin plugin, ConfigManager configManager, XpManager xpManager,
                              PlacedBlockTracker placedBlockTracker, SuperEscavadorManager superEscavadorManager) {
@@ -181,8 +182,13 @@ public class GatheringListener implements Listener, CommandExecutor {
                 } else {
                     ItemStack restante = leftovers.values().iterator().next();
                     item.setItemStack(restante);
-                    player.sendMessage(MessageUtil.colorize(
-                            "&c&lᴄᴏʟᴇᴛᴀ &8• &fSeu inventário está cheio."));
+                    long agora = System.currentTimeMillis();
+                    long ultimaMensagem = ultimaMensagemInventarioCheio.getOrDefault(player.getUniqueId(), 0L);
+                    if (agora - ultimaMensagem >= 100L) {
+                        ultimaMensagemInventarioCheio.put(player.getUniqueId(), agora);
+                        player.sendMessage(MessageUtil.colorize(
+                                "&c&lᴄᴏʟᴇᴛᴀ &8• &fSeu inventário está cheio."));
+                    }
                 }
             }
         });
@@ -267,6 +273,7 @@ public class GatheringListener implements Listener, CommandExecutor {
         clearCuttingCombo(event.getPlayer().getUniqueId());
         treeFellerInProgress.remove(event.getPlayer().getUniqueId());
         coletaAutomaticaAtiva.remove(event.getPlayer().getUniqueId());
+        ultimaMensagemInventarioCheio.remove(event.getPlayer().getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
