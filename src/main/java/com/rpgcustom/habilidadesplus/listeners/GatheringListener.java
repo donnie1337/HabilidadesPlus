@@ -226,33 +226,48 @@ public class GatheringListener implements Listener {
                             continue;
                         }
 
-                        if (isLeaves(next.getType())) {
-                            if (!placedBlockTracker.isPlaced(next)) {
-                                leaves.add(next);
-                                queue.add(next);
-                            }
+                        if (isLeaves(next.getType()) && !placedBlockTracker.isPlaced(next)) {
+                            leaves.add(next);
+                            queue.add(next);
                         }
                     }
                 }
             }
         }
 
-        double delayAtLevel1 = configManager.config().getDouble(
-                "lenhador.leaf-cutter.atraso-nivel-1", 20.0);
-        double delayAtLevel1000 = configManager.config().getDouble(
-                "lenhador.leaf-cutter.atraso-nivel-1000", 1.0);
-        int delay = Math.max(1, (int) Math.round(
-                delayAtLevel1 + (delayAtLevel1000 - delayAtLevel1)
-                        * Math.min(1000, level) / 1000.0
-        ));
+        double totalSeconds = getLeafDecayTimeSeconds(level);
+        double variation = Math.max(0.0, configManager.config().getDouble(
+                "lenhador.leaf-cutter.variacao-aleatoria-segundos", 0.35));
 
-        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            for (Block leaf : leaves) {
+        for (Block leaf : leaves) {
+            double multiplier = 1.0 + ((random.nextDouble() * 2.0 - 1.0) * variation);
+            long delayTicks = Math.max(1L, Math.round(totalSeconds * multiplier * 20.0));
+
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                 if (isLeaves(leaf.getType()) && !placedBlockTracker.isPlaced(leaf)) {
                     leaf.setType(Material.AIR, false);
                 }
-            }
-        }, delay);
+            }, delayTicks);
+        }
+    }
+
+    private double getLeafDecayTimeSeconds(int level) {
+        double level1 = Math.max(1.0, configManager.config().getDouble(
+                "lenhador.leaf-cutter.tempo-nivel-1-segundos", 120.0));
+        double level500 = Math.max(1.0, configManager.config().getDouble(
+                "lenhador.leaf-cutter.tempo-nivel-500-segundos", 30.0));
+        double level1000 = Math.max(1.0, configManager.config().getDouble(
+                "lenhador.leaf-cutter.tempo-nivel-1000-segundos", 12.0));
+
+        int clampedLevel = Math.max(1, Math.min(1000, level));
+
+        if (clampedLevel <= 500) {
+            double progress = (clampedLevel - 1) / 499.0;
+            return level1 + (level500 - level1) * progress;
+        }
+
+        double progress = (clampedLevel - 500) / 500.0;
+        return level500 + (level1000 - level500) * progress;
     }
 
     private List<Block> collectConnectedLogs(Block root) {
@@ -329,9 +344,7 @@ public class GatheringListener implements Listener {
 
     private boolean isLeaves(Material material) {
         String name = material.name();
-        return name.endsWith("_LEAVES")
-                || material == Material.NETHER_WART_BLOCK
-                || material == Material.WARPED_WART_BLOCK;
+        return name.endsWith("_LEAVES");
     }
 
     private boolean isAxe(Material material) {
