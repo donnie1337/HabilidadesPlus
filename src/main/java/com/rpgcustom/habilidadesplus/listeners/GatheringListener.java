@@ -178,6 +178,9 @@ public class GatheringListener implements Listener, CommandExecutor {
             }
 
             double xpFinal = xp;
+            if (HABILIDADES[i] == SkillType.ERVANISMO) {
+                xpFinal *= herbalismPlantHeight(block, material);
+            }
             if (HABILIDADES[i] == SkillType.ESCAVACAO) {
                 int nivelEscavacao = getExcavationLevel(player);
                 int experienteUnlock = configManager.config().getInt(
@@ -528,7 +531,7 @@ public class GatheringListener implements Listener, CommandExecutor {
         if (!active && random.nextDouble() * 100.0 >= chance) return;
 
         ItemStack seed = replantItem(material);
-        if (seed == null || !consumeOne(player, seed.getType())) return;
+        if (seed == null || !consumeOnePlain(player, seed.getType())) return;
 
         org.bukkit.Location location = block.getLocation();
         plugin.getServer().getScheduler().runTask(plugin, () -> {
@@ -618,8 +621,10 @@ public class GatheringListener implements Listener, CommandExecutor {
         double max = configManager.config().getDouble("ervanismo.polegar-cogumelo.chance-maxima", 50.0);
         int maxLevel = Math.max(1, configManager.config().getInt("ervanismo.polegar-cogumelo.nivel-maximo-chance", 1000));
         double chance = Math.min(max, level * max / maxLevel);
-        consumeOne(player, Material.BROWN_MUSHROOM);
-        consumeOne(player, Material.RED_MUSHROOM);
+        if (!consumeOnePlain(player, Material.BROWN_MUSHROOM)
+                || !consumeOnePlain(player, Material.RED_MUSHROOM)) {
+            return true;
+        }
 
         if (random.nextDouble() * 100.0 < chance) {
             block.setType(Material.MYCELIUM, false);
@@ -643,7 +648,7 @@ public class GatheringListener implements Listener, CommandExecutor {
         };
         if (target == null) return false;
 
-        consumeOne(player, Material.WHEAT_SEEDS);
+        if (!consumeOnePlain(player, Material.WHEAT_SEEDS)) return true;
         double max = configManager.config().getDouble("ervanismo.polegar-verde.chance-maxima", 100.0);
         int maxLevel = Math.max(1, configManager.config().getInt("ervanismo.polegar-verde.nivel-maximo-chance", 1000));
         double chance = Math.min(max, level * max / maxLevel);
@@ -673,21 +678,66 @@ public class GatheringListener implements Listener, CommandExecutor {
     }
 
     private ItemStack hylianTreasure(Material material) {
-        List<Material> pool = new ArrayList<>();
-        if (material == Material.DANDELION || material == Material.POPPY
+        String key = (material == Material.DANDELION || material == Material.POPPY
                 || material == Material.BLUE_ORCHID || material == Material.ALLIUM
                 || material == Material.AZURE_BLUET || material == Material.OXEYE_DAISY
-                || material.name().endsWith("_TULIP")) {
-            pool.add(Material.CARROT);
-            pool.add(Material.POTATO);
-            pool.add(Material.APPLE);
-        } else {
-            pool.add(Material.WHEAT_SEEDS);
-            pool.add(Material.PUMPKIN_SEEDS);
-            pool.add(Material.MELON_SEEDS);
-            pool.add(Material.COCOA_BEANS);
+                || material.name().endsWith("_TULIP")) ? "FLOWERS" : material.name();
+        List<String> configured = configManager.config().getStringList(
+                "ervanismo.tesouros-hylian." + key);
+        if (configured.isEmpty()) {
+            configured = configManager.config().getStringList("ervanismo.tesouros-hylian.GRASS");
         }
+
+        List<Material> pool = new ArrayList<>();
+        for (String name : configured) {
+            Material reward = Material.matchMaterial(name);
+            if (reward != null) pool.add(reward);
+        }
+        if (pool.isEmpty()) return new ItemStack(Material.WHEAT_SEEDS);
         return new ItemStack(pool.get(random.nextInt(pool.size())));
+    }
+
+    private int herbalismPlantHeight(Block block, Material material) {
+        if (material != Material.SUGAR_CANE && material != Material.CACTUS
+                && material != Material.BAMBOO && material != Material.KELP
+                && material != Material.KELP_PLANT && material != Material.CAVE_VINES
+                && material != Material.CAVE_VINES_PLANT && material != Material.WEEPING_VINES
+                && material != Material.TWISTING_VINES && material != Material.CHORUS_PLANT) {
+            return 1;
+        }
+
+        int count = 1;
+        Block current = block.getRelative(BlockFace.UP);
+        while (count < 64 && current.getType() == material) {
+            count++;
+            current = current.getRelative(BlockFace.UP);
+        }
+        return count;
+    }
+
+    private boolean consumeOnePlain(Player player, Material material) {
+        ItemStack[] contents = player.getInventory().getContents();
+        for (int i = 0; i < contents.length; i++) {
+            ItemStack stack = contents[i];
+            if (stack == null || stack.getType() != material || stack.getAmount() <= 0) continue;
+            if (!isPlainHerbalismItem(stack)) continue;
+
+            int newAmount = stack.getAmount() - 1;
+            if (newAmount <= 0) contents[i] = null;
+            else stack.setAmount(newAmount);
+            player.getInventory().setContents(contents);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isPlainHerbalismItem(ItemStack stack) {
+        if (!stack.hasItemMeta()) return true;
+        var meta = stack.getItemMeta();
+        return !meta.hasCustomName()
+                && !meta.hasItemName()
+                && !meta.hasEnchants()
+                && !meta.hasCustomModelDataComponent();
     }
 
     private boolean isHoe(Material material) {
