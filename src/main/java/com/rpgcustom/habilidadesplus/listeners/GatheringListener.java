@@ -536,21 +536,11 @@ public class GatheringListener implements Listener, CommandExecutor {
     }
 
     private void tryHerbalismReplant(Player player, Block block, Material material, int level) {
-        int unlock = configManager.config().getInt(
-                "ervanismo.polegar-verde.nivel-desbloqueio", 100);
+        // Polegar Verde é uma passiva automática a partir do nível 100.
+        int unlock = 100;
         if (level < unlock || !isReplantableHerbalism(material)) {
             return;
         }
-
-        boolean active = isHerbalismActive(player.getUniqueId());
-        double chance = active ? 100.0 : Math.min(
-                configManager.config().getDouble("ervanismo.polegar-verde.chance-maxima", 100.0),
-                level * configManager.config().getDouble("ervanismo.polegar-verde.chance-maxima", 100.0)
-                        / Math.max(1, configManager.config().getInt("ervanismo.polegar-verde.nivel-maximo-chance", 1000)));
-        if (!active && random.nextDouble() * 100.0 >= chance) return;
-
-        ItemStack seed = replantItem(material);
-        if (seed == null || !consumeOnePlain(player, seed.getType())) return;
 
         org.bukkit.Location location = block.getLocation();
         plugin.getServer().getScheduler().runTask(plugin, () -> {
