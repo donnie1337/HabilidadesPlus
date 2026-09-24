@@ -29,7 +29,7 @@ public final class SkillCatalog {
                     implemented("Tesouro Raro",100,Material.GOLD_INGOT,"Desbloqueia tesouros raros nas tabelas de Arqueologia."),
                     implemented("Mestre da Escavação",150,Material.NETHERITE_SHOVEL,"Aumenta ainda mais a chance de encontrar tesouros."));
             case ERVANISMO -> d("Transforme plantações em colheitas mais produtivas.",
-                    active("Colheita Viva",25,Material.WHEAT,"Ative com uma enxada para garantir drop duplo durante o efeito."),
+                    active("Colheita Viva",25,Material.WHEAT,"Ative com uma enxada para aplicar a chance de drop duplo do seu nível durante o efeito."),
                     implemented("Sementes de Retorno",25,Material.WHEAT_SEEDS,"Chance progressiva de replantar automaticamente culturas maduras."),
                     implemented("Jardim Próspero",75,Material.BONE_MEAL,"Aumenta progressivamente a chance de drop duplo, sem drop triplo."));
             case PESCA -> d("Pesque com técnica e encontre tesouros nas águas.", p("Isca de Sorte",5,Material.FISHING_ROD,"Melhora levemente a chance de tesouros."),p("Linha Firme",30,Material.TRIPWIRE_HOOK,"Reduz a chance de perder a pesca."),p("Maré Generosa",75,Material.HEART_OF_THE_SEA,"Chance de ganhar uma pesca adicional."));
