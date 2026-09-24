@@ -468,7 +468,7 @@ public final class MMOMenu {
         lore.add("");
         lore.add(message(config, "gui.item-poder-nivel", Map.of("nivel", String.valueOf(power.level()))));
         String color = !power.implemented() ? "&8" : unlocked ? "&b" : "&8";
-        return item(power.icon(), color + power.name(), lore);
+        return item(power.icon(), color + power.name() + " &8(" + skill.getDisplayName() + ")", lore);
     }
 
     private static ItemStack profileItem(Player player, PlayerProfile profile, ConfigManager config) {
