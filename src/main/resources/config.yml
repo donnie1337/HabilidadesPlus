@@ -99,19 +99,128 @@ xp:
     WARPED_STEM: 35
 
   ervanismo:
-    WHEAT: 45
-    CARROTS: 30
-    POTATOES: 30
-    BEETROOTS: 35
+    WHEAT: 50
+    CARROTS: 50
+    POTATOES: 50
+    BEETROOTS: 50
     NETHER_WART: 50
-    MELON: 25
-    PUMPKIN: 25
-    SUGAR_CANE: 20
-    CACTUS: 20
+    MELON: 20
+    PUMPKIN: 20
+    SUGAR_CANE: 30
+    CACTUS: 30
     BAMBOO: 10
     COCOA: 30
-    SWEET_BERRY_BUSH: 25
+    SWEET_BERRY_BUSH: 50
+    TORCHFLOWER: 90
+    PITCHER_CROP: 160
+    BIG_DRIPLEAF: 140
+    SMALL_DRIPLEAF: 140
+    CAVE_VINES: 90
+    CAVE_VINES_PLANT: 90
+    MOSS_BLOCK: 150
+    PALE_MOSS_BLOCK: 10
+    PALE_MOSS_CARPET: 10
+    PALE_HANGING_MOSS: 150
+    BROWN_MUSHROOM: 150
+    RED_MUSHROOM: 150
+    CRIMSON_FUNGUS: 50
+    WARPED_FUNGUS: 50
+    SHROOMLIGHT: 250
+    NETHER_SPROUTS: 10
+    CRIMSON_ROOTS: 6
+    WARPED_ROOTS: 6
+    NETHER_WART_BLOCK: 3
+    WARPED_WART_BLOCK: 3
+    LILY_PAD: 100
+    SEAGRASS: 10
+    TALL_SEAGRASS: 10
+    KELP: 3
+    KELP_PLANT: 3
+    CHORUS_FLOWER: 25
+    CHORUS_PLANT: 1
+    CACTUS_FLOWER: 60
+    DEAD_BUSH: 30
+    GRASS: 10
+    SHORT_GRASS: 10
+    FERN: 10
+    VINE: 10
+    TALL_GRASS: 50
+    LARGE_FERN: 50
+    DANDELION: 100
+    POPPY: 100
+    ALLIUM: 300
+    AZURE_BLUET: 150
+    CORNFLOWER: 150
+    BLUE_ORCHID: 150
+    OXEYE_DAISY: 150
+    ORANGE_TULIP: 150
+    PINK_TULIP: 150
+    RED_TULIP: 150
+    WHITE_TULIP: 150
+    LILY_OF_THE_VALLEY: 150
+    WITHER_ROSE: 500
+    LILAC: 50
+    PEONY: 50
+    ROSE_BUSH: 50
+    SUNFLOWER: 50
+    FIRE_FLY_BUSH: 15
+    WILDFLOWERS: 15
+    PINK_PETALS: 10
+    LEAF_LITTER: 2
+    GLOW_LICHEN: 1
+    SHORT_DRY_GRASS: 6
+    TALL_DRY_GRASS: 12
+    BEE_NEST: 200
 
+# ------------------------------------------------------------
+# Habilidades de Herbalismo
+# ------------------------------------------------------------
+ervanismo:
+  duplo-drop:
+    nivel-desbloqueio: 1
+    chance-maxima: 100.0
+    nivel-maximo-chance: 1000
+
+  terra-verde:
+    nivel-desbloqueio: 50
+    duracao-segundos: 20
+    recarga-segundos: 120
+
+  polegar-verde:
+    nivel-desbloqueio: 250
+    chance-maxima: 100.0
+    nivel-maximo-chance: 1000
+
+  dieta-fazendeiro:
+    nivel-1: 200
+    nivel-2: 400
+    nivel-3: 600
+    nivel-4: 800
+    nivel-5: 1000
+    bonus-fome-por-rank: 1
+
+  sorte-hylian:
+    chance-maxima: 10.0
+    nivel-maximo-chance: 1000
+
+  polegar-cogumelo:
+    chance-maxima: 50.0
+    nivel-maximo-chance: 1000
+
+  colheita-verdejante:
+    nivel-desbloqueio: 1000
+    chance-maxima: 50.0
+    nivel-maximo-chance: 1000
+
+  tesouros-hylian:
+    GRASS: [WHEAT_SEEDS, PUMPKIN_SEEDS, MELON_SEEDS, COCOA_BEANS]
+    SHORT_GRASS: [WHEAT_SEEDS, PUMPKIN_SEEDS, MELON_SEEDS, COCOA_BEANS]
+    FERN: [WHEAT_SEEDS, PUMPKIN_SEEDS, MELON_SEEDS, COCOA_BEANS]
+    LARGE_FERN: [WHEAT_SEEDS, PUMPKIN_SEEDS, MELON_SEEDS, COCOA_BEANS]
+    DEAD_BUSH: [WHEAT_SEEDS, PUMPKIN_SEEDS, MELON_SEEDS, COCOA_BEANS]
+    DANDELION: [CARROT, POTATO, APPLE]
+    POPPY: [CARROT, POTATO, APPLE]
+    FLOWERS: [CARROT, POTATO, APPLE]
 
 # ------------------------------------------------------------
 # Habilidade de Escavacao inspirada no mcMMO
