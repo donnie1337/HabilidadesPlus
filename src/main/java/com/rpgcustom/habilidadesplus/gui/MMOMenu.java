@@ -353,9 +353,13 @@ public final class MMOMenu {
                 double cooldown = config.config().getDouble("ervanismo.terra-verde.recarga-segundos", 120.0);
                 lore.add("&d⌛ &fDuração: &e" + formatSeconds(duration) + " segundo(s)");
                 lore.add("&b• &fRecarga: &e" + formatSeconds(cooldown) + " segundo(s)");
-                int harvestsPerOrb = Math.max(1, config.config().getInt("ervanismo.terra-verde.colheitas-por-orbe-xp", 20));
-                int xpPerOrb = Math.max(1, config.config().getInt("ervanismo.terra-verde.xp-por-orbe", 5));
-                lore.add("&b• &fRecompensa: &e1 orbe de XP &f(" + xpPerOrb + " XP) a cada &e" + harvestsPerOrb + " colheitas");
+                double chancePorNivel = Math.max(0.0, config.config().getDouble("ervanismo.terra-verde.chance-orbe-xp-por-nivel", 0.05));
+                double chanceMaxima = Math.max(0.0, config.config().getDouble("ervanismo.terra-verde.chance-orbe-xp-maxima", 50.0));
+                double chance = Math.min(chanceMaxima, level * chancePorNivel);
+                int xpMinimo = Math.max(1, config.config().getInt("ervanismo.terra-verde.xp-minimo-por-orbe", 1));
+                int xpMaximo = Math.max(xpMinimo, config.config().getInt("ervanismo.terra-verde.xp-maximo-por-orbe", 5));
+                lore.add("&b• &fChance de orbe: &e" + formatPercent(chance) + "%");
+                lore.add("&b• &fXP por orbe: &e" + xpMinimo + "–" + xpMaximo);
             }
             if (power.name().equals("Dieta de Fazendeiro")) {
                 int rank = farmerDietRank(level, config);
