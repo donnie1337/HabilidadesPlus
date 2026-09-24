@@ -31,6 +31,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.entity.EntityExplodeEvent;
@@ -95,6 +96,7 @@ public class GatheringListener implements Listener, CommandExecutor {
     private final Map<UUID, Long> ultimaMensagemInventarioCheio = new HashMap<>();
     private final Map<UUID, Long> herbalismActiveUntil = new HashMap<>();
     private final Map<UUID, Long> herbalismCooldownUntil = new HashMap<>();
+    private final Set<String> hylianPending = new HashSet<>();
 
     public GatheringListener(JavaPlugin plugin, ConfigManager configManager, XpManager xpManager,
                              PlacedBlockTracker placedBlockTracker, SuperEscavadorManager superEscavadorManager) {
@@ -122,6 +124,19 @@ public class GatheringListener implements Listener, CommandExecutor {
         if (player.getGameMode() == GameMode.CREATIVE) return;
 
         Material material = block.getType();
+
+        if (isHylianEligible(material)
+                && isSword(player.getInventory().getItemInMainHand().getType())
+                && configManager.habilidadeAtiva(player)) {
+            int level = getHerbalismLevel(player);
+            double max = configManager.config().getDouble("ervanismo.sorte-hylian.chance-maxima", 10.0);
+            int maxLevel = Math.max(1, configManager.config().getInt("ervanismo.sorte-hylian.nivel-maximo-chance", 1000));
+            double chance = Math.min(max, level * max / maxLevel);
+            if (level > 0 && random.nextDouble() * 100.0 < chance) {
+                hylianPending.add(hylianKey(player, block));
+            }
+        }
+
         if (placedBlockTracker.isPlaced(block) && isHerbalismBlock(material)) {
             if (!isMatureHerbalismBlock(block)) {
                 placedBlockTracker.discard(block);
@@ -271,39 +286,47 @@ public class GatheringListener implements Listener, CommandExecutor {
         }
 
         Player player = event.getPlayer();
-        if (!isHoe(player.getInventory().getItemInMainHand().getType())
-                || !configManager.habilidadeAtiva(player)) {
-            return;
-        }
-        if (event.getClickedBlock() != null && event.getClickedBlock().getType().isInteractable()) {
+        if (!configManager.habilidadeAtiva(player)) return;
+        int level = getHerbalismLevel(player);
+        ItemStack held = player.getInventory().getItemInMainHand();
+        Block clicked = event.getClickedBlock();
+
+        if (clicked != null && tryHerbalismBlockConversion(player, clicked, held, level)) {
+            event.setCancelled(true);
             return;
         }
 
-        int level = getHerbalismLevel(player);
-        int unlock = configManager.config().getInt(
-                "ervanismo.colheita-viva.nivel-desbloqueio", 25);
-        if (level < unlock || isHerbalismActive(player.getUniqueId())) {
+        if (clicked != null && tryShroomThumb(player, clicked, held, level)) {
+            event.setCancelled(true);
             return;
         }
+
+        if (!isHoe(held.getType())) return;
+
+        if (clicked != null && clicked.getType().isInteractable()) return;
+
+        int unlock = configManager.config().getInt(
+                "ervanismo.terra-verde.nivel-desbloqueio", 50);
+        if (level < unlock || isHerbalismActive(player.getUniqueId())) return;
 
         long now = System.currentTimeMillis();
         long cooldownEnd = herbalismCooldownUntil.getOrDefault(player.getUniqueId(), 0L);
         if (now < cooldownEnd) {
             long seconds = Math.max(1L, (long) Math.ceil((cooldownEnd - now) / 1000.0));
             player.sendMessage(MessageUtil.colorize(
-                    "&c&lCOLHEITA VIVA &8• &fA habilidade está em recarga por &e"
+                    "&c&lTERRA VERDE &8• &fA habilidade está em recarga por &e"
                             + seconds + "s&f."));
             return;
         }
 
         int duration = Math.max(1, configManager.config().getInt(
-                "ervanismo.colheita-viva.duracao-segundos", 20));
+                "ervanismo.terra-verde.duracao-segundos", 20));
         int cooldown = Math.max(duration, configManager.config().getInt(
-                "ervanismo.colheita-viva.recarga-segundos", 120));
+                "ervanismo.terra-verde.recarga-segundos", 120));
         herbalismActiveUntil.put(player.getUniqueId(), now + duration * 1000L);
         herbalismCooldownUntil.put(player.getUniqueId(), now + cooldown * 1000L);
         player.sendMessage(MessageUtil.colorize(
-                "&a&lCOLHEITA VIVA &8• &fAtivada por &e" + duration + "s&f."));
+                "&a&lTERRA VERDE &8• &fAtivada por &e" + duration + "s&f."));
         event.setCancelled(true);
     }
 
@@ -311,6 +334,15 @@ public class GatheringListener implements Listener, CommandExecutor {
     public void onHerbalismDrop(BlockDropItemEvent event) {
         BlockState state = event.getBlockState();
         Material material = state.getType();
+        Player player = event.getPlayer();
+        String hylianKey = hylianKey(player, event.getBlock());
+        if (hylianPending.remove(hylianKey)) {
+            for (Item item : event.getItems()) item.remove();
+            event.getItems().clear();
+            ItemStack treasure = hylianTreasure(material);
+            event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), treasure);
+            return;
+        }
         if (!isHerbalismBlock(material) || !isMatureHerbalismState(state)) {
             return;
         }
@@ -318,18 +350,25 @@ public class GatheringListener implements Listener, CommandExecutor {
             return;
         }
 
-        Player player = event.getPlayer();
         if (!configManager.habilidadeAtiva(player)) {
             return;
         }
 
         int level = getHerbalismLevel(player);
-        // Colheita Viva usa a mesma chance progressiva do nível; nunca garante 100%.
-        boolean doubleDrop = shouldHerbalismDoubleDrop(level);
-        if (doubleDrop) {
+        int multiplier = isHerbalismActive(player.getUniqueId()) ? 3 : 1;
+
+        if (multiplier == 1 && shouldHerbalismDoubleDrop(level)) {
+            multiplier = 2;
+        }
+
+        if (multiplier == 1 && shouldHerbalismTripleDrop(level)) {
+            multiplier = 3;
+        }
+
+        if (multiplier > 1) {
             for (Item item : event.getItems()) {
                 ItemStack stack = item.getItemStack();
-                stack.setAmount(Math.min(stack.getMaxStackSize(), stack.getAmount() * 2));
+                stack.setAmount(Math.min(stack.getMaxStackSize(), stack.getAmount() * multiplier));
                 item.setItemStack(stack);
             }
         }
@@ -380,6 +419,7 @@ public class GatheringListener implements Listener, CommandExecutor {
         ultimaMensagemInventarioCheio.remove(event.getPlayer().getUniqueId());
         herbalismActiveUntil.remove(event.getPlayer().getUniqueId());
         herbalismCooldownUntil.remove(event.getPlayer().getUniqueId());
+        hylianPending.removeIf(key -> key.startsWith(event.getPlayer().getUniqueId().toString() + ":"));
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -431,20 +471,21 @@ public class GatheringListener implements Listener, CommandExecutor {
     }
 
     private boolean shouldHerbalismDoubleDrop(int level) {
-        int unlock = configManager.config().getInt(
-                "ervanismo.duplo-drop.nivel-desbloqueio", 1);
+        int unlock = configManager.config().getInt("ervanismo.duplo-drop.nivel-desbloqueio", 1);
         if (level < unlock) return false;
+        double max = configManager.config().getDouble("ervanismo.duplo-drop.chance-maxima", 100.0);
+        int maxLevel = Math.max(1, configManager.config().getInt("ervanismo.duplo-drop.nivel-maximo-chance", 1000));
+        double chance = Math.min(max, level * max / maxLevel);
+        return random.nextDouble() * 100.0 < chance;
+    }
 
-        double chance = level * configManager.config().getDouble(
-                "ervanismo.duplo-drop.chance-por-nivel", 0.05);
-        int gardenUnlock = configManager.config().getInt(
-                "ervanismo.jardim-prospero.nivel-desbloqueio", 75);
-        if (level >= gardenUnlock) {
-            chance += (level - gardenUnlock + 1) * configManager.config().getDouble(
-                    "ervanismo.jardim-prospero.bonus-chance-por-nivel", 0.025);
-        }
-        chance = Math.min(configManager.config().getDouble(
-                "ervanismo.jardim-prospero.chance-maxima", 50.0), chance);
+    private boolean shouldHerbalismTripleDrop(int level) {
+        int unlock = configManager.config().getInt("ervanismo.colheita-verdejante.nivel-desbloqueio", 1000);
+        if (level < unlock) return false;
+        double max = configManager.config().getDouble("ervanismo.colheita-verdejante.chance-maxima", 50.0);
+        int maxLevel = Math.max(unlock, configManager.config().getInt(
+                "ervanismo.colheita-verdejante.nivel-maximo-chance", 1000));
+        double chance = Math.min(max, level * max / maxLevel);
         return random.nextDouble() * 100.0 < chance;
     }
 
@@ -479,35 +520,174 @@ public class GatheringListener implements Listener, CommandExecutor {
             return;
         }
 
-        double chance = Math.min(100.0, level * configManager.config().getDouble(
-                "ervanismo.sementes-de-retorno.chance-por-nivel", 0.10));
-        if (random.nextDouble() * 100.0 >= chance) {
-            return;
-        }
+        boolean active = isHerbalismActive(player.getUniqueId());
+        double chance = active ? 100.0 : Math.min(
+                configManager.config().getDouble("ervanismo.polegar-verde.chance-maxima", 100.0),
+                level * configManager.config().getDouble("ervanismo.polegar-verde.chance-maxima", 100.0)
+                        / Math.max(1, configManager.config().getInt("ervanismo.polegar-verde.nivel-maximo-chance", 1000)));
+        if (!active && random.nextDouble() * 100.0 >= chance) return;
+
+        ItemStack seed = replantItem(material);
+        if (seed == null || !consumeOne(player, seed.getType())) return;
 
         org.bukkit.Location location = block.getLocation();
         plugin.getServer().getScheduler().runTask(plugin, () -> {
             Block target = location.getBlock();
-            if (!player.isOnline() || !target.getType().isAir()) {
-                return;
-            }
+            if (!player.isOnline() || !target.getType().isAir()) return;
 
             BlockData data = material.createBlockData();
-            if (data instanceof Ageable ageable) {
-                ageable.setAge(0);
-            }
+            if (data instanceof Ageable ageable) ageable.setAge(0);
             target.setBlockData(data, false);
         });
     }
 
     private boolean isReplantableHerbalism(Material material) {
-        return material == Material.WHEAT
-                || material == Material.CARROTS
-                || material == Material.POTATOES
-                || material == Material.BEETROOTS
-                || material == Material.NETHER_WART
-                || material == Material.COCOA
-                || material == Material.SWEET_BERRY_BUSH;
+        return replantItem(material) != null;
+    }
+
+    private ItemStack replantItem(Material material) {
+        return switch (material) {
+            case WHEAT -> new ItemStack(Material.WHEAT_SEEDS);
+            case CARROTS -> new ItemStack(Material.CARROT);
+            case POTATOES -> new ItemStack(Material.POTATO);
+            case BEETROOTS -> new ItemStack(Material.BEETROOT_SEEDS);
+            case NETHER_WART -> new ItemStack(Material.NETHER_WART);
+            case COCOA -> new ItemStack(Material.COCOA_BEANS);
+            case TORCHFLOWER -> new ItemStack(Material.TORCHFLOWER_SEEDS);
+            case SWEET_BERRY_BUSH -> new ItemStack(Material.SWEET_BERRIES);
+            default -> null;
+        };
+    }
+
+    private boolean consumeOne(Player player, Material material) {
+        ItemStack[] contents = player.getInventory().getContents();
+        for (int i = 0; i < contents.length; i++) {
+            ItemStack stack = contents[i];
+            if (stack == null || stack.getType() != material || stack.getAmount() <= 0) continue;
+            stack.setAmount(stack.getAmount() - 1);
+            if (stack.getAmount() <= 0) contents[i] = null;
+            player.getInventory().setContents(contents);
+            return true;
+        }
+        return false;
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onFarmerDiet(FoodLevelChangeEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (!configManager.habilidadeAtiva(player)) return;
+        ItemStack food = event.getItem();
+        if (food == null || !isFarmerFood(food.getType())) return;
+
+        int level = getHerbalismLevel(player);
+        int rank = farmerDietRank(level);
+        if (rank <= 0) return;
+
+        event.setFoodLevel(Math.min(20, event.getFoodLevel() + rank));
+    }
+
+    private int farmerDietRank(int level) {
+        if (level >= configManager.config().getInt("ervanismo.dieta-fazendeiro.nivel-5", 1000)) return 5;
+        if (level >= configManager.config().getInt("ervanismo.dieta-fazendeiro.nivel-4", 800)) return 4;
+        if (level >= configManager.config().getInt("ervanismo.dieta-fazendeiro.nivel-3", 600)) return 3;
+        if (level >= configManager.config().getInt("ervanismo.dieta-fazendeiro.nivel-2", 400)) return 2;
+        if (level >= configManager.config().getInt("ervanismo.dieta-fazendeiro.nivel-1", 200)) return 1;
+        return 0;
+    }
+
+    private boolean isFarmerFood(Material material) {
+        return switch (material) {
+            case BREAD, COOKIE, MELON_SLICE, MUSHROOM_STEW, RABBIT_STEW,
+                 CARROT, POTATO, BAKED_POTATO, BEETROOT, BEETROOT_SOUP,
+                 PUMPKIN_PIE -> true;
+            default -> false;
+        };
+    }
+
+    private boolean tryShroomThumb(Player player, Block block, ItemStack held, int level) {
+        if (block.getType() != Material.DIRT && block.getType() != Material.GRASS_BLOCK) return false;
+        if (held.getType() != Material.BROWN_MUSHROOM) {
+            ItemStack off = player.getInventory().getItemInOffHand();
+            if (off.getType() != Material.BROWN_MUSHROOM) return false;
+        }
+        ItemStack off = player.getInventory().getItemInOffHand();
+        boolean hasBrown = held.getType() == Material.BROWN_MUSHROOM || off.getType() == Material.BROWN_MUSHROOM;
+        boolean hasRed = held.getType() == Material.RED_MUSHROOM || off.getType() == Material.RED_MUSHROOM;
+        if (!hasBrown || !hasRed || level <= 0) return false;
+
+        double max = configManager.config().getDouble("ervanismo.polegar-cogumelo.chance-maxima", 50.0);
+        int maxLevel = Math.max(1, configManager.config().getInt("ervanismo.polegar-cogumelo.nivel-maximo-chance", 1000));
+        double chance = Math.min(max, level * max / maxLevel);
+        consumeOne(player, Material.BROWN_MUSHROOM);
+        consumeOne(player, Material.RED_MUSHROOM);
+
+        if (random.nextDouble() * 100.0 < chance) {
+            block.setType(Material.MYCELIUM, false);
+            player.sendMessage(MessageUtil.colorize("&a&lPOLEGAR DE COGUMELO &8• &fA terra virou &dmicélio&f."));
+        } else {
+            player.sendMessage(MessageUtil.colorize("&c&lPOLEGAR DE COGUMELO &8• &fA tentativa falhou."));
+        }
+        return true;
+    }
+
+    private boolean tryHerbalismBlockConversion(Player player, Block block, ItemStack held, int level) {
+        if (held.getType() != Material.WHEAT_SEEDS || level < configManager.config().getInt("ervanismo.polegar-verde.nivel-desbloqueio", 250)) {
+            return false;
+        }
+        Material target = switch (block.getType()) {
+            case DIRT, DIRT_PATH -> Material.GRASS_BLOCK;
+            case COBBLESTONE -> Material.MOSSY_COBBLESTONE;
+            case COBBLESTONE_WALL -> Material.MOSSY_COBBLESTONE_WALL;
+            case STONE_BRICKS -> Material.MOSSY_STONE_BRICKS;
+            default -> null;
+        };
+        if (target == null) return false;
+
+        consumeOne(player, Material.WHEAT_SEEDS);
+        double max = configManager.config().getDouble("ervanismo.polegar-verde.chance-maxima", 100.0);
+        int maxLevel = Math.max(1, configManager.config().getInt("ervanismo.polegar-verde.nivel-maximo-chance", 1000));
+        double chance = Math.min(max, level * max / maxLevel);
+        if (random.nextDouble() * 100.0 < chance) {
+            block.setType(target, false);
+            player.sendMessage(MessageUtil.colorize("&a&lPOLEGAR VERDE &8• &fA natureza se espalhou."));
+        } else {
+            player.sendMessage(MessageUtil.colorize("&c&lPOLEGAR VERDE &8• &fA tentativa falhou."));
+        }
+        return true;
+    }
+
+    private String hylianKey(Player player, Block block) {
+        return player.getUniqueId() + ":" + block.getWorld().getUID() + ":" + block.getX() + ":" + block.getY() + ":" + block.getZ();
+    }
+
+    private boolean isHylianEligible(Material material) {
+        return material == Material.GRASS || material == Material.SHORT_GRASS
+                || material == Material.FERN || material == Material.LARGE_FERN
+                || material == Material.DEAD_BUSH || material == Material.DANDELION
+                || material == Material.POPPY || material == Material.BLUE_ORCHID
+                || material == Material.ALLIUM || material == Material.AZURE_BLUET
+                || material == Material.OXEYE_DAISY || material == Material.ORANGE_TULIP
+                || material == Material.PINK_TULIP || material == Material.RED_TULIP
+                || material == Material.WHITE_TULIP || material == Material.FLOWER_POT
+                || material.name().endsWith("_SAPLING");
+    }
+
+    private ItemStack hylianTreasure(Material material) {
+        List<Material> pool = new ArrayList<>();
+        if (material == Material.DANDELION || material == Material.POPPY
+                || material == Material.BLUE_ORCHID || material == Material.ALLIUM
+                || material == Material.AZURE_BLUET || material == Material.OXEYE_DAISY
+                || material.name().endsWith("_TULIP")) {
+            pool.add(Material.CARROT);
+            pool.add(Material.POTATO);
+            pool.add(Material.APPLE);
+        } else {
+            pool.add(Material.WHEAT_SEEDS);
+            pool.add(Material.PUMPKIN_SEEDS);
+            pool.add(Material.MELON_SEEDS);
+            pool.add(Material.COCOA_BEANS);
+        }
+        return new ItemStack(pool.get(random.nextInt(pool.size())));
     }
 
     private boolean isHoe(Material material) {
