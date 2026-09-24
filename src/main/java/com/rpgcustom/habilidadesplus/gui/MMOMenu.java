@@ -280,7 +280,7 @@ public final class MMOMenu {
         boolean unlocked = level >= power.level();
         List<String> lore = new ArrayList<>();
         lore.add("");
-        lore.addAll(wrap("&f" + power.description()));
+        lore.addAll(wrap("&7" + power.description()));
         lore.add("");
         if (skill == SkillType.MINERACAO && power.name().equals("Veio Farto")) {
             double chance = Math.min(100.0, level * config.config().getDouble("mineracao.veio-farto.chance-drop-duplo-por-nivel", 0.1));
@@ -289,7 +289,7 @@ public final class MMOMenu {
         if (skill == SkillType.MINERACAO && power.name().equals("Super Quebrador")) {
             double chance = level < 100 ? 0.0 : Math.min(100.0, Math.floor(level / 10.0) * config.config().getDouble("mineracao.superbreaker.chance-drop-triplo-por-nivel", 0.5));
             double duration = superBreakerDuration(level, config);
-            lore.add("&d⌛ &7Duração: &e" + formatSeconds(duration) + " segundo(s)");
+            lore.add("&d⌛ &fDuração: &e" + formatSeconds(duration) + " segundo(s)");
             lore.addAll(wrap("&7Durante o Super Quebrador, o drop pode ser triplicado."));
             lore.add(message(config, "gui.superbreaker-chance", Map.of("chance", formatPercent(chance))));
         }
@@ -313,7 +313,7 @@ public final class MMOMenu {
                         config.config().getDouble("escavacao.giga-broca.duracao-nivel-25", 5.0)
                                 + Math.max(0, level - 25) * config.config().getDouble(
                                 "escavacao.giga-broca.duracao-por-nivel", 0.01));
-                lore.add("&d⌛ &7Duração: &e" + formatPercent(duration) + "s");
+                lore.add("&d⌛ &fDuração: &e" + formatPercent(duration) + "s");
                 lore.add("&d• &fRecarga: &e" + formatPercent(config.config().getDouble(
                         "escavacao.giga-broca.recarga-segundos", 120.0)) + "s");
             }
@@ -345,7 +345,7 @@ public final class MMOMenu {
                         "ervanismo.colheita-viva.duracao-segundos", 20.0);
                 double cooldown = config.config().getDouble(
                         "ervanismo.colheita-viva.recarga-segundos", 120.0);
-                lore.add("&d⌛ &7Duração: &e" + formatSeconds(duration) + " segundo(s)");
+                lore.add("&d⌛ &fDuração: &e" + formatSeconds(duration) + " segundo(s)");
                 lore.add("&d• &fRecarga: &e" + formatSeconds(cooldown) + " segundo(s)");
                 lore.add("&d• &fDrop Duplo: &e100%");
             }
