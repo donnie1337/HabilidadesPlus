@@ -129,6 +129,9 @@ public class GatheringListener implements Listener, CommandExecutor {
                 && isSword(player.getInventory().getItemInMainHand().getType())
                 && configManager.habilidadeAtiva(player)) {
             int level = getHerbalismLevel(player);
+            int hylianUnlock = configManager.config().getInt(
+                    "ervanismo.sorte-hylian.nivel-desbloqueio", 75);
+            if (level < hylianUnlock) return;
             double max = configManager.config().getDouble("ervanismo.sorte-hylian.chance-maxima", 10.0);
             int maxLevel = Math.max(1, configManager.config().getInt("ervanismo.sorte-hylian.nivel-maximo-chance", 1000));
             double chance = Math.min(max, level * max / maxLevel);
@@ -181,7 +184,7 @@ public class GatheringListener implements Listener, CommandExecutor {
             if (HABILIDADES[i] == SkillType.ERVANISMO) {
                 xpFinal *= herbalismPlantHeight(block, material);
                 int colheitaVerdejanteUnlock = configManager.config().getInt(
-                        "ervanismo.colheita-verdejante.nivel-desbloqueio", 1000);
+                        "ervanismo.colheita-verdejante.nivel-desbloqueio", 125);
                 if (getHerbalismLevel(player) >= colheitaVerdejanteUnlock) {
                     double bonusXp = Math.max(0.0, configManager.config().getDouble(
                             "ervanismo.colheita-verdejante.bonus-xp", 0.15));
@@ -316,7 +319,7 @@ public class GatheringListener implements Listener, CommandExecutor {
         if (clicked != null && clicked.getType().isInteractable()) return;
 
         int unlock = configManager.config().getInt(
-                "ervanismo.terra-verde.nivel-desbloqueio", 50);
+                "ervanismo.terra-verde.nivel-desbloqueio", 10);
         if (level < unlock || isHerbalismActive(player.getUniqueId())) return;
 
         long now = System.currentTimeMillis();
@@ -500,7 +503,7 @@ public class GatheringListener implements Listener, CommandExecutor {
     }
 
     private boolean shouldHerbalismDoubleDrop(int level) {
-        int unlock = configManager.config().getInt("ervanismo.duplo-drop.nivel-desbloqueio", 1);
+        int unlock = configManager.config().getInt("ervanismo.duplo-drop.nivel-desbloqueio", 50);
         if (level < unlock) return false;
         double max = configManager.config().getDouble("ervanismo.duplo-drop.chance-maxima", 100.0);
         int maxLevel = Math.max(1, configManager.config().getInt("ervanismo.duplo-drop.nivel-maximo-chance", 1000));
@@ -534,7 +537,7 @@ public class GatheringListener implements Listener, CommandExecutor {
 
     private void tryHerbalismReplant(Player player, Block block, Material material, int level) {
         int unlock = configManager.config().getInt(
-                "ervanismo.polegar-verde.nivel-desbloqueio", 250);
+                "ervanismo.polegar-verde.nivel-desbloqueio", 100);
         if (level < unlock || !isReplantableHerbalism(material)) {
             return;
         }
