@@ -340,38 +340,49 @@ public final class MMOMenu {
 
 
         if (skill == SkillType.ERVANISMO) {
-            if (power.name().equals("Colheita Viva")) {
-                double duration = config.config().getDouble(
-                        "ervanismo.colheita-viva.duracao-segundos", 20.0);
-                double cooldown = config.config().getDouble(
-                        "ervanismo.colheita-viva.recarga-segundos", 120.0);
+            if (power.name().equals("Duplo Drop")) {
+                lore.add("&b• &fChance atual: &e" + formatPercent(herbalismDoubleDropChance(level, config)) + "%");
+            }
+            if (power.name().equals("Terra Verde")) {
+                double duration = config.config().getDouble("ervanismo.terra-verde.duracao-segundos", 20.0);
+                double cooldown = config.config().getDouble("ervanismo.terra-verde.recarga-segundos", 120.0);
                 lore.add("&d⌛ &fDuração: &e" + formatSeconds(duration) + " segundo(s)");
                 lore.add("&b• &fRecarga: &e" + formatSeconds(cooldown) + " segundo(s)");
-                double chance = herbalismDoubleDropChance(level, config);
-                lore.add("&b• &fChance de Drop Duplo: &e" + formatPercent(chance) + "%");
+                lore.add("&7Durante o efeito: &e3x drops &7e Polegar Verde garantido.");
             }
-            if (power.name().equals("Sementes de Retorno")) {
-                int unlock = config.config().getInt(
-                        "ervanismo.sementes-de-retorno.nivel-desbloqueio", 25);
-                double chance = level >= unlock
-                        ? Math.min(100.0, level * config.config().getDouble(
-                        "ervanismo.sementes-de-retorno.chance-por-nivel", 0.10))
-                        : 0.0;
+            if (power.name().equals("Dieta de Fazendeiro")) {
+                int rank = farmerDietRank(level, config);
+                lore.add("&b• &fRank atual: &e" + rank + "&7/5");
+                lore.add("&b• &fBônus: &e+" + rank + " &7fome restaurada");
+            }
+            if (power.name().equals("Polegar Verde")) {
+                double chance = level >= config.config().getInt("ervanismo.polegar-verde.nivel-desbloqueio", 250)
+                        ? Math.min(100.0, level * 100.0 / Math.max(1, config.config().getInt(
+                        "ervanismo.polegar-verde.nivel-maximo-chance", 1000))) : 0.0;
                 lore.add("&b• &fChance de Replantio: &e" + formatPercent(chance) + "%");
             }
-            if (power.name().equals("Jardim Próspero")) {
-                int unlock = config.config().getInt(
-                        "ervanismo.jardim-prospero.nivel-desbloqueio", 75);
-                double base = level * config.config().getDouble(
-                        "ervanismo.duplo-drop.chance-por-nivel", 0.05);
-                double bonus = level >= unlock
-                        ? (level - unlock + 1) * config.config().getDouble(
-                        "ervanismo.jardim-prospero.bonus-chance-por-nivel", 0.025)
+            if (power.name().equals("Sorte de Hylian")) {
+                double chance = Math.min(
+                        config.config().getDouble("ervanismo.sorte-hylian.chance-maxima", 10.0),
+                        level * config.config().getDouble("ervanismo.sorte-hylian.chance-maxima", 10.0)
+                                / Math.max(1, config.config().getInt("ervanismo.sorte-hylian.nivel-maximo-chance", 1000)));
+                lore.add("&b• &fChance de tesouro: &e" + formatPercent(chance) + "%");
+            }
+            if (power.name().equals("Polegar de Cogumelo")) {
+                double chance = Math.min(
+                        config.config().getDouble("ervanismo.polegar-cogumelo.chance-maxima", 50.0),
+                        level * config.config().getDouble("ervanismo.polegar-cogumelo.chance-maxima", 50.0)
+                                / Math.max(1, config.config().getInt("ervanismo.polegar-cogumelo.nivel-maximo-chance", 1000)));
+                lore.add("&b• &fChance de conversão: &e" + formatPercent(chance) + "%");
+            }
+            if (power.name().equals("Colheita Verdejante")) {
+                double chance = level >= config.config().getInt("ervanismo.colheita-verdejante.nivel-desbloqueio", 1000)
+                        ? Math.min(
+                        config.config().getDouble("ervanismo.colheita-verdejante.chance-maxima", 50.0),
+                        level * config.config().getDouble("ervanismo.colheita-verdejante.chance-maxima", 50.0)
+                                / Math.max(1, config.config().getInt("ervanismo.colheita-verdejante.nivel-maximo-chance", 1000)))
                         : 0.0;
-                double chance = Math.min(config.config().getDouble(
-                        "ervanismo.jardim-prospero.chance-maxima", 50.0), base + bonus);
-                lore.add("&b• &fChance de Drop Duplo: &e" + formatPercent(chance) + "%");
-                lore.add("&7Drop Triplo: &cDesativado");
+                lore.add("&b• &fChance de Drop Triplo: &e" + formatPercent(chance) + "%");
             }
         }
 
@@ -566,16 +577,18 @@ public final class MMOMenu {
     }
 
     private static double herbalismDoubleDropChance(int level, ConfigManager config) {
-        double chance = level * config.config().getDouble(
-                "ervanismo.duplo-drop.chance-por-nivel", 0.05);
-        int gardenUnlock = config.config().getInt(
-                "ervanismo.jardim-prospero.nivel-desbloqueio", 75);
-        if (level >= gardenUnlock) {
-            chance += (level - gardenUnlock + 1) * config.config().getDouble(
-                    "ervanismo.jardim-prospero.bonus-chance-por-nivel", 0.025);
-        }
-        return Math.min(config.config().getDouble(
-                "ervanismo.jardim-prospero.chance-maxima", 50.0), chance);
+        double max = config.config().getDouble("ervanismo.duplo-drop.chance-maxima", 100.0);
+        int maxLevel = Math.max(1, config.config().getInt("ervanismo.duplo-drop.nivel-maximo-chance", 1000));
+        return Math.min(max, level * max / maxLevel);
+    }
+
+    private static int farmerDietRank(int level, ConfigManager config) {
+        if (level >= config.config().getInt("ervanismo.dieta-fazendeiro.nivel-5", 1000)) return 5;
+        if (level >= config.config().getInt("ervanismo.dieta-fazendeiro.nivel-4", 800)) return 4;
+        if (level >= config.config().getInt("ervanismo.dieta-fazendeiro.nivel-3", 600)) return 3;
+        if (level >= config.config().getInt("ervanismo.dieta-fazendeiro.nivel-2", 400)) return 2;
+        if (level >= config.config().getInt("ervanismo.dieta-fazendeiro.nivel-1", 200)) return 1;
+        return 0;
     }
 
     private static String formatSeconds(double value) {
