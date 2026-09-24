@@ -280,7 +280,7 @@ public final class MMOMenu {
         boolean unlocked = level >= power.level();
         List<String> lore = new ArrayList<>();
         lore.add("");
-        lore.addAll(wrap("&7" + power.description()));
+        lore.addAll(wrap("&f" + power.description()));
         if (skill == SkillType.MINERACAO && power.name().equals("Veio Farto")) {
             double chance = Math.min(100.0, level * config.config().getDouble("mineracao.veio-farto.chance-drop-duplo-por-nivel", 0.1));
             lore.add(message(config, "gui.veio-farto-chance", Map.of("chance", formatPercent(chance))));
@@ -336,6 +336,42 @@ public final class MMOMenu {
                 int unlock = config.config().getInt("escavacao.mestre-da-escavacao.nivel-desbloqueio", 750);
                 double bonus = config.config().getDouble("escavacao.mestre-da-escavacao.bonus-chance", 3.0);
                 lore.add("&6Bônus de chance: &e+" + formatPercent(level >= unlock ? bonus : 0.0) + "%");
+            }
+        }
+
+
+        if (skill == SkillType.ERVANISMO) {
+            if (power.name().equals("Colheita Viva")) {
+                double duration = config.config().getDouble(
+                        "ervanismo.colheita-viva.duracao-segundos", 20.0);
+                double cooldown = config.config().getDouble(
+                        "ervanismo.colheita-viva.recarga-segundos", 120.0);
+                lore.add("&6⌛ Duração: &e" + formatSeconds(duration) + " segundo(s)");
+                lore.add("&6Recarga: &e" + formatSeconds(cooldown) + " segundo(s)");
+                lore.add("&6Drop Duplo: &e100%");
+            }
+            if (power.name().equals("Sementes de Retorno")) {
+                int unlock = config.config().getInt(
+                        "ervanismo.sementes-de-retorno.nivel-desbloqueio", 25);
+                double chance = level >= unlock
+                        ? Math.min(100.0, level * config.config().getDouble(
+                        "ervanismo.sementes-de-retorno.chance-por-nivel", 0.10))
+                        : 0.0;
+                lore.add("&6Chance de Replantio: &e" + formatPercent(chance) + "%");
+            }
+            if (power.name().equals("Jardim Próspero")) {
+                int unlock = config.config().getInt(
+                        "ervanismo.jardim-prospero.nivel-desbloqueio", 75);
+                double base = level * config.config().getDouble(
+                        "ervanismo.duplo-drop.chance-por-nivel", 0.05);
+                double bonus = level >= unlock
+                        ? (level - unlock + 1) * config.config().getDouble(
+                        "ervanismo.jardim-prospero.bonus-chance-por-nivel", 0.025)
+                        : 0.0;
+                double chance = Math.min(config.config().getDouble(
+                        "ervanismo.jardim-prospero.chance-maxima", 50.0), base + bonus);
+                lore.add("&6Chance de Drop Duplo: &e" + formatPercent(chance) + "%");
+                lore.add("&7Drop Triplo: &cDesativado");
             }
         }
 
@@ -424,9 +460,14 @@ public final class MMOMenu {
             }
         }
 
+        if (power.implemented() && !unlocked) {
+            lore.add("");
+            lore.add("&cVocê precisa do nível " + power.level() + " para desbloquear!");
+        }
+
         lore.add("");
         lore.add(message(config, "gui.item-poder-nivel", Map.of("nivel", String.valueOf(power.level()))));
-        String color = !power.implemented() ? "&8" : unlocked ? "&a" : "&8";
+        String color = !power.implemented() ? "&8" : unlocked ? "&b" : "&8";
         return item(power.icon(), color + power.name(), lore);
     }
 
@@ -522,6 +563,11 @@ public final class MMOMenu {
 
     private static String formatPercent(double value) {
         return String.format(java.util.Locale.US, "%.2f", value).replace(".", ",");
+    }
+
+    private static String formatSeconds(double value) {
+        if (value == Math.rint(value)) return String.valueOf((int) value);
+        return formatPercent(value);
     }
 
     private static String number(double number) {
