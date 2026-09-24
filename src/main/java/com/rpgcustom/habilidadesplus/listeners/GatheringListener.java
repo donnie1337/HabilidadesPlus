@@ -645,7 +645,8 @@ public class GatheringListener implements Listener, CommandExecutor {
     }
 
     private boolean tryHerbalismBlockConversion(Player player, Block block, ItemStack held, int level) {
-        if (held.getType() != Material.WHEAT_SEEDS || level < configManager.config().getInt("ervanismo.polegar-verde.nivel-desbloqueio", 250)) {
+        int polegarVerdeUnlock = 100;
+        if (held.getType() != Material.WHEAT_SEEDS || level < polegarVerdeUnlock) {
             return false;
         }
         Material target = switch (block.getType()) {
