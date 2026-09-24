@@ -4,6 +4,12 @@
 #  Minecraft 26.2 (Chaos Cubed) / Paper / Java 25+
 # ============================================================
 
+# ============================================================
+#  HabilidadesPlus - config.yml
+#  Plugin de RPG customizado inspirado no mcMMO
+#  Minecraft 26.2 (Chaos Cubed) / Paper / Java 25+
+# ============================================================
+
 geral:
   # Multiplicador global aplicado a todo XP ganho (2.0 = dobro de XP, 0.5 = metade)
   multiplicador-xp-global: 1.0
@@ -17,19 +23,19 @@ geral:
 nivelamento:
   # Curva usada para calcular quanto XP e necessario para o proximo nivel.
   # LINEAR:      xp_necessario = xp-base + (nivel-atual * multiplicador)
-  # EXPONENCIAL: xp_necessario = xp-base * (nivel-atual + 1) ^ expoente
+  # EXPONENCIAL: xp-necessario = xp-base * (nivel-atual + 1) ^ expoente
   curva: LINEAR
   xp-base: 250
   multiplicador: 100
   expoente: 1.8
   nivel-maximo: 1000
   # Fator progressivo global aplicado a TODAS as habilidades.
-  # A progressao e bem mais pesada: os niveis iniciais exigem investimento constante e os niveis altos ficam muito demorados.
+  # A progressao mantem os niveis iniciais exigentes, mas reduz a escalada nos niveis altos.
   fator-nivel-100: 3.0
-  fator-nivel-250: 8.0
-  fator-nivel-500: 16.0
-  fator-nivel-750: 30.0
-  fator-nivel-1000: 50.0
+  fator-nivel-250: 5.0
+  fator-nivel-500: 9.0
+  fator-nivel-750: 15.0
+  fator-nivel-1000: 25.0
 
 # ------------------------------------------------------------
 # Fontes de XP por habilidade. Adicione/edite blocos e valores
