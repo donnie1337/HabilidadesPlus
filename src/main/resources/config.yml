@@ -115,7 +115,7 @@ escavacao:
     duracao-por-nivel: 0.01
     duracao-maxima: 20.0
     recarga-segundos: 120.0
-    amplificador-pressa: 4
+    amplificador-pressa: 5
     multiplicador-tesouro: 3.0
     multiplicador-drop: 3.0
     chance-drop-triplo-por-10-niveis: 0.5
