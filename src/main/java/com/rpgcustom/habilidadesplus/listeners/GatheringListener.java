@@ -324,8 +324,8 @@ public class GatheringListener implements Listener, CommandExecutor {
         }
 
         int level = getHerbalismLevel(player);
-        boolean doubleDrop = isHerbalismActive(player.getUniqueId())
-                || shouldHerbalismDoubleDrop(level);
+        // Colheita Viva usa a mesma chance progressiva do nível; nunca garante 100%.
+        boolean doubleDrop = shouldHerbalismDoubleDrop(level);
         if (doubleDrop) {
             for (Item item : event.getItems()) {
                 ItemStack stack = item.getItemStack();
