@@ -565,7 +565,7 @@ public final class MMOMenu {
         return String.format(java.util.Locale.US, "%.2f", value).replace(".", ",");
     }
 
-    private static String herbalismDoubleDropChance(int level, ConfigManager config) {
+    private static double herbalismDoubleDropChance(int level, ConfigManager config) {
         double chance = level * config.config().getDouble(
                 "ervanismo.duplo-drop.chance-por-nivel", 0.05);
         int gardenUnlock = config.config().getInt(
