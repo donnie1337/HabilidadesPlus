@@ -390,6 +390,18 @@ public final class MMOMenu {
             }
         }
 
+        if (skill == SkillType.PESCA) {
+            if (power.name().equals("Isca de Sorte")) {
+                lore.add("&b• &fChance de tesouro: &e" + formatPercent(fishingChance(level, 5, config, "pesca.isca-de-sorte.chance-tesouro-por-nivel", "pesca.isca-de-sorte.chance-maxima", 0.05, 15.0)) + "%");
+            }
+            if (power.name().equals("Linha Firme")) {
+                lore.add("&b• &fChance de preservar a vara: &e" + formatPercent(fishingChance(level, 30, config, "pesca.linha-firme.chance-preservar-por-nivel", "pesca.linha-firme.chance-maxima", 0.05, 50.0)) + "%");
+            }
+            if (power.name().equals("Maré Generosa")) {
+                lore.add("&b• &fChance de captura adicional: &e" + formatPercent(fishingChance(level, 75, config, "pesca.mare-generosa.chance-captura-extra-por-nivel", "pesca.mare-generosa.chance-maxima", 0.05, 25.0)) + "%");
+            }
+        }
+
         if (skill == SkillType.LENHADOR) {
             if (power.name().equals("Derrubada de Árvores")) {
                 int leafLevel = Math.max(1, level);
@@ -578,6 +590,15 @@ public final class MMOMenu {
 
     private static String formatPercent(double value) {
         return String.format(java.util.Locale.US, "%.2f", value).replace(".", ",");
+    }
+
+    private static double fishingChance(int level, int unlock, ConfigManager config,
+                                           String perLevelPath, String maxPath,
+                                           double defaultPerLevel, double defaultMax) {
+        if (level < unlock) return 0.0;
+        double perLevel = Math.max(0.0, config.config().getDouble(perLevelPath, defaultPerLevel));
+        double max = Math.max(0.0, config.config().getDouble(maxPath, defaultMax));
+        return Math.min(max, level * perLevel);
     }
 
     private static double herbalismDoubleDropChance(int level, ConfigManager config) {
