@@ -341,7 +341,6 @@ public class GatheringListener implements Listener, CommandExecutor {
         String hylianKey = hylianKey(player, event.getBlock());
         if (hylianPending.remove(hylianKey)) {
             for (Item item : event.getItems()) item.remove();
-            event.getItems().clear();
             ItemStack treasure = hylianTreasure(material);
             event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), treasure);
             return;
@@ -666,7 +665,7 @@ public class GatheringListener implements Listener, CommandExecutor {
     }
 
     private boolean isHylianEligible(Material material) {
-        return material == Material.GRASS || material == Material.SHORT_GRASS
+        return material == Material.GRASS_BLOCK || material == Material.SHORT_GRASS
                 || material == Material.FERN || material == Material.LARGE_FERN
                 || material == Material.DEAD_BUSH || material == Material.DANDELION
                 || material == Material.POPPY || material == Material.BLUE_ORCHID
