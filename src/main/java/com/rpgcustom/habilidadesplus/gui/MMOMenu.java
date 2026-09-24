@@ -347,7 +347,8 @@ public final class MMOMenu {
                         "ervanismo.colheita-viva.recarga-segundos", 120.0);
                 lore.add("&d⌛ &fDuração: &e" + formatSeconds(duration) + " segundo(s)");
                 lore.add("&b• &fRecarga: &e" + formatSeconds(cooldown) + " segundo(s)");
-                lore.add("&b• &fDrop Duplo: &e100%");
+                double chance = herbalismDoubleDropChance(level, config);
+                lore.add("&b• &fChance de Drop Duplo: &e" + formatPercent(chance) + "%");
             }
             if (power.name().equals("Sementes de Retorno")) {
                 int unlock = config.config().getInt(
@@ -562,6 +563,19 @@ public final class MMOMenu {
 
     private static String formatPercent(double value) {
         return String.format(java.util.Locale.US, "%.2f", value).replace(".", ",");
+    }
+
+    private static String herbalismDoubleDropChance(int level, ConfigManager config) {
+        double chance = level * config.config().getDouble(
+                "ervanismo.duplo-drop.chance-por-nivel", 0.05);
+        int gardenUnlock = config.config().getInt(
+                "ervanismo.jardim-prospero.nivel-desbloqueio", 75);
+        if (level >= gardenUnlock) {
+            chance += (level - gardenUnlock + 1) * config.config().getDouble(
+                    "ervanismo.jardim-prospero.bonus-chance-por-nivel", 0.025);
+        }
+        return Math.min(config.config().getDouble(
+                "ervanismo.jardim-prospero.chance-maxima", 50.0), chance);
     }
 
     private static String formatSeconds(double value) {
