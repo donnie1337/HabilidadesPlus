@@ -19,17 +19,17 @@ nivelamento:
   # LINEAR:      xp_necessario = xp-base + (nivel-atual * multiplicador)
   # EXPONENCIAL: xp_necessario = xp-base * (nivel-atual + 1) ^ expoente
   curva: LINEAR
-  xp-base: 100
-  multiplicador: 45
+  xp-base: 250
+  multiplicador: 100
   expoente: 1.8
   nivel-maximo: 1000
   # Fator progressivo global aplicado a TODAS as habilidades.
-  # A progressao e suave entre os marcos, deixando os niveis altos cada vez mais demorados.
-  fator-nivel-100: 2.0
-  fator-nivel-250: 4.0
-  fator-nivel-500: 8.0
-  fator-nivel-750: 15.0
-  fator-nivel-1000: 25.0
+  # A progressao e bem mais pesada: os niveis iniciais exigem investimento constante e os niveis altos ficam muito demorados.
+  fator-nivel-100: 3.0
+  fator-nivel-250: 8.0
+  fator-nivel-500: 16.0
+  fator-nivel-750: 30.0
+  fator-nivel-1000: 50.0
 
 # ------------------------------------------------------------
 # Fontes de XP por habilidade. Adicione/edite blocos e valores
