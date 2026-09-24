@@ -25,6 +25,8 @@ import java.util.Comparator;
 
 public final class MMOMenu {
     private static final int[] SLOTS = {10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31};
+    // Mantém vazio o slot onde o antigo Polegar de Cogumelo era exibido.
+    private static final int ERVANISMO_EMPTY_POWER_INDEX = 3;
 
     private MMOMenu() {}
 
@@ -224,6 +226,9 @@ public final class MMOMenu {
         PlayerSkillData current = profile.getData(skill);
         List<SkillCatalog.Power> powers = SkillCatalog.definition(skill).powers();
         for (int index = 0; index < powers.size() && index < SLOTS.length; index++) {
+            if (skill == SkillType.ERVANISMO && index == ERVANISMO_EMPTY_POWER_INDEX) {
+                continue;
+            }
             inventory.setItem(SLOTS[index], powerItem(powers.get(index), skill, current.getLevel(), config));
         }
         inventory.setItem(29, profileItem(player, profile, config));
