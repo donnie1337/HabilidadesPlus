@@ -226,10 +226,12 @@ public final class MMOMenu {
         PlayerSkillData current = profile.getData(skill);
         List<SkillCatalog.Power> powers = SkillCatalog.definition(skill).powers();
         for (int index = 0; index < powers.size() && index < SLOTS.length; index++) {
-            if (skill == SkillType.ERVANISMO && index == ERVANISMO_EMPTY_POWER_INDEX) {
-                continue;
+            int slotIndex = index;
+            if (skill == SkillType.ERVANISMO && index >= ERVANISMO_EMPTY_POWER_INDEX) {
+                slotIndex++;
             }
-            inventory.setItem(SLOTS[index], powerItem(powers.get(index), skill, current.getLevel(), config));
+            if (slotIndex >= SLOTS.length) break;
+            inventory.setItem(SLOTS[slotIndex], powerItem(powers.get(index), skill, current.getLevel(), config));
         }
         inventory.setItem(29, profileItem(player, profile, config));
         inventory.setItem(31, item(Material.ARROW, config.msg("gui.voltar-nome"),
