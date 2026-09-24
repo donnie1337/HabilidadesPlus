@@ -183,8 +183,7 @@ public class GatheringListener implements Listener, CommandExecutor {
             double xpFinal = xp;
             if (HABILIDADES[i] == SkillType.ERVANISMO) {
                 xpFinal *= herbalismPlantHeight(block, material);
-                int colheitaVerdejanteUnlock = configManager.config().getInt(
-                        "ervanismo.colheita-verdejante.nivel-desbloqueio", 125);
+                int colheitaVerdejanteUnlock = 125;
                 if (getHerbalismLevel(player) >= colheitaVerdejanteUnlock) {
                     double bonusXp = Math.max(0.0, configManager.config().getDouble(
                             "ervanismo.colheita-verdejante.bonus-xp", 0.15));
@@ -370,9 +369,13 @@ public class GatheringListener implements Listener, CommandExecutor {
         boolean terraVerdeAtivo = isHerbalismActive(player.getUniqueId());
         int multiplier = 1;
 
-        // Terra Verde não multiplica mais os drops. O Duplo Drop permanece independente.
+        // Terra Verde não multiplica mais os drops. Os bônus passivos são independentes.
         if (shouldHerbalismDoubleDrop(level)) {
             multiplier = 2;
+        }
+
+        if (multiplier == 1 && shouldHerbalismTripleDrop(level)) {
+            multiplier = 3;
         }
 
         if (multiplier > 1) {
@@ -507,6 +510,17 @@ public class GatheringListener implements Listener, CommandExecutor {
         if (level < unlock) return false;
         double max = configManager.config().getDouble("ervanismo.duplo-drop.chance-maxima", 100.0);
         int maxLevel = Math.max(1, configManager.config().getInt("ervanismo.duplo-drop.nivel-maximo-chance", 1000));
+        double chance = Math.min(max, level * max / maxLevel);
+        return random.nextDouble() * 100.0 < chance;
+    }
+
+    private boolean shouldHerbalismTripleDrop(int level) {
+        int unlock = 125;
+        if (level < unlock) return false;
+        double max = Math.max(0.0, configManager.config().getDouble(
+                "ervanismo.colheita-verdejante.chance-maxima", 50.0));
+        int maxLevel = Math.max(unlock, configManager.config().getInt(
+                "ervanismo.colheita-verdejante.nivel-maximo-chance", 1000));
         double chance = Math.min(max, level * max / maxLevel);
         return random.nextDouble() * 100.0 < chance;
     }
