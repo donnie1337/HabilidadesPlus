@@ -462,7 +462,6 @@ public final class MMOMenu {
             lore.add("&cVocê precisa do nível " + power.level() + " para desbloquear!");
         }
 
-        lore.add("");
         String color = !power.implemented() ? "&8" : unlocked ? "&a" : "&8";
         return item(power.icon(), color + power.name() + " &8(" + skill.getDisplayName() + ")", lore);
     }
