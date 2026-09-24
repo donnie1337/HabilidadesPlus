@@ -289,7 +289,7 @@ public final class MMOMenu {
         if (skill == SkillType.MINERACAO && power.name().equals("Super Quebrador")) {
             double chance = level < 100 ? 0.0 : Math.min(100.0, Math.floor(level / 10.0) * config.config().getDouble("mineracao.superbreaker.chance-drop-triplo-por-nivel", 0.5));
             double duration = superBreakerDuration(level, config);
-            lore.add("&d⌛ &fDuração: &e" + formatSeconds(duration) + " segundo(s)");
+            lore.add("&d⌛ &7Duração: &e" + formatSeconds(duration) + " segundo(s)");
             lore.addAll(wrap("&7Durante o Super Quebrador, o drop pode ser triplicado."));
             lore.add(message(config, "gui.superbreaker-chance", Map.of("chance", formatPercent(chance))));
         }
@@ -305,7 +305,7 @@ public final class MMOMenu {
                 double chance = Math.min(
                         config.config().getDouble("escavacao.duplo-drop.chance-maxima", 50.0),
                         level * config.config().getDouble("escavacao.duplo-drop.chance-por-nivel", 0.05));
-                lore.add("&d• &fChance atual: &e" + formatPercent(chance) + "%");
+                lore.add("&b• &fChance atual: &e" + formatPercent(chance) + "%");
             }
             if (power.name().equals("Giga Broca")) {
                 double duration = Math.min(
@@ -313,7 +313,7 @@ public final class MMOMenu {
                         config.config().getDouble("escavacao.giga-broca.duracao-nivel-25", 5.0)
                                 + Math.max(0, level - 25) * config.config().getDouble(
                                 "escavacao.giga-broca.duracao-por-nivel", 0.01));
-                lore.add("&d⌛ &fDuração: &e" + formatPercent(duration) + "s");
+                lore.add("&d⌛ &7Duração: &e" + formatPercent(duration) + "s");
                 lore.add("&d• &fRecarga: &e" + formatPercent(config.config().getDouble(
                         "escavacao.giga-broca.recarga-segundos", 120.0)) + "s");
             }
@@ -324,7 +324,7 @@ public final class MMOMenu {
                         config.config().getDouble("escavacao.arqueologia.chance-base", 0.25)
                                 + level * config.config().getDouble("escavacao.arqueologia.chance-por-nivel", 0.015))
                         : 0.0;
-                lore.add("&d• &fChance de tesouro: &e" + formatPercent(chance) + "%");
+                lore.add("&b• &fChance de tesouro: &e" + formatPercent(chance) + "%");
             }
             if (power.name().equals("Escavador Experiente")) {
                 int unlock = config.config().getInt("escavacao.escavador-experiente.nivel-desbloqueio", 100);
@@ -345,7 +345,7 @@ public final class MMOMenu {
                         "ervanismo.colheita-viva.duracao-segundos", 20.0);
                 double cooldown = config.config().getDouble(
                         "ervanismo.colheita-viva.recarga-segundos", 120.0);
-                lore.add("&d⌛ &fDuração: &e" + formatSeconds(duration) + " segundo(s)");
+                lore.add("&d⌛ &7Duração: &e" + formatSeconds(duration) + " segundo(s)");
                 lore.add("&d• &fRecarga: &e" + formatSeconds(cooldown) + " segundo(s)");
                 lore.add("&d• &fDrop Duplo: &e100%");
             }
@@ -356,7 +356,7 @@ public final class MMOMenu {
                         ? Math.min(100.0, level * config.config().getDouble(
                         "ervanismo.sementes-de-retorno.chance-por-nivel", 0.10))
                         : 0.0;
-                lore.add("&d• &fChance de Replantio: &e" + formatPercent(chance) + "%");
+                lore.add("&b• &fChance de Replantio: &e" + formatPercent(chance) + "%");
             }
             if (power.name().equals("Jardim Próspero")) {
                 int unlock = config.config().getInt(
@@ -369,7 +369,7 @@ public final class MMOMenu {
                         : 0.0;
                 double chance = Math.min(config.config().getDouble(
                         "ervanismo.jardim-prospero.chance-maxima", 50.0), base + bonus);
-                lore.add("&d• &fChance de Drop Duplo: &e" + formatPercent(chance) + "%");
+                lore.add("&b• &fChance de Drop Duplo: &e" + formatPercent(chance) + "%");
                 lore.add("&7Drop Triplo: &cDesativado");
             }
         }
@@ -397,7 +397,7 @@ public final class MMOMenu {
             if (power.name().equals("Duplo Drop")) {
                 double chance = Math.min(50.0, level * config.config().getDouble(
                         "lenhador.double-drop.chance-por-nivel", 0.05));
-                lore.add("&d• &fChance atual: &e" + formatPercent(chance) + "%");
+                lore.add("&b• &fChance atual: &e" + formatPercent(chance) + "%");
             }
 
             if (power.name().equals("Machado Reforçado")) {
@@ -410,7 +410,7 @@ public final class MMOMenu {
                         "lenhador.colheita-eficiente.bonus-por-nivel", 0.025)
                         : 0.0;
                 double chance = Math.min(75.0, baseChance + efficientBonus);
-                lore.add("&d• &fChance atual: &e" + formatPercent(chance) + "%");
+                lore.add("&b• &fChance atual: &e" + formatPercent(chance) + "%");
             }
 
             if (power.name().equals("Colheita Eficiente")) {
@@ -424,7 +424,7 @@ public final class MMOMenu {
                 double baseChance = level * config.config().getDouble(
                         "lenhador.machado-reforcado.chance-preservar-por-nivel", 0.05);
                 double totalChance = Math.min(75.0, baseChance + bonus);
-                lore.add("&d• &fChance total do machado: &e" + formatPercent(totalChance) + "%");
+                lore.add("&b• &fChance total do machado: &e" + formatPercent(totalChance) + "%");
             }
 
             if (power.name().equals("Crítico do Lenhador")) {
@@ -434,7 +434,7 @@ public final class MMOMenu {
                 if (level >= unlock) {
                     chance = getLenhadorCriticoChance(level, unlock);
                 }
-                lore.add("&d• &fChance atual: &e" + formatPercent(chance) + "%");
+                lore.add("&b• &fChance atual: &e" + formatPercent(chance) + "%");
             }
 
             if (power.name().equals("Replantio Automático")) {
@@ -444,7 +444,7 @@ public final class MMOMenu {
                         ? Math.min(100.0, level * config.config().getDouble(
                         "lenhador.replantio-automatico.chance-por-nivel", 0.10))
                         : 0.0;
-                lore.add("&d• &fChance atual: &e" + formatPercent(chance) + "%");
+                lore.add("&b• &fChance atual: &e" + formatPercent(chance) + "%");
             }
 
             if (power.name().equals("Combo de Corte")) {
