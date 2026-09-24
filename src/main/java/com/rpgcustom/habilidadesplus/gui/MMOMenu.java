@@ -380,7 +380,7 @@ public final class MMOMenu {
                 lore.add("&b• &fChance de conversão: &e" + formatPercent(chance) + "%");
             }
             if (power.name().equals("Colheita Verdejante")) {
-                double chance = level >= config.config().getInt("ervanismo.colheita-verdejante.nivel-desbloqueio", 1000)
+                double chance = level >= 125
                         ? Math.min(
                         config.config().getDouble("ervanismo.colheita-verdejante.chance-maxima", 50.0),
                         level * config.config().getDouble("ervanismo.colheita-verdejante.chance-maxima", 50.0)
