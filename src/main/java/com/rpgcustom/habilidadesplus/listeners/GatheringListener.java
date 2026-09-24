@@ -142,11 +142,20 @@ public class GatheringListener implements Listener, CommandExecutor {
                 return;
             }
 
-            xpManager.addXp(player, HABILIDADES[i], xp);
-            if (HABILIDADES[i] == SkillType.ESCAVACAO && superEscavadorManager.isActive(player.getUniqueId())) {
-                // Giga Broca segue a referência do mcMMO: 3x EXP durante a habilidade.
-                xpManager.addXp(player, SkillType.ESCAVACAO, xp * 2.0);
+            double xpFinal = xp;
+            if (HABILIDADES[i] == SkillType.ESCAVACAO) {
+                int nivelEscavacao = getExcavationLevel(player);
+                int experienteUnlock = configManager.config().getInt(
+                        "escavacao.escavador-experiente.nivel-desbloqueio", 100);
+                if (nivelEscavacao >= experienteUnlock) {
+                    double bonusXp = Math.max(0.0, configManager.config().getDouble(
+                            "escavacao.escavador-experiente.bonus-xp", 0.10));
+                    xpFinal *= 1.0 + bonusXp;
+                }
             }
+            // A Giga Broca melhora a velocidade, os drops e os tesouros;
+            // não multiplica o XP de escavação.
+            xpManager.addXp(player, HABILIDADES[i], xpFinal);
             if (HABILIDADES[i] == SkillType.ESCAVACAO) {
                 tryExcavationTreasure(player, block, tool);
             }
