@@ -96,6 +96,7 @@ public class GatheringListener implements Listener, CommandExecutor {
     private final Map<UUID, Long> ultimaMensagemInventarioCheio = new HashMap<>();
     private final Map<UUID, Long> herbalismActiveUntil = new HashMap<>();
     private final Map<UUID, Long> herbalismCooldownUntil = new HashMap<>();
+    private final Map<UUID, Integer> terraVerdeHarvests = new HashMap<>();
     private final Set<String> hylianPending = new HashSet<>();
 
     public GatheringListener(JavaPlugin plugin, ConfigManager configManager, XpManager xpManager,
@@ -328,6 +329,7 @@ public class GatheringListener implements Listener, CommandExecutor {
                 "ervanismo.terra-verde.recarga-segundos", 120));
         herbalismActiveUntil.put(player.getUniqueId(), now + duration * 1000L);
         herbalismCooldownUntil.put(player.getUniqueId(), now + cooldown * 1000L);
+        terraVerdeHarvests.put(player.getUniqueId(), 0);
         player.sendMessage(MessageUtil.colorize(
                 "&a&lTERRA VERDE &8• &fAtivada por &e" + duration + "s&f."));
         event.setCancelled(true);
@@ -357,9 +359,12 @@ public class GatheringListener implements Listener, CommandExecutor {
         }
 
         int level = getHerbalismLevel(player);
-        int multiplier = isHerbalismActive(player.getUniqueId()) ? 3 : 1;
+        boolean terraVerdeAtivo = isHerbalismActive(player.getUniqueId());
+        int multiplier = 1;
 
-        if (multiplier == 1 && shouldHerbalismDoubleDrop(level)) {
+        // Terra Verde não multiplica mais os drops. Os bônus passivos de
+        // Duplo Drop e Colheita Verdejante continuam independentes.
+        if (shouldHerbalismDoubleDrop(level)) {
             multiplier = 2;
         }
 
@@ -375,6 +380,9 @@ public class GatheringListener implements Listener, CommandExecutor {
             }
         }
 
+        if (terraVerdeAtivo) {
+            registerTerraVerdeHarvest(player);
+        }
         tryHerbalismReplant(player, event.getBlock(), material, level);
     }
 
@@ -421,6 +429,7 @@ public class GatheringListener implements Listener, CommandExecutor {
         ultimaMensagemInventarioCheio.remove(event.getPlayer().getUniqueId());
         herbalismActiveUntil.remove(event.getPlayer().getUniqueId());
         herbalismCooldownUntil.remove(event.getPlayer().getUniqueId());
+        terraVerdeHarvests.remove(event.getPlayer().getUniqueId());
         hylianPending.removeIf(key -> key.startsWith(event.getPlayer().getUniqueId().toString() + ":"));
     }
 
@@ -470,6 +479,24 @@ public class GatheringListener implements Listener, CommandExecutor {
             return false;
         }
         return true;
+    }
+
+    private void registerTerraVerdeHarvest(Player player) {
+        UUID uuid = player.getUniqueId();
+        int threshold = Math.max(1, configManager.config().getInt(
+                "ervanismo.terra-verde.colheitas-por-orbe-xp", 20));
+        int harvests = terraVerdeHarvests.merge(uuid, 1, Integer::sum);
+        if (harvests < threshold) return;
+
+        int orbs = harvests / threshold;
+        terraVerdeHarvests.put(uuid, harvests % threshold);
+        int xpPerOrb = Math.max(1, configManager.config().getInt(
+                "ervanismo.terra-verde.xp-por-orbe", 5));
+        for (int i = 0; i < orbs; i++) {
+            ExperienceOrb orb = player.getWorld().spawn(
+                    player.getLocation().add(0.0, 0.5, 0.0), ExperienceOrb.class);
+            orb.setExperience(xpPerOrb);
+        }
     }
 
     private boolean shouldHerbalismDoubleDrop(int level) {
