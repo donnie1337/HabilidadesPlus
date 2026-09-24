@@ -515,7 +515,7 @@ public class GatheringListener implements Listener, CommandExecutor {
 
     private void tryHerbalismReplant(Player player, Block block, Material material, int level) {
         int unlock = configManager.config().getInt(
-                "ervanismo.sementes-de-retorno.nivel-desbloqueio", 25);
+                "ervanismo.polegar-verde.nivel-desbloqueio", 250);
         if (level < unlock || !isReplantableHerbalism(material)) {
             return;
         }
@@ -1442,6 +1442,15 @@ public class GatheringListener implements Listener, CommandExecutor {
                 || material == Material.NETHER_WART_BLOCK
                 || material == Material.WARPED_WART_BLOCK
                 || material == Material.SHROOMLIGHT;
+    }
+
+    private boolean isSword(Material material) {
+        return material == Material.WOODEN_SWORD
+                || material == Material.STONE_SWORD
+                || material == Material.IRON_SWORD
+                || material == Material.GOLDEN_SWORD
+                || material == Material.DIAMOND_SWORD
+                || material == Material.NETHERITE_SWORD;
     }
 
     private boolean isAxe(Material material) {
