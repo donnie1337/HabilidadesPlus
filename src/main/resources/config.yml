@@ -914,6 +914,8 @@ mineracao:
   superbreaker:
     # Habilidade desbloqueada a partir deste nivel de Mineracao.
     nivel-desbloqueio: 25
+    # Bônus de eficiência somado à Eficiência da picareta durante a habilidade.
+    amplificador-pressa: 5
     # Duracao progressiva: nivel 10 = 5s, nivel 50 = 6s, nivel 100 = 7s,
     # nivel 250 = 10s, nivel 500 = 15s e nivel 1000 = 20s.
     duracao-nivel-10: 5.0

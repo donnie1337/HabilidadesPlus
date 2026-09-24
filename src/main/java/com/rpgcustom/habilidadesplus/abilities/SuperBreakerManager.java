@@ -31,7 +31,6 @@ import java.util.UUID;
 
 public class SuperBreakerManager implements Listener {
 
-    private static final double EFICIENCIA_BONUS = 20.0;
     private static final NamespacedKey EFICIENCIA_KEY =
             new NamespacedKey("habilidadesplus", "super_quebrador_eficiencia");
 
@@ -148,8 +147,8 @@ public class SuperBreakerManager implements Listener {
     @EventHandler
     public void onBlockDamageAbort(BlockDamageAbortEvent event) {
         Player player = event.getPlayer();
-        if (isActive(player.getUniqueId()) && isCorrectTool(player.getInventory().getItemInMainHand().getType())) {
-            applyEfficiencyBonus(player);
+        if (isActive(player.getUniqueId())) {
+            removeEfficiencyBonus(player);
         }
     }
 
@@ -200,9 +199,15 @@ public class SuperBreakerManager implements Listener {
 
         AttributeInstance attribute = player.getAttribute(Attribute.MINING_EFFICIENCY);
         if (attribute != null) {
+            double efficiencyBonus = Math.max(0.0, configManager.config().getDouble(
+                    "mineracao.superbreaker.amplificador-pressa", 5.0));
+            if (efficiencyBonus <= 0.0) {
+                return;
+            }
+
             AttributeModifier modifier = new AttributeModifier(
                     EFICIENCIA_KEY,
-                    EFICIENCIA_BONUS,
+                    efficiencyBonus,
                     AttributeModifier.Operation.ADD_NUMBER
             );
             attribute.addTransientModifier(modifier);
