@@ -28,7 +28,10 @@ public final class SkillCatalog {
                     implemented("Arqueologia",10,Material.BRUSH,"Aumenta a chance de encontrar tesouros ao escavar."),
                     implemented("Tesouro Raro",100,Material.GOLD_INGOT,"Desbloqueia tesouros raros nas tabelas de Arqueologia."),
                     implemented("Mestre da Escavação",150,Material.NETHERITE_SHOVEL,"Aumenta ainda mais a chance de encontrar tesouros."));
-            case ERVANISMO -> d("Transforme plantações em colheitas mais produtivas.", p("Colheita Viva",5,Material.WHEAT,"Chance de colher produtos extras."),p("Sementes de Retorno",25,Material.WHEAT_SEEDS,"Replanta culturas maduras automaticamente."),p("Jardim Próspero",75,Material.BONE_MEAL,"Aumenta a chance de crescimento acelerado."));
+            case ERVANISMO -> d("Transforme plantações em colheitas mais produtivas.",
+                    active("Colheita Viva",25,Material.WHEAT,"Ative com uma enxada para garantir drop duplo durante o efeito."),
+                    implemented("Sementes de Retorno",25,Material.WHEAT_SEEDS,"Chance progressiva de replantar automaticamente culturas maduras."),
+                    implemented("Jardim Próspero",75,Material.BONE_MEAL,"Aumenta progressivamente a chance de drop duplo, sem drop triplo."));
             case PESCA -> d("Pesque com técnica e encontre tesouros nas águas.", p("Isca de Sorte",5,Material.FISHING_ROD,"Melhora levemente a chance de tesouros."),p("Linha Firme",30,Material.TRIPWIRE_HOOK,"Reduz a chance de perder a pesca."),p("Maré Generosa",75,Material.HEART_OF_THE_SEA,"Chance de ganhar uma pesca adicional."));
             case ALQUIMIA -> d("Prepare poções com maior rendimento e estabilidade.", p("Mistura Estável",10,Material.BREWING_STAND,"Reduz o risco de desperdício no preparo."),p("Essência Densa",75,Material.GLOWSTONE_DUST,"Aumenta a duração de poções próprias."));
             case FUNDICAO -> d("Aprimore fornalhas e aproveite melhor cada recurso fundido.", p("Brasa Eficiente",10,Material.COAL,"Pequena economia de combustível."),p("Liga Refinada",50,Material.IRON_INGOT,"Chance de receber um item fundido extra."),p("Forja Acelerada",100,Material.FURNACE,"Aumenta a velocidade de fundição."));

@@ -12,6 +12,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.data.Ageable;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.ExperienceOrb;
@@ -25,12 +28,15 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.plugin.Plugin;
@@ -87,6 +93,8 @@ public class GatheringListener implements Listener, CommandExecutor {
     private final Set<UUID> treeFellerInProgress = new HashSet<>();
     private final Set<UUID> coletaAutomaticaAtiva = new HashSet<>();
     private final Map<UUID, Long> ultimaMensagemInventarioCheio = new HashMap<>();
+    private final Map<UUID, Long> herbalismActiveUntil = new HashMap<>();
+    private final Map<UUID, Long> herbalismCooldownUntil = new HashMap<>();
 
     public GatheringListener(JavaPlugin plugin, ConfigManager configManager, XpManager xpManager,
                              PlacedBlockTracker placedBlockTracker, SuperEscavadorManager superEscavadorManager) {
@@ -112,11 +120,20 @@ public class GatheringListener implements Listener, CommandExecutor {
         Block block = event.getBlock();
 
         if (player.getGameMode() == GameMode.CREATIVE) return;
-        if (placedBlockTracker.removeIfPlaced(block)) return;
-        if (treeFellerInProgress.contains(player.getUniqueId())) return;
-        if (!configManager.habilidadeAtiva(player)) return;
 
         Material material = block.getType();
+        if (placedBlockTracker.isPlaced(block) && isHerbalismBlock(material)) {
+            if (!isMatureHerbalismBlock(block)) {
+                placedBlockTracker.discard(block);
+                return;
+            }
+            placedBlockTracker.discard(block);
+        } else if (placedBlockTracker.removeIfPlaced(block)) {
+            return;
+        }
+
+        if (treeFellerInProgress.contains(player.getUniqueId())) return;
+        if (!configManager.habilidadeAtiva(player)) return;
 
         if (isWood(material)) {
             // Lenhador só concede XP quando a madeira é quebrada com um machado.
@@ -139,6 +156,9 @@ public class GatheringListener implements Listener, CommandExecutor {
                 return;
             }
             if (HABILIDADES[i] == SkillType.ESCAVACAO && !isValidExcavationTool(tool)) {
+                return;
+            }
+            if (HABILIDADES[i] == SkillType.ERVANISMO && !isMatureHerbalismBlock(block)) {
                 return;
             }
 
@@ -242,6 +262,81 @@ public class GatheringListener implements Listener, CommandExecutor {
         }
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onHerbalismInteract(PlayerInteractEvent event) {
+        if (event.getHand() != EquipmentSlot.HAND
+                || (event.getAction() != Action.RIGHT_CLICK_AIR
+                && event.getAction() != Action.RIGHT_CLICK_BLOCK)) {
+            return;
+        }
+
+        Player player = event.getPlayer();
+        if (!isHoe(player.getInventory().getItemInMainHand().getType())
+                || !configManager.habilidadeAtiva(player)) {
+            return;
+        }
+        if (event.getClickedBlock() != null && event.getClickedBlock().getType().isInteractable()) {
+            return;
+        }
+
+        int level = getHerbalismLevel(player);
+        int unlock = configManager.config().getInt(
+                "ervanismo.colheita-viva.nivel-desbloqueio", 25);
+        if (level < unlock || isHerbalismActive(player.getUniqueId())) {
+            return;
+        }
+
+        long now = System.currentTimeMillis();
+        long cooldownEnd = herbalismCooldownUntil.getOrDefault(player.getUniqueId(), 0L);
+        if (now < cooldownEnd) {
+            long seconds = Math.max(1L, (long) Math.ceil((cooldownEnd - now) / 1000.0));
+            player.sendMessage(MessageUtil.colorize(
+                    "&c&lCOLHEITA VIVA &8• &fA habilidade está em recarga por &e"
+                            + seconds + "s&f."));
+            return;
+        }
+
+        int duration = Math.max(1, configManager.config().getInt(
+                "ervanismo.colheita-viva.duracao-segundos", 20));
+        int cooldown = Math.max(duration, configManager.config().getInt(
+                "ervanismo.colheita-viva.recarga-segundos", 120));
+        herbalismActiveUntil.put(player.getUniqueId(), now + duration * 1000L);
+        herbalismCooldownUntil.put(player.getUniqueId(), now + cooldown * 1000L);
+        player.sendMessage(MessageUtil.colorize(
+                "&a&lCOLHEITA VIVA &8• &fAtivada por &e" + duration + "s&f."));
+        event.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onHerbalismDrop(BlockDropItemEvent event) {
+        BlockState state = event.getBlockState();
+        Material material = state.getType();
+        if (!isHerbalismBlock(material) || !isMatureHerbalismState(state)) {
+            return;
+        }
+        if (placedBlockTracker.consumeProtectedDrop(event.getBlock())) {
+            return;
+        }
+
+        Player player = event.getPlayer();
+        if (!configManager.habilidadeAtiva(player)) {
+            return;
+        }
+
+        int level = getHerbalismLevel(player);
+        boolean doubleDrop = isHerbalismActive(player.getUniqueId())
+                || shouldHerbalismDoubleDrop(level);
+        if (doubleDrop) {
+            for (Item item : event.getItems()) {
+                ItemStack stack = item.getItemStack();
+                stack.setAmount(Math.min(stack.getMaxStackSize(), stack.getAmount() * 2));
+                item.setItemStack(stack);
+            }
+        }
+
+        tryHerbalismReplant(player, event.getBlock(), material, level);
+    }
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onWoodDrop(BlockDropItemEvent event) {
         if (placedBlockTracker.consumeProtectedDrop(event.getBlock())) return;
@@ -283,6 +378,8 @@ public class GatheringListener implements Listener, CommandExecutor {
         treeFellerInProgress.remove(event.getPlayer().getUniqueId());
         coletaAutomaticaAtiva.remove(event.getPlayer().getUniqueId());
         ultimaMensagemInventarioCheio.remove(event.getPlayer().getUniqueId());
+        herbalismActiveUntil.remove(event.getPlayer().getUniqueId());
+        herbalismCooldownUntil.remove(event.getPlayer().getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -317,6 +414,109 @@ public class GatheringListener implements Listener, CommandExecutor {
                 ? "&a&lᴄᴏʟᴇᴛᴀ &8• &fVocê ativou a coleta automática de itens."
                 : "&c&lᴄᴏʟᴇᴛᴀ &8• &fVocê desativou a coleta automática de itens."));
         return true;
+    }
+
+    private int getHerbalismLevel(Player player) {
+        return xpManager.getDataManager().getProfile(player.getUniqueId()).getLevel(SkillType.ERVANISMO);
+    }
+
+    private boolean isHerbalismActive(UUID uuid) {
+        Long until = herbalismActiveUntil.get(uuid);
+        if (until == null) return false;
+        if (until <= System.currentTimeMillis()) {
+            herbalismActiveUntil.remove(uuid);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean shouldHerbalismDoubleDrop(int level) {
+        int unlock = configManager.config().getInt(
+                "ervanismo.duplo-drop.nivel-desbloqueio", 1);
+        if (level < unlock) return false;
+
+        double chance = level * configManager.config().getDouble(
+                "ervanismo.duplo-drop.chance-por-nivel", 0.05);
+        int gardenUnlock = configManager.config().getInt(
+                "ervanismo.jardim-prospero.nivel-desbloqueio", 75);
+        if (level >= gardenUnlock) {
+            chance += (level - gardenUnlock + 1) * configManager.config().getDouble(
+                    "ervanismo.jardim-prospero.bonus-chance-por-nivel", 0.025);
+        }
+        chance = Math.min(configManager.config().getDouble(
+                "ervanismo.jardim-prospero.chance-maxima", 50.0), chance);
+        return random.nextDouble() * 100.0 < chance;
+    }
+
+    private boolean isHerbalismBlock(Material material) {
+        return configManager.xpDeSeConfigurado("ervanismo", material.name()) != null;
+    }
+
+    private boolean isMatureHerbalismBlock(Block block) {
+        return isMatureHerbalismData(block.getType(), block.getBlockData());
+    }
+
+    private boolean isMatureHerbalismState(BlockState state) {
+        return isMatureHerbalismData(state.getType(), state.getBlockData());
+    }
+
+    private boolean isMatureHerbalismData(Material material, BlockData data) {
+        if (material == Material.SUGAR_CANE
+                || material == Material.CACTUS
+                || material == Material.BAMBOO) {
+            return true;
+        }
+        if (data instanceof Ageable ageable) {
+            return ageable.getAge() >= ageable.getMaximumAge();
+        }
+        return true;
+    }
+
+    private void tryHerbalismReplant(Player player, Block block, Material material, int level) {
+        int unlock = configManager.config().getInt(
+                "ervanismo.sementes-de-retorno.nivel-desbloqueio", 25);
+        if (level < unlock || !isReplantableHerbalism(material)) {
+            return;
+        }
+
+        double chance = Math.min(100.0, level * configManager.config().getDouble(
+                "ervanismo.sementes-de-retorno.chance-por-nivel", 0.10));
+        if (random.nextDouble() * 100.0 >= chance) {
+            return;
+        }
+
+        org.bukkit.Location location = block.getLocation();
+        plugin.getServer().getScheduler().runTask(plugin, () -> {
+            Block target = location.getBlock();
+            if (!player.isOnline() || !target.getType().isAir()) {
+                return;
+            }
+
+            BlockData data = material.createBlockData();
+            if (data instanceof Ageable ageable) {
+                ageable.setAge(0);
+            }
+            target.setBlockData(data, false);
+        });
+    }
+
+    private boolean isReplantableHerbalism(Material material) {
+        return material == Material.WHEAT
+                || material == Material.CARROTS
+                || material == Material.POTATOES
+                || material == Material.BEETROOTS
+                || material == Material.NETHER_WART
+                || material == Material.COCOA
+                || material == Material.SWEET_BERRY_BUSH;
+    }
+
+    private boolean isHoe(Material material) {
+        return material == Material.WOODEN_HOE
+                || material == Material.STONE_HOE
+                || material == Material.IRON_HOE
+                || material == Material.GOLDEN_HOE
+                || material == Material.DIAMOND_HOE
+                || material == Material.NETHERITE_HOE;
     }
 
     private void tryExcavationTreasure(Player player, Block block, ItemStack tool) {
