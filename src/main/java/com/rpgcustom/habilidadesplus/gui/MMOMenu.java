@@ -363,10 +363,7 @@ public final class MMOMenu {
                 lore.add("&b• &fBônus: &e+" + rank + " &7fome restaurada");
             }
             if (power.name().equals("Polegar Verde")) {
-                double chance = level >= config.config().getInt("ervanismo.polegar-verde.nivel-desbloqueio", 250)
-                        ? Math.min(100.0, level * 100.0 / Math.max(1, config.config().getInt(
-                        "ervanismo.polegar-verde.nivel-maximo-chance", 1000))) : 0.0;
-                lore.add("&b• &fChance de Replantio: &e" + formatPercent(chance) + "%");
+                lore.add("&b• &fReplantio automático: &aAtivado no nível 100");
             }
             if (power.name().equals("Sorte de Hylian")) {
                 double chance = Math.min(
