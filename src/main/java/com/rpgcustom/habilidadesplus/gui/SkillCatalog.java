@@ -30,7 +30,7 @@ public final class SkillCatalog {
                     implemented("Mestre da Escavação",150,Material.NETHERITE_SHOVEL,"Aumenta ainda mais a chance de encontrar tesouros."));
             case ERVANISMO -> d("Colete plantas, domine as plantações e espalhe a vida pelo mundo.",
                     implemented("Duplo Drop",1,Material.WHEAT,"Chance de receber o dobro dos drops de Herbalismo."),
-                    active("Terra Verde",50,Material.WHEAT,"Habilidade ativa com enxada: melhora o replantio, concede 3x drops e espalha a vida pelos blocos."),
+                    active("Terra Verde",50,Material.WHEAT,"Habilidade ativa com enxada: melhora o replantio e concede um orbe de XP a cada 20 colheitas."),
                     implemented("Dieta de Fazendeiro",200,Material.BREAD,"Aumenta a fome restaurada por alimentos cultivados."),
                     implemented("Polegar Verde",250,Material.WHEAT_SEEDS,"Replanta culturas maduras automaticamente consumindo a semente necessária."),
                     implemented("Sorte de Hylian",100,Material.IRON_SWORD,"Chance de encontrar tesouros ao cortar pequenas plantas com uma espada."),
