@@ -32,7 +32,7 @@ public final class SkillCatalog {
                     implemented("Duplo Drop",50,Material.WHEAT,"Chance de receber o dobro dos drops de Herbalismo."),
                     active("Terra Verde",10,Material.WHEAT,"Habilidade ativa com enxada: melhora o replantio e pode conceder orbes de XP aleatórios ao colher."),
                     implemented("Dieta de Fazendeiro",200,Material.BREAD,"Aumenta a fome restaurada por alimentos cultivados."),
-                    implemented("Polegar Verde",100,Material.WHEAT_SEEDS,"Replanta culturas maduras automaticamente consumindo a semente necessária."),
+                    implemented("Polegar Verde",100,Material.WHEAT_SEEDS,"Replanta automaticamente toda plantação madura após a colheita."),
                     implemented("Sorte de Hylian",75,Material.IRON_SWORD,"Chance de encontrar tesouros ao cortar pequenas plantas com uma espada."),
                     implemented("Colheita Verdejante",125,Material.GOLDEN_CARROT,"Aumenta em 15% o XP de Herbalismo recebido ao colher plantas maduras."));
             case PESCA -> d("Pesque com técnica e encontre tesouros nas águas.", p("Isca de Sorte",5,Material.FISHING_ROD,"Melhora levemente a chance de tesouros."),p("Linha Firme",30,Material.TRIPWIRE_HOOK,"Reduz a chance de perder a pesca."),p("Maré Generosa",75,Material.HEART_OF_THE_SEA,"Chance de ganhar uma pesca adicional."));
