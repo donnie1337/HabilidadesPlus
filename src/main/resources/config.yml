@@ -185,6 +185,9 @@ ervanismo:
     nivel-desbloqueio: 50
     duracao-segundos: 20
     recarga-segundos: 120
+    # Concede um orbe de XP a cada 20 colheitas durante o efeito.
+    colheitas-por-orbe-xp: 20
+    xp-por-orbe: 5
 
   polegar-verde:
     nivel-desbloqueio: 250
@@ -878,25 +881,6 @@ escavacao:
         quantidade-max: 1
         peso: 0.005
         habilitado: true
-
-# ------------------------------------------------------------
-# Habilidades de Herbalismo
-# ------------------------------------------------------------
-ervanismo:
-  duplo-drop:
-    nivel-desbloqueio: 1
-    chance-por-nivel: 0.05
-  colheita-viva:
-    nivel-desbloqueio: 25
-    duracao-segundos: 20
-    recarga-segundos: 120
-  sementes-de-retorno:
-    nivel-desbloqueio: 25
-    chance-por-nivel: 0.10
-  jardim-prospero:
-    nivel-desbloqueio: 75
-    bonus-chance-por-nivel: 0.025
-    chance-maxima: 50.0
 
 # ------------------------------------------------------------
 # Habilidades de Lenhador
