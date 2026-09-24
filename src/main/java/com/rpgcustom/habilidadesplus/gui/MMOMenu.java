@@ -288,6 +288,8 @@ public final class MMOMenu {
         }
         if (skill == SkillType.MINERACAO && power.name().equals("Super Quebrador")) {
             double chance = level < 100 ? 0.0 : Math.min(100.0, Math.floor(level / 10.0) * config.config().getDouble("mineracao.superbreaker.chance-drop-triplo-por-nivel", 0.5));
+            double duration = superBreakerDuration(level, config);
+            lore.add("&d⌛ &fDuração: &e" + formatSeconds(duration) + " segundo(s)");
             lore.addAll(wrap("&7Durante o Super Quebrador, o drop pode ser triplicado."));
             lore.add(message(config, "gui.superbreaker-chance", Map.of("chance", formatPercent(chance))));
         }
@@ -565,6 +567,32 @@ public final class MMOMenu {
     private static String formatSeconds(double value) {
         if (value == Math.rint(value)) return String.valueOf((int) value);
         return formatPercent(value);
+    }
+
+    private static double superBreakerDuration(int level, ConfigManager config) {
+        return interpolate(level,
+                new int[]{10, 50, 100, 150, 200, 250, 500, 1000},
+                new double[]{
+                        config.config().getDouble("mineracao.superbreaker.duracao-nivel-10", 5.0),
+                        config.config().getDouble("mineracao.superbreaker.duracao-nivel-50", 6.0),
+                        config.config().getDouble("mineracao.superbreaker.duracao-nivel-100", 7.0),
+                        config.config().getDouble("mineracao.superbreaker.duracao-nivel-150", 8.0),
+                        config.config().getDouble("mineracao.superbreaker.duracao-nivel-200", 9.0),
+                        config.config().getDouble("mineracao.superbreaker.duracao-nivel-250", 10.0),
+                        config.config().getDouble("mineracao.superbreaker.duracao-nivel-500", 15.0),
+                        config.config().getDouble("mineracao.superbreaker.duracao-nivel-1000", 20.0)
+                });
+    }
+
+    private static double interpolate(int level, int[] levels, double[] values) {
+        if (level <= levels[0]) return values[0];
+        for (int i = 1; i < levels.length; i++) {
+            if (level <= levels[i]) {
+                double ratio = (level - levels[i - 1]) / (double) (levels[i] - levels[i - 1]);
+                return values[i - 1] + (values[i] - values[i - 1]) * ratio;
+            }
+        }
+        return values[values.length - 1];
     }
 
     private static String number(double number) {
