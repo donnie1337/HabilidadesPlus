@@ -34,7 +34,6 @@ public final class SkillCatalog {
                     implemented("Dieta de Fazendeiro",200,Material.BREAD,"Aumenta a fome restaurada por alimentos cultivados."),
                     implemented("Polegar Verde",250,Material.WHEAT_SEEDS,"Replanta culturas maduras automaticamente consumindo a semente necessária."),
                     implemented("Sorte de Hylian",100,Material.IRON_SWORD,"Chance de encontrar tesouros ao cortar pequenas plantas com uma espada."),
-                    implemented("Polegar de Cogumelo",150,Material.BROWN_MUSHROOM,"Chance de transformar terra ou grama em micélio usando os dois cogumelos."),
                     implemented("Colheita Verdejante",1000,Material.GOLDEN_CARROT,"Chance independente de transformar um drop em triplo no fim da progressão."));
             case PESCA -> d("Pesque com técnica e encontre tesouros nas águas.", p("Isca de Sorte",5,Material.FISHING_ROD,"Melhora levemente a chance de tesouros."),p("Linha Firme",30,Material.TRIPWIRE_HOOK,"Reduz a chance de perder a pesca."),p("Maré Generosa",75,Material.HEART_OF_THE_SEA,"Chance de ganhar uma pesca adicional."));
             case ALQUIMIA -> d("Prepare poções com maior rendimento e estabilidade.", p("Mistura Estável",10,Material.BREWING_STAND,"Reduz o risco de desperdício no preparo."),p("Essência Densa",75,Material.GLOWSTONE_DUST,"Aumenta a duração de poções próprias."));
