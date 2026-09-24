@@ -314,7 +314,7 @@ public final class MMOMenu {
                                 + Math.max(0, level - 25) * config.config().getDouble(
                                 "escavacao.giga-broca.duracao-por-nivel", 0.01));
                 lore.add("&d⌛ &fDuração: &e" + formatPercent(duration) + "s");
-                lore.add("&d• &fRecarga: &e" + formatPercent(config.config().getDouble(
+                lore.add("&b• &fRecarga: &e" + formatPercent(config.config().getDouble(
                         "escavacao.giga-broca.recarga-segundos", 120.0)) + "s");
             }
             if (power.name().equals("Arqueologia")) {
@@ -329,7 +329,7 @@ public final class MMOMenu {
             if (power.name().equals("Escavador Experiente")) {
                 int unlock = config.config().getInt("escavacao.escavador-experiente.nivel-desbloqueio", 100);
                 double bonus = config.config().getDouble("escavacao.escavador-experiente.bonus-xp", 0.10) * 100.0;
-                lore.add("&d• &fBônus de XP em tesouros: &e+" + formatPercent(level >= unlock ? bonus : 0.0) + "%");
+                lore.add("&b• &fBônus de XP em tesouros: &e+" + formatPercent(level >= unlock ? bonus : 0.0) + "%");
             }
             if (power.name().equals("Mestre da Escavação")) {
                 int unlock = config.config().getInt("escavacao.mestre-da-escavacao.nivel-desbloqueio", 750);
@@ -346,8 +346,8 @@ public final class MMOMenu {
                 double cooldown = config.config().getDouble(
                         "ervanismo.colheita-viva.recarga-segundos", 120.0);
                 lore.add("&d⌛ &fDuração: &e" + formatSeconds(duration) + " segundo(s)");
-                lore.add("&d• &fRecarga: &e" + formatSeconds(cooldown) + " segundo(s)");
-                lore.add("&d• &fDrop Duplo: &e100%");
+                lore.add("&b• &fRecarga: &e" + formatSeconds(cooldown) + " segundo(s)");
+                lore.add("&b• &fDrop Duplo: &e100%");
             }
             if (power.name().equals("Sementes de Retorno")) {
                 int unlock = config.config().getInt(
@@ -391,7 +391,7 @@ public final class MMOMenu {
                     double t = Math.min(1.0, (leafLevel - 500) / 500.0);
                     tempo = tempoNivel500 + (tempoNivel1000 - tempoNivel500) * t;
                 }
-                lore.add("&d• &fCorte de Folhas: &e" + formatPercent(tempo) + "s para folhas");
+                lore.add("&b• &fCorte de Folhas: &e" + formatPercent(tempo) + "s para folhas");
             }
 
             if (power.name().equals("Duplo Drop")) {
@@ -420,7 +420,7 @@ public final class MMOMenu {
                         ? (level - unlock + 1) * config.config().getDouble(
                         "lenhador.colheita-eficiente.bonus-por-nivel", 0.025)
                         : 0.0;
-                lore.add("&d• &fBônus atual: &e+" + formatPercent(bonus) + "%");
+                lore.add("&b• &fBônus atual: &e+" + formatPercent(bonus) + "%");
                 double baseChance = level * config.config().getDouble(
                         "lenhador.machado-reforcado.chance-preservar-por-nivel", 0.05);
                 double totalChance = Math.min(75.0, baseChance + bonus);
@@ -455,7 +455,7 @@ public final class MMOMenu {
                 double bonusPorCombo = Math.max(0.0, config.config().getDouble(
                         "lenhador.combo-de-corte.bonus-xp-por-combo", 5.0));
                 double maxBonus = level >= unlock ? (maxCombo - 1) * bonusPorCombo : 0.0;
-                lore.add("&d• &fBônus máximo atual: &e+" + formatPercent(maxBonus) + "% XP");
+                lore.add("&b• &fBônus máximo atual: &e+" + formatPercent(maxBonus) + "% XP");
             }
         }
 
