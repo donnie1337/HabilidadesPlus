@@ -334,7 +334,7 @@ public final class MMOMenu {
             if (power.name().equals("Mestre da Escavação")) {
                 int unlock = config.config().getInt("escavacao.mestre-da-escavacao.nivel-desbloqueio", 750);
                 double bonus = config.config().getDouble("escavacao.mestre-da-escavacao.bonus-chance", 3.0);
-                lore.add("&d• &fBônus de chance: &e+" + formatPercent(level >= unlock ? bonus : 0.0) + "%");
+                lore.add("&b• &fBônus de chance: &e+" + formatPercent(level >= unlock ? bonus : 0.0) + "%");
             }
         }
 
