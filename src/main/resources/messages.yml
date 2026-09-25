@@ -50,7 +50,7 @@ gui:
   titulo-habilidade: "&8Habilidades • &b{habilidade}"
   item-habilidade-nome: "&b{habilidade} &8• &7Nível &a{nivel}"
   item-xp: "&7XP: &f{xpAtual} &7/ &f{xpNecessario}"
-  item-nivel-maximo: "&6&lNÍVEL MÁXIMO!"
+  item-nivel-maximo: "&eNÍVEL MÁXIMO!"
   lista-poderes: "&7Poderes:"
   linha-poder: "&8• &7Nível &f{nivel}&7: {poder} {estado}"
   estado-desbloqueado: "&a✔"
