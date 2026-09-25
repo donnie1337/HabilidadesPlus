@@ -31,10 +31,10 @@ public final class SkillCatalog {
             case ERVANISMO -> d("Colete plantas, domine as plantações e espalhe a vida pelo mundo.",
                     implemented("Duplo Drop",50,Material.WHEAT,"Chance de receber o dobro dos drops de Herbalismo."),
                     active("Terra Verde",10,Material.WHEAT,"Habilidade ativa com enxada: melhora o replantio e pode conceder orbes de XP aleatórios ao colher."),
-                    implemented("Dieta de Fazendeiro",200,Material.BREAD,"Aumenta a fome restaurada por alimentos cultivados."),
+                    implemented("Dieta de Fazendeiro",125,Material.BREAD,"Aumenta a fome restaurada por alimentos cultivados."),
                     implemented("Polegar Verde",100,Material.WHEAT_SEEDS,"Replanta automaticamente toda plantação madura após a colheita."),
                     implemented("Sorte de Hylian",75,Material.IRON_SWORD,"Chance de encontrar tesouros ao cortar pequenas plantas com uma espada."),
-                    implemented("Colheita Verdejante",125,Material.GOLDEN_CARROT,"Aumenta em 15% o XP de Herbalismo recebido ao colher plantas maduras."));
+                    implemented("Colheita Verdejante",200,Material.GOLDEN_CARROT,"Aumenta em 15% o XP de Herbalismo recebido ao colher plantas maduras."));
             case PESCA -> d("Pesque com técnica e encontre tesouros nas águas.", implemented("Isca de Sorte",5,Material.FISHING_ROD,"Aumenta a chance de transformar uma captura comum em um tesouro."),implemented("Linha Firme",30,Material.TRIPWIRE_HOOK,"Chance de preservar a durabilidade da vara ao pescar."),implemented("Maré Generosa",75,Material.HEART_OF_THE_SEA,"Chance de receber uma captura adicional."));
             case ALQUIMIA -> d("Prepare poções com maior rendimento e estabilidade.", p("Mistura Estável",10,Material.BREWING_STAND,"Reduz o risco de desperdício no preparo."),p("Essência Densa",75,Material.GLOWSTONE_DUST,"Aumenta a duração de poções próprias."));
             case FUNDICAO -> d("Aprimore fornalhas e aproveite melhor cada recurso fundido.", p("Brasa Eficiente",10,Material.COAL,"Pequena economia de combustível."),p("Liga Refinada",50,Material.IRON_INGOT,"Chance de receber um item fundido extra."),p("Forja Acelerada",100,Material.FURNACE,"Aumenta a velocidade de fundição."));
