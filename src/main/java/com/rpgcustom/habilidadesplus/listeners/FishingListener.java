@@ -130,9 +130,67 @@ public class FishingListener implements Listener {
         }
         if (TREASURE_ITEMS.contains(caught.getItemStack().getType())) return;
 
-        caught.setItemStack(randomLuckyTreasure(level));
-        player.sendTitle("", MessageUtil.colorize("&e&lTESOURO ENCONTRADO! &fA Isca de Sorte encontrou uma recompensa!"),
-                5, 60, 10);
+        ItemStack treasure = randomLuckyTreasure(level);
+        caught.setItemStack(treasure);
+        player.sendTitle("", MessageUtil.colorize("&e&lPESCARIA! &fVocê encontrou &6" +
+                getPortugueseTreasureDescription(treasure)), 5, 60, 10);
+    }
+
+    private String getPortugueseTreasureDescription(ItemStack treasure) {
+        Material material = treasure.getType();
+        int amount = treasure.getAmount();
+        String name = switch (material) {
+            case LEATHER_HELMET, LEATHER_CHESTPLATE, LEATHER_LEGGINGS, LEATHER_BOOTS -> "armadura de couro encantada";
+            case CHAINMAIL_HELMET, CHAINMAIL_CHESTPLATE, CHAINMAIL_LEGGINGS, CHAINMAIL_BOOTS -> "armadura de malha encantada";
+            case GOLDEN_HELMET, GOLDEN_CHESTPLATE, GOLDEN_LEGGINGS, GOLDEN_BOOTS -> "armadura de ouro encantada";
+            case IRON_HELMET, IRON_CHESTPLATE, IRON_LEGGINGS, IRON_BOOTS -> "armadura de ferro encantada";
+            case DIAMOND_HELMET, DIAMOND_CHESTPLATE, DIAMOND_LEGGINGS, DIAMOND_BOOTS -> "armadura de diamante encantada";
+            case NETHERITE_HELMET, NETHERITE_CHESTPLATE, NETHERITE_LEGGINGS, NETHERITE_BOOTS -> "armadura de netherita encantada";
+            case TURTLE_HELMET -> "casco de tartaruga encantado";
+            case COAL -> "carvão";
+            case RAW_COPPER -> "cobre bruto";
+            case COPPER_INGOT -> "lingote de cobre";
+            case IRON_NUGGET -> "pepita de ferro";
+            case RAW_IRON -> "ferro bruto";
+            case RAW_GOLD -> "ouro bruto";
+            case IRON_INGOT -> "lingote de ferro";
+            case GOLD_INGOT -> "lingote de ouro";
+            case LAPIS_LAZULI -> "lápis-lazúli";
+            case REDSTONE -> "redstone";
+            case DIAMOND -> "diamante";
+            case EMERALD -> "esmeralda";
+            case NETHERITE_SCRAP -> "fragmento de netherita";
+            case NAME_TAG -> "etiqueta";
+            case SADDLE -> "sela";
+            case NAUTILUS_SHELL -> "concha de náutilo";
+            case HEART_OF_THE_SEA -> "coração do mar";
+            case EXPERIENCE_BOTTLE -> "garrafa de experiência";
+            case ENCHANTED_BOOK -> "livro encantado";
+            case BOW -> "arco";
+            case FISHING_ROD -> "vara de pesca";
+            default -> material.name().toLowerCase(java.util.Locale.forLanguageTag("pt-BR")).replace('_', ' ');
+        };
+
+        if (amount > 1) {
+            name = switch (material) {
+                case COAL -> "carvões";
+                case RAW_COPPER -> "cobres brutos";
+                case COPPER_INGOT -> "lingotes de cobre";
+                case IRON_NUGGET -> "pepitas de ferro";
+                case RAW_IRON -> "ferros brutos";
+                case RAW_GOLD -> "ouros brutos";
+                case IRON_INGOT -> "lingotes de ferro";
+                case GOLD_INGOT -> "lingotes de ouro";
+                case LAPIS_LAZULI -> "lápis-lazúlis";
+                case REDSTONE -> "redstones";
+                case DIAMOND -> "diamantes";
+                case EMERALD -> "esmeraldas";
+                case EXPERIENCE_BOTTLE -> "garrafas de experiência";
+                default -> name;
+            };
+        }
+
+        return amount + " " + name + ".";
     }
 
     private boolean hasLargeFishingArea(Location hookLocation) {
