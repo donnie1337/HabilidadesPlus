@@ -136,15 +136,18 @@ public class FishingListener implements Listener {
         int centerZ = hookLocation.getBlockZ();
         int waterBlocks = 0;
 
-        // 11x11 = 121 posições; exigimos mais de 10x10 (pelo menos 101).
+        // 11x11 na horizontal e somente 2 blocos de profundidade.
+        // São 242 posições possíveis; exigimos mais de 10x10 em ambas as camadas.
         for (int x = centerX - 5; x <= centerX + 5; x++) {
             for (int z = centerZ - 5; z <= centerZ + 5; z++) {
-                if (hookLocation.getWorld().getBlockAt(x, centerY, z).getType() == Material.WATER) {
-                    waterBlocks++;
+                for (int y = centerY - 1; y <= centerY; y++) {
+                    if (hookLocation.getWorld().getBlockAt(x, y, z).getType() == Material.WATER) {
+                        waterBlocks++;
+                    }
                 }
             }
         }
-        return waterBlocks > 100;
+        return waterBlocks > 200;
     }
 
     private ItemStack randomLuckyTreasure(int level) {
