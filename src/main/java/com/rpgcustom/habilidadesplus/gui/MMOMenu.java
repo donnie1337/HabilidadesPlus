@@ -380,7 +380,7 @@ public final class MMOMenu {
                 lore.add("&b• &fChance de conversão: &e" + formatPercent(chance) + "%");
             }
             if (power.name().equals("Colheita Verdejante")) {
-                double chance = level >= 125
+                double chance = level >= 200
                         ? Math.min(
                         config.config().getDouble("ervanismo.colheita-verdejante.chance-maxima", 50.0),
                         level * config.config().getDouble("ervanismo.colheita-verdejante.chance-maxima", 50.0)
@@ -612,7 +612,7 @@ public final class MMOMenu {
         if (level >= config.config().getInt("ervanismo.dieta-fazendeiro.nivel-4", 800)) return 4;
         if (level >= config.config().getInt("ervanismo.dieta-fazendeiro.nivel-3", 600)) return 3;
         if (level >= config.config().getInt("ervanismo.dieta-fazendeiro.nivel-2", 400)) return 2;
-        if (level >= config.config().getInt("ervanismo.dieta-fazendeiro.nivel-1", 200)) return 1;
+        if (level >= 125) return 1;
         return 0;
     }
 
