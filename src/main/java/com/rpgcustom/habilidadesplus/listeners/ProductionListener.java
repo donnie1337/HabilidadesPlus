@@ -98,6 +98,16 @@ public class ProductionListener implements Listener {
         if (bonus <= 0.0) return;
 
         event.setBurnTime((int) Math.ceil(event.getBurnTime() * (1.0 + bonus / 100.0)));
+
+        ItemStack fuel = event.getFuel();
+        if (fuel == null || !isRecoverableFuel(fuel.getType())) return;
+        double recoveryChance = progression(owner, 150,
+                "fundicao.recuperacao-combustivel.chance-por-nivel",
+                "fundicao.recuperacao-combustivel.chance-maxima",
+                0.05, 15.0);
+        if (recoveryChance > 0.0 && Math.random() * 100.0 < recoveryChance) {
+            giveRecoveredFuel(owner, fuel.getType(), event.getBlock());
+        }
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -198,7 +208,26 @@ public class ProductionListener implements Listener {
     private void awardSmeltingXp(Player player, int amount) {
         if (amount <= 0) return;
         double xpPerItem = configManager.config().getDouble("xp.fundicao.xp-por-item-fundido", 15);
-        xpManager.addXp(player, SkillType.FUNDICAO, xpPerItem * amount);
+        double bonus = progression(player, 125,
+                "fundicao.experiencia-metalurgica.bonus-por-nivel",
+                "fundicao.experiencia-metalurgica.bonus-maximo",
+                0.05, 25.0);
+        xpManager.addXp(player, SkillType.FUNDICAO, xpPerItem * amount * (1.0 + bonus / 100.0));
+    }
+
+    private boolean isRecoverableFuel(Material material) {
+        return material == Material.COAL
+                || material == Material.CHARCOAL
+                || material == Material.BLOCK_OF_COAL;
+    }
+
+    private void giveRecoveredFuel(Player player, Material material, Block furnace) {
+        ItemStack recovered = new ItemStack(material);
+        player.getInventory().addItem(recovered).values().forEach(item -> {
+            if (furnace.getWorld() != null) {
+                furnace.getWorld().dropItemNaturally(furnace.getLocation(), item);
+            }
+        });
     }
 
     private void registerOwner(Inventory inventory, Player player) {
