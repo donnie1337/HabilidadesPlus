@@ -648,9 +648,32 @@ public final class MMOMenu {
     }
 
     private static String number(double number) {
-        return number >= 1000
-                ? String.format(java.util.Locale.US, "%.1fk", number / 1000).replace(".0k", "k")
-                : String.valueOf((int) number);
+        if (number < 1000) {
+            return String.valueOf((int) number);
+        }
+
+        String[] suffixes = {"k", "m", "b", "t"};
+        int suffixIndex = -1;
+        double scaled = number;
+        do {
+            scaled /= 1000.0;
+            suffixIndex++;
+        } while (scaled >= 1000.0 && suffixIndex < suffixes.length - 1);
+
+        java.text.DecimalFormat format = new java.text.DecimalFormat(
+                "0.#",
+                java.text.DecimalFormatSymbols.getInstance(java.util.Locale.forLanguageTag("pt-BR"))
+        );
+        String formatted = format.format(scaled);
+
+        // Evita saídas como 1000k quando o valor arredondado já pertence à faixa seguinte.
+        if (suffixIndex < suffixes.length - 1 && format.format(scaled).equals("1000")) {
+            scaled /= 1000.0;
+            suffixIndex++;
+            formatted = format.format(scaled);
+        }
+
+        return formatted + suffixes[suffixIndex];
     }
 
     private static String bar(double current, double needed) {
