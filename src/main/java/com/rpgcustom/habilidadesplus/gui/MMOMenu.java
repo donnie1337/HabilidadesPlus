@@ -392,7 +392,7 @@ public final class MMOMenu {
 
         if (skill == SkillType.PESCA) {
             if (power.name().equals("Isca de Sorte")) {
-                lore.add("&b• &fChance de tesouro: &e" + formatPercent(fishingChance(level, 5, config, "pesca.isca-de-sorte.chance-tesouro-por-nivel", "pesca.isca-de-sorte.chance-maxima", 0.05, 15.0)) + "%");
+                lore.add("&b• &fChance de tesouro: &e" + formatPercent(level >= 5 ? Math.min(20.0, config.config().getDouble("pesca.isca-de-sorte.chance-tesouro", 20.0)) : 0.0) + "% &7(80% captura normal)");
             }
             if (power.name().equals("Linha Firme")) {
                 lore.add("&b• &fChance de preservar a vara: &e" + formatPercent(fishingChance(level, 30, config, "pesca.linha-firme.chance-preservar-por-nivel", "pesca.linha-firme.chance-maxima", 0.05, 50.0)) + "%");
