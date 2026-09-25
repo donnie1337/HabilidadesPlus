@@ -218,7 +218,7 @@ public class ProductionListener implements Listener {
     private boolean isRecoverableFuel(Material material) {
         return material == Material.COAL
                 || material == Material.CHARCOAL
-                || material == Material.BLOCK_OF_COAL;
+                || material == Material.COAL_BLOCK;
     }
 
     private void giveRecoveredFuel(Player player, Material material, Block furnace) {
