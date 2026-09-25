@@ -123,62 +123,154 @@ public class FishingListener implements Listener {
         if (chance <= 0.0 || random.nextDouble() * 100.0 >= chance) return;
         if (TREASURE_ITEMS.contains(caught.getItemStack().getType())) return;
 
-        caught.setItemStack(randomLuckyTreasure());
+        caught.setItemStack(randomLuckyTreasure(level));
     }
 
-    private ItemStack randomLuckyTreasure() {
-        // A Isca de Sorte pode encontrar uma armadura encantada ou outros
-        // tesouros raros, sem alterar a quantidade natural dos drops comuns.
-        if (random.nextInt(100) < 35) {
-            return randomEnchantedArmor();
+    private ItemStack randomLuckyTreasure(int level) {
+        // A qualidade da recompensa acompanha o nível de Pesca:
+        // 35% armadura, 35% minério e 30% outros tesouros.
+        int roll = random.nextInt(100);
+        if (roll < 35) return randomEnchantedArmor(level);
+        if (roll < 70) return randomOreTreasure(level);
+        return randomOtherTreasure(level);
+    }
+
+    private ItemStack randomEnchantedArmor(int level) {
+        Material[] armorSet;
+        if (level >= 500) {
+            armorSet = new Material[]{
+                    Material.NETHERITE_HELMET, Material.NETHERITE_CHESTPLATE,
+                    Material.NETHERITE_LEGGINGS, Material.NETHERITE_BOOTS
+            };
+        } else if (level >= 250) {
+            armorSet = new Material[]{
+                    Material.DIAMOND_HELMET, Material.DIAMOND_CHESTPLATE,
+                    Material.DIAMOND_LEGGINGS, Material.DIAMOND_BOOTS
+            };
+        } else if (level >= 100) {
+            armorSet = new Material[]{
+                    Material.IRON_HELMET, Material.IRON_CHESTPLATE,
+                    Material.IRON_LEGGINGS, Material.IRON_BOOTS,
+                    Material.TURTLE_HELMET
+            };
+        } else if (level >= 50) {
+            armorSet = new Material[]{
+                    Material.CHAINMAIL_HELMET, Material.CHAINMAIL_CHESTPLATE,
+                    Material.CHAINMAIL_LEGGINGS, Material.CHAINMAIL_BOOTS,
+                    Material.GOLDEN_HELMET, Material.GOLDEN_CHESTPLATE,
+                    Material.GOLDEN_LEGGINGS, Material.GOLDEN_BOOTS
+            };
+        } else {
+            armorSet = new Material[]{
+                    Material.LEATHER_HELMET, Material.LEATHER_CHESTPLATE,
+                    Material.LEATHER_LEGGINGS, Material.LEATHER_BOOTS
+            };
         }
 
-        Material[] otherTreasures = {
-                Material.NAUTILUS_SHELL,
-                Material.NAME_TAG,
-                Material.SADDLE,
-                Material.ENCHANTED_BOOK,
-                Material.BOW,
-                Material.FISHING_ROD,
-                Material.DIAMOND,
-                Material.EMERALD,
-                Material.GOLD_INGOT,
-                Material.IRON_INGOT,
-                Material.EXPERIENCE_BOTTLE,
-                Material.HEART_OF_THE_SEA
-        };
-        Material material = otherTreasures[random.nextInt(otherTreasures.length)];
-        int amount = switch (material) {
-            case DIAMOND, EMERALD, GOLD_INGOT, IRON_INGOT, EXPERIENCE_BOTTLE -> 1 + random.nextInt(3);
-            default -> 1;
-        };
-        return new ItemStack(material, amount);
-    }
-
-    private ItemStack randomEnchantedArmor() {
-        ItemStack armor = new ItemStack(LUCKY_ARMOR[random.nextInt(LUCKY_ARMOR.length)]);
-        List<Enchantment> available = resolveArmorEnchantments();
+        ItemStack armor = new ItemStack(armorSet[random.nextInt(armorSet.length)]);
+        List<Enchantment> available = resolveArmorEnchantments(level);
         if (available.isEmpty()) return armor;
 
+        int tier = armorTier(level);
+        int enchantmentCount = Math.min(1 + random.nextInt(Math.min(3, tier + 1)), available.size());
         Set<Enchantment> selected = new java.util.HashSet<>();
-        int enchantmentCount = Math.min(1 + random.nextInt(3), available.size());
         while (selected.size() < enchantmentCount) {
             selected.add(available.get(random.nextInt(available.size())));
         }
+
+        int maxLevel = Math.min(3, 1 + tier / 2);
         for (Enchantment enchantment : selected) {
-            int level = 1 + random.nextInt(Math.max(1, Math.min(3, enchantment.getMaxLevel())));
-            armor.addUnsafeEnchantment(enchantment, level);
+            int enchantmentLevel = 1 + random.nextInt(
+                    Math.max(1, Math.min(maxLevel, enchantment.getMaxLevel()))
+            );
+            armor.addUnsafeEnchantment(enchantment, enchantmentLevel);
         }
         return armor;
     }
 
-    private List<Enchantment> resolveArmorEnchantments() {
+    private List<Enchantment> resolveArmorEnchantments(int level) {
         List<Enchantment> available = new ArrayList<>();
-        for (String key : ARMOR_ENCHANTMENT_KEYS) {
-            Enchantment enchantment = Enchantment.getByKey(new NamespacedKey("minecraft", key));
+        int tier = armorTier(level);
+        int keysToUse = Math.min(ARMOR_ENCHANTMENT_KEYS.size(), 2 + tier);
+        for (int i = 0; i < keysToUse; i++) {
+            Enchantment enchantment = Enchantment.getByKey(
+                    new NamespacedKey("minecraft", ARMOR_ENCHANTMENT_KEYS.get(i))
+            );
             if (enchantment != null) available.add(enchantment);
         }
+        // Remendo só aparece nas recompensas de nível intermediário/alto.
+        if (tier >= 3) {
+            Enchantment mending = Enchantment.getByKey(new NamespacedKey("minecraft", "mending"));
+            if (mending != null && !available.contains(mending)) available.add(mending);
+        }
         return available;
+    }
+
+    private int armorTier(int level) {
+        if (level >= 500) return 4;
+        if (level >= 250) return 3;
+        if (level >= 100) return 2;
+        if (level >= 50) return 1;
+        return 0;
+    }
+
+    private ItemStack randomOreTreasure(int level) {
+        Material[] ores;
+        if (level >= 750) {
+            ores = new Material[]{
+                    Material.DIAMOND, Material.EMERALD, Material.NETHERITE_SCRAP,
+                    Material.GOLD_INGOT
+            };
+        } else if (level >= 250) {
+            ores = new Material[]{
+                    Material.IRON_INGOT, Material.GOLD_INGOT, Material.DIAMOND,
+                    Material.EMERALD, Material.LAPIS_LAZULI, Material.REDSTONE
+            };
+        } else if (level >= 100) {
+            ores = new Material[]{
+                    Material.RAW_IRON, Material.RAW_GOLD, Material.IRON_INGOT,
+                    Material.GOLD_INGOT, Material.LAPIS_LAZULI, Material.REDSTONE
+            };
+        } else if (level >= 50) {
+            ores = new Material[]{
+                    Material.COAL, Material.RAW_COPPER, Material.COPPER_INGOT,
+                    Material.RAW_IRON, Material.IRON_NUGGET
+            };
+        } else {
+            ores = new Material[]{
+                    Material.COAL, Material.RAW_COPPER, Material.IRON_NUGGET
+            };
+        }
+
+        Material material = ores[random.nextInt(ores.length)];
+        int amount;
+        if (material == Material.NETHERITE_SCRAP) {
+            amount = 1;
+        } else if (material == Material.DIAMOND || material == Material.EMERALD) {
+            amount = level >= 750 ? 1 + random.nextInt(2) : 1;
+        } else {
+            amount = 1 + random.nextInt(3);
+        }
+        return new ItemStack(material, amount);
+    }
+
+    private ItemStack randomOtherTreasure(int level) {
+        List<Material> treasures = new ArrayList<>(List.of(
+                Material.NAME_TAG,
+                Material.BOW,
+                Material.FISHING_ROD,
+                Material.EXPERIENCE_BOTTLE,
+                Material.ENCHANTED_BOOK
+        ));
+        if (level >= 50) {
+            treasures.add(Material.SADDLE);
+            treasures.add(Material.NAUTILUS_SHELL);
+        }
+        if (level >= 250) {
+            treasures.add(Material.HEART_OF_THE_SEA);
+        }
+
+        return new ItemStack(treasures.get(random.nextInt(treasures.size())));
     }
 
     private void applyGenerousTide(Item caught, int level) {
