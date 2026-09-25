@@ -218,13 +218,11 @@ public class FishingListener implements Listener {
         Material[] ores;
         if (level >= 750) {
             ores = new Material[]{
-                    Material.DIAMOND, Material.EMERALD, Material.NETHERITE_SCRAP,
-                    Material.GOLD_INGOT
+                    Material.DIAMOND, Material.EMERALD, Material.NETHERITE_SCRAP
             };
         } else if (level >= 250) {
             ores = new Material[]{
-                    Material.IRON_INGOT, Material.GOLD_INGOT, Material.DIAMOND,
-                    Material.EMERALD, Material.LAPIS_LAZULI, Material.REDSTONE
+                    Material.DIAMOND, Material.EMERALD
             };
         } else if (level >= 100) {
             ores = new Material[]{
