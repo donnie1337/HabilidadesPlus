@@ -297,6 +297,8 @@ public final class MMOMenu {
             double chance = level < 100 ? 0.0 : Math.min(100.0, Math.floor(level / 10.0) * config.config().getDouble("mineracao.superbreaker.chance-drop-triplo-por-nivel", 0.5));
             double duration = superBreakerDuration(level, config);
             lore.add("&d⌛ &fDuração: &e" + formatSeconds(duration) + " segundo(s)");
+            double cooldown = superBreakerCooldown(level, config);
+            lore.add("&b• &fRecarga: &e" + formatSeconds(cooldown) + " segundo(s)");
             lore.addAll(wrap("&7Durante o Super Quebrador, o drop pode ser triplicado."));
             lore.add(message(config, "gui.superbreaker-chance", Map.of("chance", formatPercent(chance))));
         }
@@ -638,6 +640,32 @@ public final class MMOMenu {
     private static String formatSeconds(double value) {
         if (value == Math.rint(value)) return String.valueOf((int) value);
         return formatPercent(value);
+    }
+
+    private static double superBreakerCooldown(int level, ConfigManager config) {
+        if (level <= 10) {
+            return config.config().getDouble("mineracao.superbreaker.recarga-nivel-10", 120.0);
+        }
+
+        if (level <= 50) {
+            return interpolate(level, new int[]{10, 50}, new double[]{
+                    config.config().getDouble("mineracao.superbreaker.recarga-nivel-10", 120.0),
+                    config.config().getDouble("mineracao.superbreaker.recarga-nivel-50", 140.0)
+            });
+        }
+
+        int lowerLevel = ((level - 50) / 50) * 50 + 50;
+        int upperLevel = Math.min(1000, lowerLevel + 50);
+        double baseCooldown = config.config().getDouble("mineracao.superbreaker.recarga-nivel-50", 140.0);
+        double increment = config.config().getDouble("mineracao.superbreaker.recarga-incremento-50-niveis", 20.0);
+        if (lowerLevel >= 1000) {
+            return baseCooldown + ((1000 - 50) / 50) * increment;
+        }
+
+        double lowerCooldown = baseCooldown + ((lowerLevel - 50) / 50) * increment;
+        double upperCooldown = lowerCooldown + increment;
+        return interpolate(level, new int[]{lowerLevel, upperLevel},
+                new double[]{lowerCooldown, upperCooldown});
     }
 
     private static double superBreakerDuration(int level, ConfigManager config) {
