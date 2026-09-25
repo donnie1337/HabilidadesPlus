@@ -112,15 +112,12 @@ public class FishingListener implements Listener {
     }
 
     private void applyLuckyBait(Item caught, int level) {
-        double chance = fishingChance(
-                level,
-                ISCA_DE_SORTE_UNLOCK,
-                "pesca.isca-de-sorte.chance-tesouro-por-nivel",
-                "pesca.isca-de-sorte.chance-maxima",
-                0.05,
-                15.0
-        );
-        if (chance <= 0.0 || random.nextDouble() * 100.0 >= chance) return;
+        if (level < ISCA_DE_SORTE_UNLOCK) return;
+
+        // A Isca de Sorte mantém 80% de captura normal e 20% de tesouro.
+        double treasureChance = Math.max(0.0, Math.min(20.0,
+                configManager.config().getDouble("pesca.isca-de-sorte.chance-tesouro", 20.0)));
+        if (random.nextDouble() * 100.0 >= treasureChance) return;
         if (TREASURE_ITEMS.contains(caught.getItemStack().getType())) return;
 
         caught.setItemStack(randomLuckyTreasure(level));
