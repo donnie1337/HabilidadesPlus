@@ -231,7 +231,7 @@ public final class MMOMenu {
                 slotIndex++;
             }
             if (slotIndex >= SLOTS.length) break;
-            inventory.setItem(SLOTS[slotIndex], powerItem(powers.get(index), skill, current.getLevel(), current, config));
+            inventory.setItem(SLOTS[slotIndex], powerItem(powers.get(index), skill, current.getLevel(), profile, config));
         }
         inventory.setItem(29, profileItem(player, profile, config));
         inventory.setItem(31, item(Material.ARROW, config.msg("gui.voltar-nome"),
