@@ -402,6 +402,24 @@ public final class MMOMenu {
             }
         }
 
+        if (skill == SkillType.FUNDICAO) {
+            if (power.name().equals("Brasa Eficiente")) {
+                lore.add("&b• &fEconomia de combustível: &e" + formatPercent(fishingChance(level, 25, config,
+                        "fundicao.brasa-eficiente.bonus-por-nivel",
+                        "fundicao.brasa-eficiente.bonus-maximo", 0.05, 50.0)) + "%");
+            }
+            if (power.name().equals("Liga Refinada")) {
+                lore.add("&b• &fChance de item extra: &e" + formatPercent(fishingChance(level, 75, config,
+                        "fundicao.liga-refinada.chance-por-nivel",
+                        "fundicao.liga-refinada.chance-maxima", 0.05, 50.0)) + "%");
+            }
+            if (power.name().equals("Forja Acelerada")) {
+                lore.add("&b• &fRedução do tempo: &e" + formatPercent(fishingChance(level, 100, config,
+                        "fundicao.forja-acelerada.reducao-tempo-por-nivel",
+                        "fundicao.forja-acelerada.reducao-tempo-maxima", 0.05, 50.0)) + "%");
+            }
+        }
+
         if (skill == SkillType.LENHADOR) {
             if (power.name().equals("Derrubada de Árvores")) {
                 int leafLevel = Math.max(1, level);
