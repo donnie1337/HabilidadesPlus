@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.BlockData;
@@ -125,6 +126,11 @@ public class GatheringListener implements Listener, CommandExecutor {
 
         Material material = block.getType();
 
+        if (coletaAutomaticaAtiva.contains(player.getUniqueId())
+                && (material == Material.SUGAR_CANE || material == Material.BAMBOO)) {
+            collectUpperPlantDrops(block, player);
+        }
+
         if (isHylianEligible(material)
                 && isSword(player.getInventory().getItemInMainHand().getType())
                 && configManager.habilidadeAtiva(player)) {
@@ -211,6 +217,22 @@ public class GatheringListener implements Listener, CommandExecutor {
                 xpManager.getDataManager().markDirty(player.getUniqueId());
             }
             return;
+        }
+    }
+
+    private void collectUpperPlantDrops(Block base, Player player) {
+        ItemStack tool = player.getInventory().getItemInMainHand();
+        Material material = base.getType();
+        Block upper = base.getRelative(BlockFace.UP);
+
+        while (upper.getType() == material) {
+            for (ItemStack drop : upper.getDrops(tool, player)) {
+                Map<Integer, ItemStack> leftovers = player.getInventory().addItem(drop.clone());
+                leftovers.values().forEach(stack ->
+                        upper.getWorld().dropItemNaturally(upper.getLocation(), stack));
+            }
+            upper.setType(Material.AIR, false);
+            upper = upper.getRelative(BlockFace.UP);
         }
     }
 
