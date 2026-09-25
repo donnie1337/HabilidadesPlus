@@ -16,7 +16,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
+import org.bukkit.event.inventory.FurnaceStartSmeltEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
@@ -85,11 +87,43 @@ public class ProductionListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
+    public void onFurnaceBurn(FurnaceBurnEvent event) {
+        Player owner = ownerPlayer(furnaceState(event.getBlock()));
+        if (owner == null) return;
+
+        double bonus = progression(owner, 25,
+                "fundicao.brasa-eficiente.bonus-por-nivel",
+                "fundicao.brasa-eficiente.bonus-maximo",
+                0.05, 50.0);
+        if (bonus <= 0.0) return;
+
+        event.setBurnTime((int) Math.ceil(event.getBurnTime() * (1.0 + bonus / 100.0)));
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onFurnaceStartSmelt(FurnaceStartSmeltEvent event) {
+        Player owner = ownerPlayer(furnaceState(event.getBlock()));
+        if (owner == null) return;
+
+        double reduction = progression(owner, 100,
+                "fundicao.forja-acelerada.reducao-tempo-por-nivel",
+                "fundicao.forja-acelerada.reducao-tempo-maxima",
+                0.05, 50.0);
+        if (reduction <= 0.0) return;
+
+        int cookTime = Math.max(1, (int) Math.round(
+                event.getTotalCookTime() * (1.0 - reduction / 100.0)
+        ));
+        event.setTotalCookTime(cookTime);
+    }
+
+    @EventHandler(ignoreCancelled = true)
     public void onFurnaceExtract(FurnaceExtractEvent event) {
         Player player = event.getPlayer();
         if (player.getGameMode() == GameMode.CREATIVE || event.getItemAmount() <= 0) return;
 
         awardSmeltingXp(player, event.getItemAmount());
+        giveRefinedExtra(player, new ItemStack(event.getItemType()));
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -97,15 +131,11 @@ public class ProductionListener implements Listener {
         TileState furnace = furnaceState(event.getSource());
         if (furnace == null || !isOutputItem(event.getSource(), event.getItem())) return;
 
-        UUID ownerId = furnace.getPersistentDataContainer().get(furnaceOwnerKey, PersistentDataType.STRING) == null
-                ? null
-                : parseUuid(furnace.getPersistentDataContainer().get(furnaceOwnerKey, PersistentDataType.STRING));
-        if (ownerId == null) return;
-
-        Player owner = Bukkit.getPlayer(ownerId);
+        Player owner = ownerPlayer(furnace);
         if (owner == null || owner.getGameMode() == GameMode.CREATIVE) return;
 
         awardSmeltingXp(owner, event.getItem().getAmount());
+        giveRefinedExtra(event.getDestination(), event.getItem().clone());
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -113,6 +143,57 @@ public class ProductionListener implements Listener {
         if (isFurnace(event.getBlock().getType())) {
             clearOwner(event.getBlock());
         }
+    }
+
+    private void giveRefinedExtra(Player player, ItemStack output) {
+        double chance = progression(player, 75,
+                "fundicao.liga-refinada.chance-por-nivel",
+                "fundicao.liga-refinada.chance-maxima",
+                0.05, 50.0);
+        if (chance <= 0.0 || Math.random() * 100.0 >= chance) return;
+
+        ItemStack extra = output.clone();
+        extra.setAmount(1);
+        player.getInventory().addItem(extra).values()
+                .forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
+    }
+
+    private void giveRefinedExtra(Inventory destination, ItemStack output) {
+        Player owner = ownerPlayer(furnaceState(destination));
+        if (owner == null) return;
+        double chance = progression(owner, 75,
+                "fundicao.liga-refinada.chance-por-nivel",
+                "fundicao.liga-refinada.chance-maxima",
+                0.05, 50.0);
+        if (chance <= 0.0 || Math.random() * 100.0 >= chance) return;
+
+        ItemStack extra = output.clone();
+        extra.setAmount(1);
+        destination.addItem(extra).values().forEach(item -> {
+            if (destination.getLocation() != null) {
+                destination.getLocation().getWorld().dropItemNaturally(destination.getLocation(), item);
+            }
+        });
+    }
+
+    private Player ownerPlayer(TileState state) {
+        if (state == null) return null;
+        String value = state.getPersistentDataContainer().get(furnaceOwnerKey, PersistentDataType.STRING);
+        UUID ownerId = value == null ? null : parseUuid(value);
+        return ownerId == null ? null : Bukkit.getPlayer(ownerId);
+    }
+
+    private double progression(Player player, int unlock, String perLevelPath, String maxPath,
+                               double defaultPerLevel, double defaultMax) {
+        if (player == null) return 0.0;
+        int level = xpManager.getDataManager().getProfile(player.getUniqueId()).getLevel(SkillType.FUNDICAO);
+        if (level < unlock) return 0.0;
+
+        double perLevel = Math.max(0.0,
+                configManager.config().getDouble(perLevelPath, defaultPerLevel));
+        double max = Math.max(0.0,
+                configManager.config().getDouble(maxPath, defaultMax));
+        return Math.min(max, level * perLevel);
     }
 
     private void awardSmeltingXp(Player player, int amount) {
