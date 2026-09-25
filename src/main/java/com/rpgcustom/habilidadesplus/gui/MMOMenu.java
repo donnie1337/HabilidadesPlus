@@ -314,7 +314,7 @@ public final class MMOMenu {
                         level * config.config().getDouble("escavacao.duplo-drop.chance-por-nivel", 0.05));
                 lore.add("&b• &fChance atual: &e" + formatPercent(chance) + "%");
             }
-            if (power.name().equals("Giga Broca")) {
+            if (power.name().equals("Super Escavação") || power.name().equals("Giga Broca")) {
                 double duration = Math.min(
                         config.config().getDouble("escavacao.giga-broca.duracao-maxima", 20.0),
                         config.config().getDouble("escavacao.giga-broca.duracao-nivel-25", 5.0)
