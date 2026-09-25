@@ -2,6 +2,7 @@ package com.rpgcustom.habilidadesplus.listeners;
 
 import com.rpgcustom.habilidadesplus.SkillType;
 import com.rpgcustom.habilidadesplus.util.ConfigManager;
+import com.rpgcustom.habilidadesplus.util.MessageUtil;
 import com.rpgcustom.habilidadesplus.xp.XpManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -130,6 +131,8 @@ public class FishingListener implements Listener {
         if (TREASURE_ITEMS.contains(caught.getItemStack().getType())) return;
 
         caught.setItemStack(randomLuckyTreasure(level));
+        player.sendTitle("", MessageUtil.colorize("&e&lTESOURO ENCONTRADO! &fA Isca de Sorte encontrou uma recompensa!"),
+                5, 60, 10);
     }
 
     private boolean hasLargeFishingArea(Location hookLocation) {
