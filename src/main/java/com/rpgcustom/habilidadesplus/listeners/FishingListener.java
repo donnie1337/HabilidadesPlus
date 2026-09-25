@@ -136,10 +136,10 @@ public class FishingListener implements Listener {
         int centerZ = hookLocation.getBlockZ();
         int waterBlocks = 0;
 
-        // 11x11 na horizontal e somente 2 blocos de profundidade.
-        // São 242 posições possíveis; exigimos mais de 10x10 em ambas as camadas.
-        for (int x = centerX - 5; x <= centerX + 5; x++) {
-            for (int z = centerZ - 5; z <= centerZ + 5; z++) {
+        // Área mínima: 6x6 na horizontal e 2 blocos de profundidade.
+        // O retângulo contém 72 posições e precisa estar totalmente preenchido.
+        for (int x = centerX - 3; x <= centerX + 2; x++) {
+            for (int z = centerZ - 3; z <= centerZ + 2; z++) {
                 for (int y = centerY - 1; y <= centerY; y++) {
                     if (hookLocation.getWorld().getBlockAt(x, y, z).getType() == Material.WATER) {
                         waterBlocks++;
@@ -147,7 +147,7 @@ public class FishingListener implements Listener {
                 }
             }
         }
-        return waterBlocks > 200;
+        return waterBlocks >= 72;
     }
 
     private ItemStack randomLuckyTreasure(int level) {
