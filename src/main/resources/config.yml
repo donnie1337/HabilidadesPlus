@@ -1046,3 +1046,24 @@ mineracao:
     recarga-incremento-50-niveis: 20
     # Chance de drop triplo durante o Super Quebrador, em pontos percentuais por 10 níveis.
     chance-drop-triplo-por-10-niveis: 0.5
+
+# ------------------------------------------------------------
+# Habilidade de Fundicao
+# Poderes progressivos para fornalhas, altos-fornos e defumadores.
+# Os valores de chance/bonus estao em pontos percentuais.
+# ------------------------------------------------------------
+fundicao:
+  brasa-eficiente:
+    nivel-desbloqueio: 25
+    bonus-por-nivel: 0.05
+    bonus-maximo: 50.0
+
+  liga-refinada:
+    nivel-desbloqueio: 75
+    chance-por-nivel: 0.05
+    chance-maxima: 50.0
+
+  forja-acelerada:
+    nivel-desbloqueio: 100
+    reducao-tempo-por-nivel: 0.05
+    reducao-tempo-maxima: 50.0
