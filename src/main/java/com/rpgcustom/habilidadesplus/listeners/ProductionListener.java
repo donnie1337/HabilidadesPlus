@@ -135,7 +135,7 @@ public class ProductionListener implements Listener {
         if (owner == null || owner.getGameMode() == GameMode.CREATIVE) return;
 
         awardSmeltingXp(owner, event.getItem().getAmount());
-        giveRefinedExtra(event.getDestination(), event.getItem().clone());
+        giveRefinedExtra(owner, event.getDestination(), event.getItem().clone());
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -158,9 +158,7 @@ public class ProductionListener implements Listener {
                 .forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
     }
 
-    private void giveRefinedExtra(Inventory destination, ItemStack output) {
-        Player owner = ownerPlayer(furnaceState(destination));
-        if (owner == null) return;
+    private void giveRefinedExtra(Player owner, Inventory destination, ItemStack output) {
         double chance = progression(owner, 75,
                 "fundicao.liga-refinada.chance-por-nivel",
                 "fundicao.liga-refinada.chance-maxima",
@@ -170,8 +168,9 @@ public class ProductionListener implements Listener {
         ItemStack extra = output.clone();
         extra.setAmount(1);
         destination.addItem(extra).values().forEach(item -> {
-            if (destination.getLocation() != null) {
-                destination.getLocation().getWorld().dropItemNaturally(destination.getLocation(), item);
+            var location = destination.getLocation();
+            if (location != null && location.getWorld() != null) {
+                location.getWorld().dropItemNaturally(location, item);
             }
         });
     }
