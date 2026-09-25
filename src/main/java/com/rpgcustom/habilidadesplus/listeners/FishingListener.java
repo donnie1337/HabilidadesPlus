@@ -4,6 +4,7 @@ import com.rpgcustom.habilidadesplus.SkillType;
 import com.rpgcustom.habilidadesplus.util.ConfigManager;
 import com.rpgcustom.habilidadesplus.xp.XpManager;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.enchantments.Enchantment;
@@ -14,6 +15,7 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -50,14 +52,18 @@ public class FishingListener implements Listener {
             Material.NETHERITE_LEGGINGS, Material.NETHERITE_BOOTS,
             Material.TURTLE_HELMET
     };
-    private static final List<Enchantment> ARMOR_ENCHANTMENTS = List.of(
-            Enchantment.PROTECTION_ENVIRONMENTAL,
-            Enchantment.PROTECTION_FIRE,
-            Enchantment.PROTECTION_PROJECTILE,
-            Enchantment.PROTECTION_EXPLOSIONS,
-            Enchantment.THORNS,
-            Enchantment.UNBREAKING,
-            Enchantment.MENDING
+    /*
+     * Resolve by the vanilla namespaced keys at runtime. This keeps the plugin
+     * compatible with Paper versions where the old Bukkit constant names changed.
+     */
+    private static final List<String> ARMOR_ENCHANTMENT_KEYS = List.of(
+            "protection",
+            "fire_protection",
+            "projectile_protection",
+            "blast_protection",
+            "thorns",
+            "unbreaking",
+            "mending"
     );
 
     private final ConfigManager configManager;
@@ -151,16 +157,28 @@ public class FishingListener implements Listener {
 
     private ItemStack randomEnchantedArmor() {
         ItemStack armor = new ItemStack(LUCKY_ARMOR[random.nextInt(LUCKY_ARMOR.length)]);
+        List<Enchantment> available = resolveArmorEnchantments();
+        if (available.isEmpty()) return armor;
+
         Set<Enchantment> selected = new java.util.HashSet<>();
-        int enchantmentCount = 1 + random.nextInt(3);
+        int enchantmentCount = Math.min(1 + random.nextInt(3), available.size());
         while (selected.size() < enchantmentCount) {
-            selected.add(ARMOR_ENCHANTMENTS.get(random.nextInt(ARMOR_ENCHANTMENTS.size())));
+            selected.add(available.get(random.nextInt(available.size())));
         }
         for (Enchantment enchantment : selected) {
             int level = 1 + random.nextInt(Math.max(1, Math.min(3, enchantment.getMaxLevel())));
             armor.addUnsafeEnchantment(enchantment, level);
         }
         return armor;
+    }
+
+    private List<Enchantment> resolveArmorEnchantments() {
+        List<Enchantment> available = new ArrayList<>();
+        for (String key : ARMOR_ENCHANTMENT_KEYS) {
+            Enchantment enchantment = Enchantment.getByKey(new NamespacedKey("minecraft", key));
+            if (enchantment != null) available.add(enchantment);
+        }
+        return available;
     }
 
     private void applyGenerousTide(Item caught, int level) {
