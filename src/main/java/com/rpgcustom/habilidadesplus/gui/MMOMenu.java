@@ -231,7 +231,7 @@ public final class MMOMenu {
                 slotIndex++;
             }
             if (slotIndex >= SLOTS.length) break;
-            inventory.setItem(SLOTS[slotIndex], powerItem(powers.get(index), skill, current.getLevel(), config));
+            inventory.setItem(SLOTS[slotIndex], powerItem(powers.get(index), skill, current.getLevel(), current, config));
         }
         inventory.setItem(29, profileItem(player, profile, config));
         inventory.setItem(31, item(Material.ARROW, config.msg("gui.voltar-nome"),
@@ -283,7 +283,7 @@ public final class MMOMenu {
                 "habilidade", skill.getDisplayName(), "nivel", String.valueOf(data.getLevel()))), lore);
     }
 
-    private static ItemStack powerItem(SkillCatalog.Power power, SkillType skill, int level, ConfigManager config) {
+    private static ItemStack powerItem(SkillCatalog.Power power, SkillType skill, int level, PlayerProfile profile, ConfigManager config) {
         boolean unlocked = level >= power.level();
         List<String> lore = new ArrayList<>();
         lore.add("");
@@ -491,6 +491,7 @@ public final class MMOMenu {
                         "lenhador.replantio-automatico.chance-por-nivel", 0.10))
                         : 0.0;
                 lore.add("&b• &fChance atual: &e" + formatPercent(chance) + "%");
+                lore.add("&b• &fÁrvores replantadas: &e" + number(profile.getLenhadorArvoresReplantadas()));
             }
 
             if (power.name().equals("Combo de Corte")) {
