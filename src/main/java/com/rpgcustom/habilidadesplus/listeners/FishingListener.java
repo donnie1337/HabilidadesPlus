@@ -147,7 +147,7 @@ public class FishingListener implements Listener {
             case IRON_HELMET, IRON_CHESTPLATE, IRON_LEGGINGS, IRON_BOOTS -> describeEnchantment("armadura de ferro", treasure);
             case DIAMOND_HELMET, DIAMOND_CHESTPLATE, DIAMOND_LEGGINGS, DIAMOND_BOOTS -> describeEnchantment("armadura de diamante", treasure);
             case NETHERITE_HELMET, NETHERITE_CHESTPLATE, NETHERITE_LEGGINGS, NETHERITE_BOOTS -> describeEnchantment("armadura de netherita", treasure);
-            case TURTLE_HELMET -> describeEnchantment("casco de tartaruga", treasure);
+            case TURTLE_HELMET -> hasTreasureEnchantment(treasure) ? "casco de tartaruga encantado" : "casco de tartaruga";
             case COAL -> "carvão";
             case RAW_COPPER -> "cobre bruto";
             case COPPER_INGOT -> "lingote de cobre";
