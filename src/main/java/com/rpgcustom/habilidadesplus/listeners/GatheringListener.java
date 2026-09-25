@@ -225,13 +225,15 @@ public class GatheringListener implements Listener, CommandExecutor {
         Block upper = base.getRelative(BlockFace.UP);
 
         while (upper.getType() == material) {
-            for (ItemStack drop : upper.getDrops(tool, player)) {
+            Block plantBlock = upper;
+            for (ItemStack drop : plantBlock.getDrops(tool, player)) {
                 Map<Integer, ItemStack> leftovers = player.getInventory().addItem(drop.clone());
-                leftovers.values().forEach(stack ->
-                        upper.getWorld().dropItemNaturally(upper.getLocation(), stack));
+                for (ItemStack leftover : leftovers.values()) {
+                    plantBlock.getWorld().dropItemNaturally(plantBlock.getLocation(), leftover);
+                }
             }
-            upper.setType(Material.AIR, false);
-            upper = upper.getRelative(BlockFace.UP);
+            plantBlock.setType(Material.AIR, false);
+            upper = plantBlock.getRelative(BlockFace.UP);
         }
     }
 
