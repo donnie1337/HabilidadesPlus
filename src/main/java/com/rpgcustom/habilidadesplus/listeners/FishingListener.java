@@ -3,6 +3,7 @@ package com.rpgcustom.habilidadesplus.listeners;
 import com.rpgcustom.habilidadesplus.SkillType;
 import com.rpgcustom.habilidadesplus.util.ConfigManager;
 import com.rpgcustom.habilidadesplus.xp.XpManager;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Item;
@@ -82,7 +83,7 @@ public class FishingListener implements Listener {
         Player player = event.getPlayer();
         int level = getFishingLevel(player);
         if (event.getCaught() instanceof Item caught) {
-            applyLuckyBait(caught, level);
+            applyLuckyBait(caught, level, event.getHook().getLocation());
             applyGenerousTide(caught, level);
         }
 
@@ -111,16 +112,39 @@ public class FishingListener implements Listener {
         }
     }
 
-    private void applyLuckyBait(Item caught, int level) {
+    private void applyLuckyBait(Item caught, int level, Location hookLocation) {
         if (level < ISCA_DE_SORTE_UNLOCK) return;
 
         // A Isca de Sorte mantém 80% de captura normal e 20% de tesouro.
         double treasureChance = Math.max(0.0, Math.min(20.0,
                 configManager.config().getDouble("pesca.isca-de-sorte.chance-tesouro", 20.0)));
         if (random.nextDouble() * 100.0 >= treasureChance) return;
+
+        // Tesouros só aparecem em uma área aberta com mais de 10x10 blocos
+        // de água. Piscinas/farms pequenas continuam pescando normalmente.
+        if (!hasLargeFishingArea(hookLocation)) return;
         if (TREASURE_ITEMS.contains(caught.getItemStack().getType())) return;
 
         caught.setItemStack(randomLuckyTreasure(level));
+    }
+
+    private boolean hasLargeFishingArea(Location hookLocation) {
+        if (hookLocation == null || hookLocation.getWorld() == null) return false;
+
+        int centerX = hookLocation.getBlockX();
+        int centerY = hookLocation.getBlockY();
+        int centerZ = hookLocation.getBlockZ();
+        int waterBlocks = 0;
+
+        // 11x11 = 121 posições; exigimos mais de 10x10 (pelo menos 101).
+        for (int x = centerX - 5; x <= centerX + 5; x++) {
+            for (int z = centerZ - 5; z <= centerZ + 5; z++) {
+                if (hookLocation.getWorld().getBlockAt(x, centerY, z).getType() == Material.WATER) {
+                    waterBlocks++;
+                }
+            }
+        }
+        return waterBlocks > 100;
     }
 
     private ItemStack randomLuckyTreasure(int level) {
