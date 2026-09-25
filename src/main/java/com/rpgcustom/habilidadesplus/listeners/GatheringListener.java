@@ -183,7 +183,7 @@ public class GatheringListener implements Listener, CommandExecutor {
             double xpFinal = xp;
             if (HABILIDADES[i] == SkillType.ERVANISMO) {
                 xpFinal *= herbalismPlantHeight(block, material);
-                int colheitaVerdejanteUnlock = 125;
+                int colheitaVerdejanteUnlock = 200;
                 if (getHerbalismLevel(player) >= colheitaVerdejanteUnlock) {
                     double bonusXp = Math.max(0.0, configManager.config().getDouble(
                             "ervanismo.colheita-verdejante.bonus-xp", 0.15));
@@ -617,7 +617,7 @@ public class GatheringListener implements Listener, CommandExecutor {
         if (level >= configManager.config().getInt("ervanismo.dieta-fazendeiro.nivel-4", 800)) return 4;
         if (level >= configManager.config().getInt("ervanismo.dieta-fazendeiro.nivel-3", 600)) return 3;
         if (level >= configManager.config().getInt("ervanismo.dieta-fazendeiro.nivel-2", 400)) return 2;
-        if (level >= configManager.config().getInt("ervanismo.dieta-fazendeiro.nivel-1", 200)) return 1;
+        if (level >= 125) return 1;
         return 0;
     }
 
