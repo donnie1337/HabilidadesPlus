@@ -3,6 +3,7 @@ package com.rpgcustom.habilidadesplus.listeners;
 import com.rpgcustom.habilidadesplus.SkillType;
 import com.rpgcustom.habilidadesplus.util.ConfigManager;
 import com.rpgcustom.habilidadesplus.xp.XpManager;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -83,7 +84,7 @@ public class FishingListener implements Listener {
         Player player = event.getPlayer();
         int level = getFishingLevel(player);
         if (event.getCaught() instanceof Item caught) {
-            applyLuckyBait(caught, level, event.getHook().getLocation());
+            applyLuckyBait(player, caught, level, event.getHook().getLocation());
             applyGenerousTide(caught, level);
         }
 
@@ -112,7 +113,7 @@ public class FishingListener implements Listener {
         }
     }
 
-    private void applyLuckyBait(Item caught, int level, Location hookLocation) {
+    private void applyLuckyBait(Player player, Item caught, int level, Location hookLocation) {
         if (level < ISCA_DE_SORTE_UNLOCK) return;
 
         // A Isca de Sorte mantém 80% de captura normal e 20% de tesouro.
@@ -120,9 +121,12 @@ public class FishingListener implements Listener {
                 configManager.config().getDouble("pesca.isca-de-sorte.chance-tesouro", 20.0)));
         if (random.nextDouble() * 100.0 >= treasureChance) return;
 
-        // Tesouros só aparecem em uma área aberta com mais de 10x10 blocos
-        // de água. Piscinas/farms pequenas continuam pescando normalmente.
-        if (!hasLargeFishingArea(hookLocation)) return;
+        // Tesouros exigem uma área de água 6x6x2.
+        // Avise somente quando a tentativa de tesouro falhar por falta de espaço.
+        if (!hasLargeFishingArea(hookLocation)) {
+            player.sendMessage(ChatColor.RED + "O local é muito pequeno para encontrar tesouros.");
+            return;
+        }
         if (TREASURE_ITEMS.contains(caught.getItemStack().getType())) return;
 
         caught.setItemStack(randomLuckyTreasure(level));
