@@ -420,6 +420,16 @@ public final class MMOMenu {
                         "fundicao.forja-acelerada.reducao-tempo-por-nivel",
                         "fundicao.forja-acelerada.reducao-tempo-maxima", 0.05, 50.0)) + "%");
             }
+            if (power.name().equals("Experiência Metalúrgica")) {
+                lore.add("&b• &fBônus de XP: &e+" + formatPercent(fishingChance(level, 125, config,
+                        "fundicao.experiencia-metalurgica.bonus-por-nivel",
+                        "fundicao.experiencia-metalurgica.bonus-maximo", 0.05, 25.0)) + "%");
+            }
+            if (power.name().equals("Recuperação de Combustível")) {
+                lore.add("&b• &fChance de recuperar combustível: &e" + formatPercent(fishingChance(level, 150, config,
+                        "fundicao.recuperacao-combustivel.chance-por-nivel",
+                        "fundicao.recuperacao-combustivel.chance-maxima", 0.05, 15.0)) + "%");
+            }
         }
 
         if (skill == SkillType.LENHADOR) {
