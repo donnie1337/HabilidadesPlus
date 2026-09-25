@@ -17,6 +17,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -140,13 +141,13 @@ public class FishingListener implements Listener {
         Material material = treasure.getType();
         int amount = treasure.getAmount();
         String name = switch (material) {
-            case LEATHER_HELMET, LEATHER_CHESTPLATE, LEATHER_LEGGINGS, LEATHER_BOOTS -> "armadura de couro encantada";
-            case CHAINMAIL_HELMET, CHAINMAIL_CHESTPLATE, CHAINMAIL_LEGGINGS, CHAINMAIL_BOOTS -> "armadura de malha encantada";
-            case GOLDEN_HELMET, GOLDEN_CHESTPLATE, GOLDEN_LEGGINGS, GOLDEN_BOOTS -> "armadura de ouro encantada";
-            case IRON_HELMET, IRON_CHESTPLATE, IRON_LEGGINGS, IRON_BOOTS -> "armadura de ferro encantada";
-            case DIAMOND_HELMET, DIAMOND_CHESTPLATE, DIAMOND_LEGGINGS, DIAMOND_BOOTS -> "armadura de diamante encantada";
-            case NETHERITE_HELMET, NETHERITE_CHESTPLATE, NETHERITE_LEGGINGS, NETHERITE_BOOTS -> "armadura de netherita encantada";
-            case TURTLE_HELMET -> "casco de tartaruga encantado";
+            case LEATHER_HELMET, LEATHER_CHESTPLATE, LEATHER_LEGGINGS, LEATHER_BOOTS -> describeEnchantment("armadura de couro", treasure);
+            case CHAINMAIL_HELMET, CHAINMAIL_CHESTPLATE, CHAINMAIL_LEGGINGS, CHAINMAIL_BOOTS -> describeEnchantment("armadura de malha", treasure);
+            case GOLDEN_HELMET, GOLDEN_CHESTPLATE, GOLDEN_LEGGINGS, GOLDEN_BOOTS -> describeEnchantment("armadura de ouro", treasure);
+            case IRON_HELMET, IRON_CHESTPLATE, IRON_LEGGINGS, IRON_BOOTS -> describeEnchantment("armadura de ferro", treasure);
+            case DIAMOND_HELMET, DIAMOND_CHESTPLATE, DIAMOND_LEGGINGS, DIAMOND_BOOTS -> describeEnchantment("armadura de diamante", treasure);
+            case NETHERITE_HELMET, NETHERITE_CHESTPLATE, NETHERITE_LEGGINGS, NETHERITE_BOOTS -> describeEnchantment("armadura de netherita", treasure);
+            case TURTLE_HELMET -> describeEnchantment("casco de tartaruga", treasure);
             case COAL -> "carvão";
             case RAW_COPPER -> "cobre bruto";
             case COPPER_INGOT -> "lingote de cobre";
@@ -165,7 +166,7 @@ public class FishingListener implements Listener {
             case NAUTILUS_SHELL -> "concha de náutilo";
             case HEART_OF_THE_SEA -> "coração do mar";
             case EXPERIENCE_BOTTLE -> "garrafa de experiência";
-            case ENCHANTED_BOOK -> "livro encantado";
+            case ENCHANTED_BOOK -> hasTreasureEnchantment(treasure) ? "livro encantado" : "livro";
             case BOW -> "arco";
             case FISHING_ROD -> "vara de pesca";
             default -> material.name().toLowerCase(java.util.Locale.forLanguageTag("pt-BR")).replace('_', ' ');
@@ -191,6 +192,17 @@ public class FishingListener implements Listener {
         }
 
         return amount + " " + name + ".";
+    }
+
+    private String describeEnchantment(String itemName, ItemStack item) {
+        return hasTreasureEnchantment(item) ? itemName + " encantada" : itemName;
+    }
+
+    private boolean hasTreasureEnchantment(ItemStack item) {
+        if (item.getItemMeta() instanceof EnchantmentStorageMeta bookMeta) {
+            return !bookMeta.getStoredEnchants().isEmpty();
+        }
+        return !item.getEnchantments().isEmpty();
     }
 
     private boolean hasLargeFishingArea(Location hookLocation) {
@@ -357,7 +369,34 @@ public class FishingListener implements Listener {
             treasures.add(Material.HEART_OF_THE_SEA);
         }
 
-        return new ItemStack(treasures.get(random.nextInt(treasures.size())));
+        Material material = treasures.get(random.nextInt(treasures.size()));
+        if (material == Material.ENCHANTED_BOOK) {
+            return randomEnchantedBook(level);
+        }
+        return new ItemStack(material);
+    }
+
+    private ItemStack randomEnchantedBook(int level) {
+        List<Enchantment> available = resolveArmorEnchantments(level);
+        if (available.isEmpty()) {
+            return new ItemStack(Material.BOOK);
+        }
+
+        Enchantment enchantment = available.get(random.nextInt(available.size()));
+        int tier = armorTier(level);
+        int maxLevel = Math.min(3, 1 + tier / 2);
+        int enchantmentLevel = 1 + random.nextInt(
+                Math.max(1, Math.min(maxLevel, enchantment.getMaxLevel()))
+        );
+
+        ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
+        if (book.getItemMeta() instanceof EnchantmentStorageMeta bookMeta) {
+            bookMeta.addStoredEnchant(enchantment, enchantmentLevel, true);
+            book.setItemMeta(bookMeta);
+        } else {
+            return new ItemStack(Material.BOOK);
+        }
+        return book;
     }
 
     private void applyGenerousTide(Item caught, int level) {
