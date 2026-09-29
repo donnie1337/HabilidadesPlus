@@ -38,11 +38,13 @@ import java.util.UUID;
  */
 public class ProductionListener implements Listener {
 
+    private final JavaPlugin plugin;
     private final ConfigManager configManager;
     private final XpManager xpManager;
     private final NamespacedKey furnaceOwnerKey;
 
     public ProductionListener(JavaPlugin plugin, ConfigManager configManager, XpManager xpManager) {
+        this.plugin = plugin;
         this.configManager = configManager;
         this.xpManager = xpManager;
         this.furnaceOwnerKey = new NamespacedKey(plugin, "fundicao-owner");
@@ -59,6 +61,38 @@ public class ProductionListener implements Listener {
         if (original == null || !(original.getItemMeta() instanceof Damageable before)
                 || !(result.getItemMeta() instanceof Damageable after)
                 || after.getDamage() >= before.getDamage()) return;
+
+        int level = xpManager.getDataManager().getProfile(player.getUniqueId()).getLevel(SkillType.REPARACAO);
+        int carefulUnlock = configManager.config().getInt("reparacao.oficina-cuidadosa.nivel-desbloqueio", 10);
+        if (level >= carefulUnlock) {
+            int repaired = before.getDamage() - after.getDamage();
+            double bonusPercent = Math.min(
+                    configManager.config().getDouble("reparacao.oficina-cuidadosa.bonus-reparo-maximo", 50.0),
+                    level * configManager.config().getDouble("reparacao.oficina-cuidadosa.bonus-reparo-por-nivel", 0.05)
+            );
+            int extraRepair = (int) Math.round(repaired * Math.max(0.0, bonusPercent) / 100.0);
+            if (extraRepair > 0) {
+                after.setDamage(Math.max(0, after.getDamage() - extraRepair));
+                result.setItemMeta(after);
+                event.setCurrentItem(result);
+            }
+        }
+
+        ItemStack material = event.getInventory().getItem(1);
+        int temperUnlock = configManager.config().getInt("reparacao.tempera-duravel.nivel-desbloqueio", 75);
+        if (level >= temperUnlock && material != null && !material.getType().isAir()) {
+            double chance = Math.min(
+                    configManager.config().getDouble("reparacao.tempera-duravel.chance-maxima", 20.0),
+                    level * configManager.config().getDouble("reparacao.tempera-duravel.chance-por-nivel", 0.02)
+            );
+            if (Math.random() * 100.0 < chance) {
+                ItemStack refund = material.clone();
+                refund.setAmount(1);
+                plugin.getServer().getScheduler().runTask(plugin, () ->
+                        player.getInventory().addItem(refund).values().forEach(item ->
+                                player.getWorld().dropItemNaturally(player.getLocation(), item)));
+            }
+        }
 
         double xp = configManager.config().getDouble("xp.reparacao.xp-por-reparo", 75);
         xpManager.addXp(player, SkillType.REPARACAO, xp);

@@ -224,9 +224,40 @@ public class GatheringListener implements Listener, CommandExecutor {
             if (HABILIDADES[i] == SkillType.MINERACAO) {
                 xpManager.getDataManager().getProfile(player.getUniqueId()).incrementMineracaoBlocosMinerados();
                 xpManager.getDataManager().markDirty(player.getUniqueId());
+                tryProspectorDrop(player, block);
             }
             return;
         }
+    }
+
+    private void tryProspectorDrop(Player player, Block block) {
+        int level = xpManager.getDataManager().getProfile(player.getUniqueId()).getLevel(SkillType.MINERACAO);
+        int unlock = configManager.config().getInt("mineracao.prospector.nivel-desbloqueio", 150);
+        if (level < unlock) return;
+
+        double chance = Math.min(
+                configManager.config().getDouble("mineracao.prospector.chance-maxima", 10.0),
+                level * configManager.config().getDouble("mineracao.prospector.chance-por-nivel", 0.01)
+        );
+        if (random.nextDouble() * 100.0 >= Math.max(0.0, chance)) return;
+
+        List<String> configured = configManager.config().getStringList("mineracao.prospector.recompensas");
+        List<Material> rewards = new ArrayList<>();
+        for (String name : configured) {
+            Material material = Material.matchMaterial(name);
+            if (material != null && material.isItem()) rewards.add(material);
+        }
+        if (rewards.isEmpty()) {
+            rewards.add(Material.RAW_IRON);
+            rewards.add(Material.RAW_GOLD);
+            rewards.add(Material.LAPIS_LAZULI);
+            rewards.add(Material.REDSTONE);
+            rewards.add(Material.EMERALD);
+            rewards.add(Material.DIAMOND);
+        }
+
+        ItemStack reward = new ItemStack(rewards.get(random.nextInt(rewards.size())));
+        player.getWorld().dropItemNaturally(block.getLocation(), reward);
     }
 
     private void collectUpperPlantDrops(Block base, Player player) {

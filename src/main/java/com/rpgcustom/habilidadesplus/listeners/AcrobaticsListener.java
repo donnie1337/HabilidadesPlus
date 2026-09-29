@@ -9,6 +9,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 public class AcrobaticsListener implements Listener {
 
@@ -20,6 +23,27 @@ public class AcrobaticsListener implements Listener {
         this.configManager = configManager;
         this.xpManager = xpManager;
         this.dataManager = dataManager;
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onDodge(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+
+        int level = dataManager.getProfile(player.getUniqueId()).getLevel(SkillType.ACROBACIA);
+        int unlock = configManager.config().getInt("acrobacia.esquiva.nivel-desbloqueio", 75);
+        if (level < unlock) return;
+
+        double perLevel = Math.max(0.0,
+                configManager.config().getDouble("acrobacia.esquiva.chance-por-nivel", 0.015));
+        double maxChance = Math.max(0.0,
+                configManager.config().getDouble("acrobacia.esquiva.chance-maxima", 15.0));
+        double chance = Math.min(maxChance, level * perLevel);
+
+        if (ThreadLocalRandom.current().nextDouble(100.0) < chance) {
+            double reduction = Math.min(0.90, Math.max(0.0,
+                    configManager.config().getDouble("acrobacia.esquiva.reducao-dano", 0.50)));
+            event.setDamage(event.getDamage() * (1.0 - reduction));
+        }
     }
 
     @EventHandler(ignoreCancelled = true)

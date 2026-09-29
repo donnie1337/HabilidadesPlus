@@ -137,7 +137,7 @@ public final class HabilidadesPlus extends JavaPlugin {
         pm.registerEvents(new FishingListener(configManager, xpManager), this);
         pm.registerEvents(new CombatListener(configManager, xpManager), this);
         pm.registerEvents(new AcrobaticsListener(configManager, xpManager, dataManager), this);
-        pm.registerEvents(new TamingListener(configManager, xpManager), this);
+        pm.registerEvents(new TamingListener(this, configManager, xpManager), this);
         this.alchemyListener = new AlchemyListener(this, configManager, xpManager);
         pm.registerEvents(alchemyListener, this);
         pm.registerEvents(new ProductionListener(this, configManager, xpManager), this);

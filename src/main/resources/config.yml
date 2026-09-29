@@ -1127,3 +1127,153 @@ alquimia:
     nivel-desbloqueio: 150
     # GOLDEN_APPLE = Resistance | FERN = Saturation
     # POISONOUS_POTATO = Wither/Decadência
+
+# ------------------------------------------------------------
+# Poderes restantes de Mineração e Combate
+# Chances são pontos percentuais; bônus fracionários usam 0.25 = +25%.
+# ------------------------------------------------------------
+mineracao:
+  prospector:
+    nivel-desbloqueio: 150
+    chance-por-nivel: 0.01
+    chance-maxima: 10.0
+    recompensas: [RAW_IRON, RAW_GOLD, LAPIS_LAZULI, REDSTONE, EMERALD, DIAMOND]
+
+espadas:
+  corte-profundo:
+    nivel-desbloqueio: 10
+    chance-por-nivel: 0.03
+    chance-maxima: 30.0
+    duracao-ticks: 60
+  arco-lamina:
+    nivel-desbloqueio: 40
+    chance-por-nivel: 0.02
+    chance-maxima: 20.0
+    raio: 2.5
+    fracao-dano: 0.35
+  guarda-reversa:
+    nivel-desbloqueio: 100
+    chance-por-nivel: 0.015
+    chance-maxima: 15.0
+    reducao-dano: 0.40
+    fracao-refletida: 0.20
+
+machados:
+  impacto-brutal:
+    nivel-desbloqueio: 10
+    chance-por-nivel: 0.02
+    chance-maxima: 20.0
+    duracao-ticks: 50
+  fenda-guarda:
+    nivel-desbloqueio: 50
+    bonus-dano: 0.25
+  golpe-carrasco:
+    nivel-desbloqueio: 100
+    limiar-vida: 0.30
+    bonus-dano: 0.30
+
+arqueria:
+  mira-serena:
+    nivel-desbloqueio: 10
+    distancia-minima: 12.0
+    bonus-por-bloco: 0.005
+    bonus-maximo: 0.35
+  flecha-pesada:
+    nivel-desbloqueio: 40
+    chance-por-nivel: 0.02
+    chance-maxima: 20.0
+    duracao-ticks: 50
+  tiro-perfurante:
+    nivel-desbloqueio: 100
+    chance-por-nivel: 0.02
+    chance-maxima: 20.0
+
+acrobacia:
+  esquiva:
+    nivel-desbloqueio: 75
+    chance-por-nivel: 0.015
+    chance-maxima: 15.0
+    reducao-dano: 0.50
+
+desarmado:
+  punho-pedra:
+    nivel-desbloqueio: 10
+    bonus-dano-por-nivel: 0.025
+    bonus-dano-maximo: 25.0
+  desvio-rapido:
+    nivel-desbloqueio: 75
+    chance-por-nivel: 0.02
+    chance-maxima: 20.0
+    forca-recuo: 0.70
+
+domesticacao:
+  vinculo-fiel:
+    nivel-desbloqueio: 10
+    bonus-dano-por-nivel: 0.03
+    bonus-dano-maximo: 30.0
+  instinto-protetor:
+    nivel-desbloqueio: 50
+    reducao-por-nivel: 0.03
+    reducao-maxima: 30.0
+  chamado-selvagem:
+    nivel-desbloqueio: 100
+    recarga-segundos: 60
+    raio: 16.0
+    duracao-ticks: 200
+
+reparacao:
+  oficina-cuidadosa:
+    nivel-desbloqueio: 10
+    bonus-reparo-por-nivel: 0.05
+    bonus-reparo-maximo: 50.0
+  tempera-duravel:
+    nivel-desbloqueio: 75
+    chance-por-nivel: 0.02
+    chance-maxima: 20.0
+
+clava:
+  choque-solo:
+    nivel-desbloqueio: 15
+    chance-por-nivel: 0.02
+    chance-maxima: 20.0
+    raio: 3.0
+    forca: 0.80
+  peso-queda:
+    nivel-desbloqueio: 75
+    bonus-por-bloco: 0.03
+    bonus-maximo: 0.50
+
+tridentes:
+  arpao-firme:
+    nivel-desbloqueio: 15
+    bonus-dano-por-nivel: 0.03
+    bonus-dano-maximo: 30.0
+  correnteza:
+    nivel-desbloqueio: 75
+    duracao-ticks: 60
+
+bestas:
+  mecanismo-reforcado:
+    nivel-desbloqueio: 10
+    bonus-dano-por-nivel: 0.025
+    bonus-dano-maximo: 25.0
+  virote-impacto:
+    nivel-desbloqueio: 50
+    chance-por-nivel: 0.025
+    chance-maxima: 25.0
+    forca-recuo: 0.75
+  salva-perfurante:
+    nivel-desbloqueio: 100
+    chance-por-nivel: 0.03
+    chance-maxima: 30.0
+
+lancas:
+  estocada-firme:
+    nivel-desbloqueio: 10
+    bonus-dano-por-nivel: 0.025
+    bonus-dano-maximo: 25.0
+  passo-investida:
+    nivel-desbloqueio: 75
+    velocidade-minima: 0.18
+    bonus-dano: 0.30
+
