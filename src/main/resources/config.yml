@@ -1079,3 +1079,24 @@ fundicao:
     # Chance em pontos percentuais por nível; limitada para evitar inflação de combustível.
     chance-por-nivel: 0.05
     chance-maxima: 15.0
+
+# ------------------------------------------------------------
+# Habilidade de Alquimia
+# Árvore limitada a 7 poderes. Os níveis abaixo definem a progressão
+# planejada para a implementação das mecânicas inspiradas no mcMMO.
+# ------------------------------------------------------------
+alquimia:
+  catalise:
+    nivel-desbloqueio: 1
+  mistura-estavel:
+    nivel-desbloqueio: 10
+  concoctions-i:
+    nivel-desbloqueio: 25
+  essencia-densa:
+    nivel-desbloqueio: 50
+  concoctions-ii:
+    nivel-desbloqueio: 75
+  destilacao-potente:
+    nivel-desbloqueio: 100
+  mestre-alquimista:
+    nivel-desbloqueio: 150
