@@ -1019,6 +1019,12 @@ mineracao:
   veio-farto:
     # A chance de drop duplo aumenta 0,1 ponto percentual por nível.
     chance-drop-duplo-por-nivel: 0.1
+
+  prospector:
+    nivel-desbloqueio: 150
+    chance-por-nivel: 0.01
+    chance-maxima: 10.0
+    recompensas: [RAW_IRON, RAW_GOLD, LAPIS_LAZULI, REDSTONE, EMERALD, DIAMOND]
   mineracao-precisa:
     # Poder desbloqueado a partir deste nivel de Mineracao.
     nivel-desbloqueio: 75
@@ -1129,16 +1135,9 @@ alquimia:
     # POISONOUS_POTATO = Wither/Decadência
 
 # ------------------------------------------------------------
-# Poderes restantes de Mineração e Combate
+# Poderes restantes de Combate
 # Chances são pontos percentuais; bônus fracionários usam 0.25 = +25%.
 # ------------------------------------------------------------
-mineracao:
-  prospector:
-    nivel-desbloqueio: 150
-    chance-por-nivel: 0.01
-    chance-maxima: 10.0
-    recompensas: [RAW_IRON, RAW_GOLD, LAPIS_LAZULI, REDSTONE, EMERALD, DIAMOND]
-
 espadas:
   corte-profundo:
     nivel-desbloqueio: 10
