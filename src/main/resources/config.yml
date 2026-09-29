@@ -1082,21 +1082,48 @@ fundicao:
 
 # ------------------------------------------------------------
 # Habilidade de Alquimia
-# Árvore limitada a 7 poderes. Os níveis abaixo definem a progressão
-# planejada para a implementação das mecânicas inspiradas no mcMMO.
+# Inspirada no mcMMO: Catálise + receitas especiais, com poderes
+# adicionais do HabilidadesPlus. Chances são pontos percentuais.
 # ------------------------------------------------------------
 alquimia:
   catalise:
     nivel-desbloqueio: 1
+    # mcMMO Retro: 1x no início e até 4x no nível 1000.
+    multiplicador-minimo: 1.0
+    multiplicador-maximo: 4.0
+    nivel-maximo-bonus: 1000
+
   mistura-estavel:
     nivel-desbloqueio: 10
+    # 0,02 ponto percentual por nível: máximo de 20% no nível 1000.
+    chance-por-nivel: 0.02
+    chance-maxima: 20.0
+
   concoctions-i:
     nivel-desbloqueio: 25
+    # Awkward Potion + CARROT = Haste
+    # Awkward Potion + QUARTZ = Absorption
+    # Awkward Potion + SLIME_BALL = Mining Fatigue
+
   essencia-densa:
     nivel-desbloqueio: 50
+    # 0,05 ponto percentual de duração por nível: máximo de +50%.
+    bonus-duracao-por-nivel: 0.05
+    bonus-duracao-maximo: 50.0
+
   concoctions-ii:
     nivel-desbloqueio: 75
+    # BROWN_MUSHROOM = Nausea | INK_SAC = Blindness
+    # APPLE = Health Boost | ROTTEN_FLESH = Hunger
+
   destilacao-potente:
     nivel-desbloqueio: 100
+    # Chance de elevar o amplificador em +1; 1 = efeito nível II.
+    chance-por-nivel: 0.02
+    chance-maxima: 20.0
+    amplificador-maximo: 1
+
   mestre-alquimista:
     nivel-desbloqueio: 150
+    # GOLDEN_APPLE = Resistance | FERN = Saturation
+    # POISONOUS_POTATO = Wither/Decadência

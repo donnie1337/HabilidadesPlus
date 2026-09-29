@@ -42,6 +42,7 @@ public final class HabilidadesPlus extends JavaPlugin {
     private VeioFartoManager veioFartoManager;
     private PrecisionMiningManager precisionMiningManager;
     private GatheringListener gatheringListener;
+    private AlchemyListener alchemyListener;
     private LuzCommand luzCommand;
     private BukkitTask autosaveTask;
     private BukkitTask luzActionBarTask;
@@ -106,6 +107,9 @@ public final class HabilidadesPlus extends JavaPlugin {
         if (luzActionBarTask != null) {
             luzActionBarTask.cancel();
         }
+        if (alchemyListener != null) {
+            alchemyListener.shutdown();
+        }
         if (luzCommand != null) {
             luzCommand.desativarTodos();
         }
@@ -134,7 +138,8 @@ public final class HabilidadesPlus extends JavaPlugin {
         pm.registerEvents(new CombatListener(configManager, xpManager), this);
         pm.registerEvents(new AcrobaticsListener(configManager, xpManager, dataManager), this);
         pm.registerEvents(new TamingListener(configManager, xpManager), this);
-        pm.registerEvents(new AlchemyListener(configManager, xpManager), this);
+        this.alchemyListener = new AlchemyListener(this, configManager, xpManager);
+        pm.registerEvents(alchemyListener, this);
         pm.registerEvents(new ProductionListener(this, configManager, xpManager), this);
         pm.registerEvents(new PlayerJoinQuitListener(dataManager, xpManager), this);
         pm.registerEvents(new MMOMenuListener(dataManager, levelingManager, configManager, top1SkillService), this);
