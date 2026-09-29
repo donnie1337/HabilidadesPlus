@@ -146,10 +146,20 @@ public class GatheringListener implements Listener, CommandExecutor {
         }
 
         if (placedBlockTracker.isPlaced(block) && isHerbalismBlock(material)) {
-            if (!isMatureHerbalismBlock(block)) {
+            BlockData placedData = block.getBlockData();
+
+            // Apenas culturas com estágio real de crescimento podem voltar a dar XP
+            // depois de terem sido plantadas pelo jogador. Flores, cogumelos, musgos,
+            // cana/cacto/bambu colocados manualmente e outros blocos "instantaneamente
+            // maduros" continuam protegidos contra place-break farming.
+            if (!(placedData instanceof Ageable ageable)
+                    || ageable.getAge() < ageable.getMaximumAge()) {
                 placedBlockTracker.discard(block);
                 return;
             }
+
+            // A cultura foi plantada pelo jogador, mas amadureceu naturalmente.
+            // Remove a proteção e permite o XP normal da colheita madura.
             placedBlockTracker.discard(block);
         } else if (placedBlockTracker.removeIfPlaced(block)) {
             return;
