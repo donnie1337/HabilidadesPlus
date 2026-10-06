@@ -11,6 +11,7 @@ commands:
     description: Abre o menu do HabilidadesPlus
     usage: /mcmmo [reload|setnivel <habilidade> <nivel>]
     aliases: [mcmmo, habilidade, poder]
+    permission: habilidadesplus.use
 
   coleta:
     description: Ativa ou desativa a coleta automatica de drops
@@ -26,6 +27,9 @@ commands:
 
 
 permissions:
+  habilidadesplus.use:
+    description: Permite usar /habilidades e /mcmmo
+    default: true
   habilidadesplus.admin:
     description: Permite recarregar a configuracao do plugin e definir niveis para testes
     default: op
