@@ -11,6 +11,8 @@ commands:
     description: Abre o menu do HabilidadesPlus
     usage: /mcmmo [reload|setnivel <habilidade> <nivel>]
     aliases: [mcmmo, habilidade, poder]
+    permission: habilidadesplus.use
+    permission-message: "§cVocê não tem permissão para usar este comando."
 
   coleta:
     description: Ativa ou desativa a coleta automatica de drops
