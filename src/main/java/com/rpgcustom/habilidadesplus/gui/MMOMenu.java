@@ -79,7 +79,22 @@ public final class MMOMenu {
         int slot = 10;
         int position = 1;
         for (Map.Entry<java.util.UUID, PlayerProfile> entry : ranking) {
-            inventory.setItem(slot++, rankingPlayerItem(entry.getKey(), entry.getValue(), entry.getValue().getLevel(selected), position++, selected, config));
+            inventory.setItem(slot++, rankingPlayerItem(
+                    entry.getKey(),
+                    entry.getValue(),
+                    entry.getValue().getLevel(selected),
+                    position++,
+                    selected,
+                    config
+            ));
+        }
+
+        while (slot <= 16) {
+            inventory.setItem(slot++, item(
+                    Material.GRAY_DYE,
+                    "&7Sem jogador no ranking",
+                    List.of("", "&8Nenhum jogador ocupa esta posição.")
+            ));
         }
 
         inventory.setItem(31, item(Material.ARROW, "&cVoltar", List.of("", "&7Voltar ao menu principal.")));
