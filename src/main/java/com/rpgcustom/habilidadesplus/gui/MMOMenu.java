@@ -89,8 +89,8 @@ public final class MMOMenu {
             ));
         }
 
-        while (slot <= 16) {
-            inventory.setItem(slot++, item(
+        if (ranking.isEmpty()) {
+            inventory.setItem(13, item(
                     Material.GRAY_DYE,
                     "&7Nenhum jogador no ranking",
                     List.of(
