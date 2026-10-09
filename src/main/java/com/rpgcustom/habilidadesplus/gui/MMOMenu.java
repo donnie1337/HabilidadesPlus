@@ -92,8 +92,15 @@ public final class MMOMenu {
         while (slot <= 16) {
             inventory.setItem(slot++, item(
                     Material.GRAY_DYE,
-                    "&7Sem jogador no ranking",
-                    List.of("", "&8Nenhum jogador ocupa esta posição.")
+                    "&7Nenhum jogador no ranking",
+                    List.of(
+                            "",
+                            "&7Ainda não há jogadores",
+                            "&7com nível suficiente para aparecer aqui.",
+                            "",
+                            "&8Quando alguém possuir nível nesta habilidade,",
+                            "&8o ranking será exibido neste menu."
+                    )
             ));
         }
 
