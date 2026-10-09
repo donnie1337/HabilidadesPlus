@@ -1002,7 +1002,7 @@ top1-tags:
   ESPADAS: " &c⚔"
   MACHADOS: " &c🪓"
   CLAVA: " &4✹"
-  DESARMADO: " &f✊"
+  DESARMADO: " &f✊" # Usada também pelo TAB via UtilidadesPlus.
   ARQUERIA: " &e➳"
   BESTAS: " &7⌁"
   TRIDENTES: " &b🔱"
