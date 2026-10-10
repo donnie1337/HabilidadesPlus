@@ -43,10 +43,20 @@ public class MMOCommand implements TabExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
-            if (!sender.hasPermission("habilidadesplus.admin")) {
-                sender.sendMessage(MessageUtil.colorize(configManager.msg("comandos.sem-permissao")));
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage(MessageUtil.colorize(configManager.msg("comandos.apenas-jogador")));
                 return true;
             }
+
+            if (!isDev(player)) {
+                if (!player.hasPermission("habilidadesplus.use")) {
+                    player.sendMessage(MessageUtil.colorize(configManager.msg("comandos.sem-permissao")));
+                    return true;
+                }
+                MMOMenu.open(player, dataManager, levelingManager, configManager);
+                return true;
+            }
+
             reloadAction.run();
             sender.sendMessage(MessageUtil.colorize(configManager.msg("comandos.reload-sucesso")));
             return true;
@@ -187,14 +197,13 @@ public class MMOCommand implements TabExecutor {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        boolean admin = sender.hasPermission("habilidadesplus.admin");
         boolean dev = sender instanceof Player player && isDev(player);
-        if (!admin && !dev) return List.of();
+        if (!dev) return List.of();
 
         if (args.length == 1) {
             List<String> options = new ArrayList<>();
-            if (admin) options.add("reload");
-            if (dev) options.add("setnivel");
+            options.add("reload");
+            options.add("setnivel");
             return options.stream()
                     .filter(option -> option.startsWith(args[0].toLowerCase(Locale.ROOT)))
                     .toList();
