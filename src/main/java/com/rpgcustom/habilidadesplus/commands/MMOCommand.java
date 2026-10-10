@@ -9,9 +9,13 @@ import com.rpgcustom.habilidadesplus.util.ConfigManager;
 import com.rpgcustom.habilidadesplus.util.MessageUtil;
 import com.rpgcustom.habilidadesplus.top1.Top1SkillService;
 import org.bukkit.command.Command;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+
+import java.lang.reflect.Method;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +28,8 @@ public class MMOCommand implements TabExecutor {
     private final ConfigManager configManager;
     private final Top1SkillService top1SkillService;
     private final Runnable reloadAction;
+    private Plugin cargoPlugin;
+    private Method cargoGetGroupMethod;
 
     public MMOCommand(DataManager dataManager, LevelingManager levelingManager,
                       ConfigManager configManager, Top1SkillService top1SkillService, Runnable reloadAction) {
@@ -65,13 +71,13 @@ public class MMOCommand implements TabExecutor {
     }
 
     private boolean handleSetNivel(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("habilidadesplus.admin")) {
-            sender.sendMessage(MessageUtil.colorize(configManager.msg("comandos.sem-permissao")));
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(MessageUtil.colorize(configManager.msg("comandos.apenas-jogador")));
             return true;
         }
 
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage(MessageUtil.colorize(configManager.msg("comandos.apenas-jogador")));
+        if (!isDev(player)) {
+            sender.sendMessage(MessageUtil.colorize(configManager.msg("comandos.sem-permissao")));
             return true;
         }
 
@@ -117,6 +123,54 @@ public class MMOCommand implements TabExecutor {
         return true;
     }
 
+    private boolean isDev(Player player) {
+        if (player == null) return false;
+
+        Plugin cargo = Bukkit.getPluginManager().getPlugin("CargoPlus");
+        if (cargo == null || !cargo.isEnabled()) {
+            cargoPlugin = null;
+            cargoGetGroupMethod = null;
+            return false;
+        }
+
+        try {
+            if (cargoPlugin != cargo || cargoGetGroupMethod == null) {
+                Class<?> apiClass = Class.forName(
+                        "com.cargoplus.api.CargoPlusAPI",
+                        true,
+                        cargo.getClass().getClassLoader()
+                );
+                var registration = Bukkit.getServicesManager().getRegistration(apiClass);
+                if (registration == null) return false;
+
+                Object provider = registration.getProvider();
+                if (provider == null) return false;
+
+                cargoPlugin = cargo;
+                cargoGetGroupMethod = provider.getClass().getMethod("getGroup", java.util.UUID.class);
+                Object result = cargoGetGroupMethod.invoke(provider, player.getUniqueId());
+                return result instanceof String group && "dev".equalsIgnoreCase(group);
+            }
+
+            Class<?> apiClass = Class.forName(
+                    "com.cargoplus.api.CargoPlusAPI",
+                    true,
+                    cargo.getClass().getClassLoader()
+            );
+            var registration = Bukkit.getServicesManager().getRegistration(apiClass);
+            if (registration == null) return false;
+            Object provider = registration.getProvider();
+            if (provider == null) return false;
+
+            Object result = cargoGetGroupMethod.invoke(provider, player.getUniqueId());
+            return result instanceof String group && "dev".equalsIgnoreCase(group);
+        } catch (ReflectiveOperationException | LinkageError ex) {
+            cargoPlugin = cargo;
+            cargoGetGroupMethod = null;
+            return false;
+        }
+    }
+
     private SkillType findSkill(String input) {
         for (SkillType skill : SkillType.values()) {
             if (skill.name().equalsIgnoreCase(input)
@@ -129,18 +183,20 @@ public class MMOCommand implements TabExecutor {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (!sender.hasPermission("habilidadesplus.admin")) {
-            return List.of();
-        }
+        boolean admin = sender.hasPermission("habilidadesplus.admin");
+        boolean dev = sender instanceof Player player && isDev(player);
+        if (!admin && !dev) return List.of();
 
         if (args.length == 1) {
-            List<String> options = List.of("reload", "setnivel");
+            List<String> options = new ArrayList<>();
+            if (admin) options.add("reload");
+            if (dev) options.add("setnivel");
             return options.stream()
                     .filter(option -> option.startsWith(args[0].toLowerCase(Locale.ROOT)))
                     .toList();
         }
 
-        if (args.length == 2 && args[0].equalsIgnoreCase("setnivel")) {
+        if (dev && args.length == 2 && args[0].equalsIgnoreCase("setnivel")) {
             String input = args[1].toLowerCase(Locale.ROOT);
             List<String> skills = new ArrayList<>();
             for (SkillType skill : SkillType.values()) {
@@ -152,7 +208,7 @@ public class MMOCommand implements TabExecutor {
             return skills;
         }
 
-        if (args.length == 3 && args[0].equalsIgnoreCase("setnivel")) {
+        if (dev && args.length == 3 && args[0].equalsIgnoreCase("setnivel")) {
             return List.of("<nivel>");
         }
 
