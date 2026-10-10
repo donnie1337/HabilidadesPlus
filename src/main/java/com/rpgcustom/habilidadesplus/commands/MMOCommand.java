@@ -77,7 +77,11 @@ public class MMOCommand implements TabExecutor {
         }
 
         if (!isDev(player)) {
-            sender.sendMessage(MessageUtil.colorize(configManager.msg("comandos.sem-permissao")));
+            if (!player.hasPermission("habilidadesplus.use")) {
+                player.sendMessage(MessageUtil.colorize(configManager.msg("comandos.sem-permissao")));
+                return true;
+            }
+            MMOMenu.open(player, dataManager, levelingManager, configManager);
             return true;
         }
 
