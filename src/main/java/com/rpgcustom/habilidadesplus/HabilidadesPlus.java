@@ -93,6 +93,14 @@ public final class HabilidadesPlus extends JavaPlugin {
         return skill == null ? "" : skill.getDisplayName();
     }
 
+    public java.util.Map<String, String> getTop1Insignias() {
+        java.util.Map<String, String> insignias = new java.util.LinkedHashMap<>();
+        for (SkillType skill : SkillType.values()) {
+            insignias.put(skill.getDisplayName(), configManager.top1Tag(skill));
+        }
+        return java.util.Collections.unmodifiableMap(insignias);
+    }
+
     @Override
     public void onDisable() {
         if (xpManager != null) {
